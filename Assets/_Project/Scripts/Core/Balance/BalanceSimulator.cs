@@ -152,6 +152,18 @@ namespace FarmVsForest.Core
             return list;
         }
 
+        /// <summary>
+        /// Mirror match, same team on both sides, <paramref name="botA"/> against <paramref name="botB"/>, swapping seats every
+        /// game. Measures skill: how often the better player wins with identical cards.
+        /// </summary>
+        public List<MatchRecord> SkillMirror(Team team, string botA, string botB, int games, int seed = 1)
+        {
+            var list = new List<MatchRecord>();
+            for (int i = 0; i < games; i++)
+                list.Add(i % 2 == 0 ? Play(team, team, botA, botB, seed + i) : Play(team, team, botB, botA, seed + i));
+            return list;
+        }
+
         /// <summary>Plays a team against an opponent that never plays, to see how fast it reaches its goal on its own.</summary>
         public List<MatchRecord> Goldfish(Team team, int games, string bot = "greedy", int seed = 1)
         {

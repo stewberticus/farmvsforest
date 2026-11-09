@@ -25,6 +25,8 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
                      (repeatable)
   --sweep key=a,b,c  Goldfish each team once per value of a MatchConfig number and print a table, e.g.
                      --teams Forest --sweep forestGoalTrees=12,14,16,18
+  --skill            Does skill matter? Each team alone with the good, random and worst bot, and mirror
+                     matches (same team both sides) good vs random and good vs worst.
   --seed N           First seed (default 1)
   --out FILE         Also write the report to FILE
 ";
@@ -35,6 +37,7 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
             string bot = "greedy", only = null, outFile = null;
             bool mirrors = false;
             string sweep = null;
+            bool skill = false;
             var teams = BalanceReport.AllTeams.ToList();
             var overrides = new List<(string key, string value)>();
 
@@ -50,6 +53,7 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
                     case "--only": only = Next().ToLowerInvariant(); break;
                     case "--target": target = int.Parse(Next()); break;
                     case "--sweep": sweep = Next(); break;
+                    case "--skill": skill = true; break;
                     case "--seed": seed = int.Parse(Next()); break;
                     case "--out": outFile = Next(); break;
                     case "--set":
@@ -73,6 +77,37 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
             {
                 foreach (var (key, value) in overrides) Apply(config, key, value);
             };
+
+            if (skill)
+            {
+                var table = new StringBuilder();
+                table.AppendLine("## Skill: how much do decisions matter?");
+                table.AppendLine();
+                table.AppendLine("Solo finish round (median, with the middle 80% of games) and how often the goal is reached by round " + sim.RoundLimit + ".");
+                table.AppendLine();
+                table.AppendLine("| Team | Good bot | Random bot | Worst bot | Good beats random (mirror) | Good beats worst (mirror) |");
+                table.AppendLine("| --- | --- | --- | --- | --- | --- |");
+                string Solo(Team t, string b)
+                {
+                    var runs = sim.Goldfish(t, games, b, seed);
+                    var wins = runs.Where(r => r.WinnerSeat == 0 && r.End == EndKind.Goal).Select(r => r.Rounds).ToList();
+                    if (wins.Count == 0) return "never (0%)";
+                    return "round " + BalanceReport.Median(wins).ToString("0.#") + " (" + BalanceReport.Percentile(wins, 0.1).ToString("0") + "-" +
+                           BalanceReport.Percentile(wins, 0.9).ToString("0") + "), " + (wins.Count * 100 / runs.Count) + "%";
+                }
+                string Beats(Team t, string good, string bad)
+                {
+                    var runs = sim.SkillMirror(t, good, bad, games, seed);
+                    int won = runs.Count(r => r.WinnerSeat >= 0 && r.Seats[r.WinnerSeat].Bot == good);
+                    return (won * 100 / runs.Count) + "%";
+                }
+                foreach (var t in teams)
+                    table.AppendLine("| " + t + " | " + Solo(t, bot) + " | " + Solo(t, "random") + " | " + Solo(t, "worst") + " | " +
+                                     Beats(t, bot, "random") + " | " + Beats(t, bot, "worst") + " |");
+                Console.WriteLine(table);
+                if (outFile != null) File.WriteAllText(outFile, table.ToString());
+                return 0;
+            }
 
             if (sweep != null)
             {

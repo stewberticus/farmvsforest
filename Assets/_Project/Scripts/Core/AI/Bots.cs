@@ -51,14 +51,20 @@ namespace FarmVsForest.Core
         public double SpendWeight = 0.5;
         /// <summary>Random noise added to each option, so games vary.</summary>
         public double Noise = 1.0;
+        /// <summary>
+        /// Plays the worst option it can find instead of the best (it still plays a card every turn if it can).
+        /// Stands in for the weakest sensible player, to measure how much decisions matter.
+        /// </summary>
+        public bool Worst;
 
-        public GreedyBot(int seed, BalanceSettings settings = null)
+        public GreedyBot(int seed, BalanceSettings settings = null, bool worst = false)
         {
             _rng = new GameRandom(seed);
             _settings = settings ?? new BalanceSettings();
+            Worst = worst;
         }
 
-        public string Name => "greedy";
+        public string Name => Worst ? "worst" : "greedy";
 
         /// <summary>Plays the best card, then keeps going while extra plays are possible (Forest's Acorn trees).</summary>
         public void PlayTurn(Match match)
@@ -80,7 +86,9 @@ namespace FarmVsForest.Core
                 foreach (var square in match.LegalSquares(p, card.Definition))
                 {
                     double total = cardScore + ScoreSquare(match, p, card.Definition, square) +
-                                   TouchingValue(match, p, card.Definition, square) + _rng.Range(0, 1000) / 1000.0 * Noise;
+                                   TouchingValue(match, p, card.Definition, square);
+                    if (Worst) total = -total;
+                    total += _rng.Range(0, 1000) / 1000.0 * Noise;
                     if (total > bestScore)
                     {
                         bestScore = total;
@@ -212,6 +220,7 @@ namespace FarmVsForest.Core
             {
                 case "random": return new RandomBot(seed);
                 case "pass": return new PassBot();
+                case "worst": return new GreedyBot(seed, settings, worst: true);
                 default: return new GreedyBot(seed, settings);
             }
         }
