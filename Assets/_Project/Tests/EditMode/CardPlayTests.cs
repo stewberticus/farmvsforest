@@ -64,7 +64,7 @@ namespace FarmVsForest.Tests
             var m = Started(PlaceholderCards.DefaultConfig(GameMode.OneVsOne));
             var p0 = m.Players[0];
             Assert.AreEqual("farm.farm", m.Board.Get(new Coord(0, 0)).Definition.id);
-            Assert.AreEqual("forest.huge_tree", m.Board.Get(new Coord(11, 11)).Definition.id);
+            Assert.AreEqual("forest.huge_tree", m.Board.Get(new Coord(9, 9)).Definition.id);
 
             var squares = m.LegalSquares(p0, p0.Hand[0].Definition).ToList();
             CollectionAssert.AreEquivalent(new[] { new Coord(1, 0), new Coord(0, 1) }, squares);

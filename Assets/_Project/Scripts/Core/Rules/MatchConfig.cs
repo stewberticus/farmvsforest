@@ -37,7 +37,7 @@ namespace FarmVsForest.Core
         public GameMode mode = GameMode.OneVsOne;
 
         /// <summary>Board size for 2-player games (square). Starting point, to tune.</summary>
-        public int boardSize = 12;
+        public int boardSize = 10;
         /// <summary>Board size for 4-player games (square). Starting point, to tune.</summary>
         public int fourPlayerBoardSize = 16;
         /// <summary>Decided: cards must touch edge to edge, no diagonals.</summary>

@@ -19,7 +19,7 @@ don't. That single fact drives every other number here.
 | Plays per player | about T | 20 |
 | Cards seen per game | starting hand + one draw a turn, about T + 4 | 24 |
 | Deck size | Cards past about T + 8 are rarely drawn. Keep decks small enough that the cards you design show up. | 30 or fewer |
-| 1v1 board area | Big enough for each team's goal shape, small enough that teams meet around 60 to 75% of the way in | 10x10 (100) proposed; see below |
+| 1v1 board area | Big enough for each team's goal shape, small enough that teams meet around 60 to 75% of the way in | 10x10 (100), decided |
 | Forest tree goal | Linear: one tree a play. With one play a turn that caps it near T; Forest's extra-tree plays let it go higher. | set by the Forest design, tuned by sim |
 | Resource goals (Farm, Dark Forest) | Snowball: income grows by about one producer per turn, so totals grow with the square of the round. Set the goal so the goldfish bot (section 6) reaches it at about T - 1. | tune by sim |
 | Factory goal (Goods in one round) | Needs a Goods income rate, so it is reached when enough Goods makers are out. Tune by sim like the others. | tune by sim |
@@ -32,7 +32,7 @@ Two consequences are worth calling out:
   placeholder teams met in this share of games (and at this median round): 12x12 7 to 43% (round 16 to 18),
   10x10 44 to 75% (round 15), 9x9 64 to 88% (round 14), 8x8 82 to 95% (round 12). Bot win rates barely moved.
   Forest's goal of 30 connected trees needs about half of a 1v1 board to itself, which 8x8 (32 squares a side)
-  can't really give. 10x10 is the proposed middle: room for 30 trees, and teams still meet in most games.
+  can't really give. Alexander picked **10x10** (2026-11-09): room for 30 trees, and teams still meet in most games.
 
 ### What the starting position means
 
@@ -256,6 +256,5 @@ With those goals, every 1v1 matchup ended at a median of round 18 and all four t
 
 ## 8. Open questions for Alexander
 
-* 1v1 board size: 10x10 proposed (fits Forest's 30 trees; teams meet in most games).
 * Opening hand always has a free card (now on by default in the engine).
 * Deck size: the model suggests 30 or fewer, since only about 24 cards are seen per game.

@@ -9,7 +9,7 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | --- | --- |
 | Tone | Cozy, cute, child/family friendly. Dark Forest is cute-spooky, never scary. |
 | Combat | None. Teams mostly ignore each other; the main interaction is competing for space. |
-| Board | Starting point: 12x12 for 2 players, 16x16 for 4. Will be tuned during design. |
+| Board | 10x10 for 1v1 (decided 2026-11-09: fits Forest's 30-tree goal, teams still meet). 16x16 for 4 players, to tune. |
 | Start | Each player begins with one starting card in their corner. |
 | Movement | Cards never move once played. |
 | Placement | A new card must touch one of your own cards, edge to edge (no diagonals). |
