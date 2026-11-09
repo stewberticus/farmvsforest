@@ -92,6 +92,7 @@ namespace FarmVsForest.Core
                 foreach (var def in setup.deck ?? new List<CardDefinition>())
                     player.Deck.Add(CreateInstance(def, player));
                 Random.Shuffle(player.Deck);
+                if (Config.openingHandHasFreeCard) PutFreeCardInOpeningHand(player);
 
                 player.Resources.Add(Config.startingResources);
 
@@ -129,6 +130,20 @@ namespace FarmVsForest.Core
                 Index(setup.startingCard);
                 foreach (var def in setup.deck ?? new List<CardDefinition>()) Index(def);
             }
+        }
+
+        /// <summary>The top of the deck is the end of the list; make sure a free card is among the cards drawn first.</summary>
+        private void PutFreeCardInOpeningHand(PlayerState player)
+        {
+            var deck = player.Deck;
+            int handSize = Math.Min(Config.startingHandSize, deck.Count);
+            if (handSize == 0) return;
+            for (int i = deck.Count - handSize; i < deck.Count; i++)
+                if (deck[i].Definition.IsFree) return;
+            int free = deck.FindIndex(c => c.Definition.IsFree);
+            if (free < 0) return;
+            int top = deck.Count - 1;
+            (deck[free], deck[top]) = (deck[top], deck[free]);
         }
 
         public CardInstance CreateInstance(CardDefinition def, PlayerState owner) =>
@@ -405,15 +420,26 @@ namespace FarmVsForest.Core
             }
         }
 
-        private void FireEffects(CardInstance card, EffectTrigger trigger)
+        /// <summary>
+        /// Runs a card's day and night effects once, right now, whatever its timers say (e.g. Big Whistle:
+        /// "every Assembler you own runs once right now"). Doesn't change its day or night count.
+        /// </summary>
+        public void RunCardNow(CardInstance card)
+        {
+            if (card == null || IsOver) return;
+            FireEffects(card, EffectTrigger.Day, ignoreTimers: true);
+            if (!IsOver) FireEffects(card, EffectTrigger.Night, ignoreTimers: true);
+        }
+
+        private void FireEffects(CardInstance card, EffectTrigger trigger, bool ignoreTimers = false)
         {
             var effects = card.Definition.effects;
             if (effects == null) return;
             foreach (var def in effects)
             {
                 if (def.trigger != trigger) continue;
-                if (trigger == EffectTrigger.Day && !def.FiresOn(card.DaysSeen)) continue;
-                if (trigger == EffectTrigger.Night && !def.FiresOn(card.NightsSeen)) continue;
+                if (!ignoreTimers && trigger == EffectTrigger.Day && !def.FiresOn(card.DaysSeen)) continue;
+                if (!ignoreTimers && trigger == EffectTrigger.Night && !def.FiresOn(card.NightsSeen)) continue;
 
                 var ctx = new EffectContext { Match = this, Source = card, Effect = def };
                 if (def.target == EffectTarget.OwnerAlliance)

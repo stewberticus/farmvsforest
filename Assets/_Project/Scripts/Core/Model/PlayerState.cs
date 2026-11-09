@@ -20,7 +20,7 @@ namespace FarmVsForest.Core
 
         /// <summary>
         /// Everything this player has gained since the current round's day began. Factory's goal
-        /// ("make 10 Goods in a single turn") reads this.
+        /// ("make 10 Toys in one round") reads this.
         /// </summary>
         public ResourcePool GainedThisRound { get; } = new ResourcePool();
 

@@ -9,13 +9,14 @@ namespace FarmVsForest.Tests
         private static MatchConfig Vs(Team a, Team b) => SimpleConfig(Card("x"), teams: new[] { a, b }, boardSize: 8);
 
         [Test]
-        public void Farm_WinsWith20OfEachResource()
+        public void Farm_WinsWithEnoughOfEachResource()
         {
             var m = Started(Vs(Team.Farm, Team.Forest));
             var farm = m.Players[0];
-            farm.Resources.Add(ResourceType.Wheat, 20);
-            farm.Resources.Add(ResourceType.Milk, 20);
-            farm.Resources.Add(ResourceType.Eggs, 19);
+            int goal = m.Config.farmGoalEach;
+            farm.Resources.Add(ResourceType.Wheat, goal);
+            farm.Resources.Add(ResourceType.Milk, goal);
+            farm.Resources.Add(ResourceType.Eggs, goal - 1);
             Put(m, 0, Card("hen", effects: Gain(EffectTrigger.Day, ResourceType.Eggs)), 0, 0);
             m.EndTurn(0);
             m.EndTurn(1);
@@ -44,17 +45,17 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void Factory_WinsByMaking10GoodsInOneRound_NotSavedUp()
+        public void Factory_WinsByMaking10ToysInOneRound_NotSavedUp()
         {
             var m = Started(Vs(Team.Factory, Team.Farm));
             var factory = m.Players[0];
-            Put(m, 0, Card("press", effects: Gain(EffectTrigger.Day, ResourceType.Goods, 6)), 0, 0);
+            Put(m, 0, Card("press", effects: Gain(EffectTrigger.Day, ResourceType.Toys, 6)), 0, 0);
             PassRound(m);
             PassRound(m);
-            Assert.AreEqual(12, factory.Resources.Get(ResourceType.Goods));
-            Assert.IsFalse(m.IsOver, "12 Goods saved up over two rounds doesn't count");
+            Assert.AreEqual(12, factory.Resources.Get(ResourceType.Toys));
+            Assert.IsFalse(m.IsOver, "12 Toys saved up over two rounds doesn't count");
 
-            Put(m, 0, Card("night shift", effects: Gain(EffectTrigger.Night, ResourceType.Goods, 4)), 1, 0);
+            Put(m, 0, Card("night shift", effects: Gain(EffectTrigger.Night, ResourceType.Toys, 4)), 1, 0);
             PassRound(m);
             Assert.IsTrue(m.IsOver, "6 in the day + 4 at night is 10 in one round");
             Assert.AreEqual(factory.AllianceId, m.WinningAllianceId);

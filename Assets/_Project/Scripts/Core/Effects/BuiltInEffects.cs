@@ -20,7 +20,7 @@ namespace FarmVsForest.Core
         }
     }
 
-    /// <summary>Spend some of one resource to gain another, e.g. "Every night: turn 2 Parts into 1 Goods".</summary>
+    /// <summary>Spend some of one resource to gain another, e.g. "Every night: turn 2 Parts into 1 Toy".</summary>
     public class ConvertResourceEffect : IEffect
     {
         public void Apply(EffectContext ctx)
@@ -67,8 +67,34 @@ namespace FarmVsForest.Core
                     ctx.Source + " wants to add card '" + e.cardId + "' to hand, but no card with that id is in the " +
                     "match. Add it to MatchConfig.cardCatalog or to a deck.");
             foreach (var p in ctx.TargetPlayers)
+            {
+                if (e.skipIfInHand && p.Hand.Exists(c => c.Definition.id == def.id)) continue;
                 for (int i = 0; i < e.amount; i++)
                     ctx.Match.AddToHand(p, def, ctx.Source);
+            }
+        }
+    }
+}
+
+namespace FarmVsForest.Core
+{
+    /// <summary>
+    /// Custom effect "run_tagged": every card you own with <c>tag</c> runs its day and night effects once, right now.
+    /// Factory's Big Whistle uses it with tag "assembler". Use kind Custom with customEffectId "run_tagged".
+    /// </summary>
+    public class RunTaggedCardsEffect : IEffect
+    {
+        public const string Id = "run_tagged";
+
+        public void Apply(EffectContext ctx)
+        {
+            var tag = ctx.Effect.tag;
+            var cards = ctx.Match.Board.AllCards()
+                .Where(c => c != ctx.Source && ctx.TargetPlayers.Contains(c.Owner) &&
+                            (string.IsNullOrEmpty(tag) || c.Definition.HasTag(tag)))
+                .OrderBy(c => c.InstanceId)
+                .ToList();
+            foreach (var card in cards) ctx.Match.RunCardNow(card);
         }
     }
 }
