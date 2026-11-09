@@ -80,6 +80,11 @@ namespace FarmVsForest.Core
 
         /// <summary>Used by AddCardToHand: the id of the card to create, e.g. "farm.cow".</summary>
         public string cardId;
+        /// <summary>
+        /// Used by AddCardToHand: skip it if you already hold a copy of that card. Stops makers clogging your hand,
+        /// since you can only play one card a turn and a full hand loses new cards.
+        /// </summary>
+        public bool skipIfInHand;
 
         /// <summary>Used when kind is Custom.</summary>
         public string customEffectId;

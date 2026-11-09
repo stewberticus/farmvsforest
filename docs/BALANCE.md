@@ -12,15 +12,15 @@ You play **one card per turn**, so a player gets about as many plays as there ar
 don't. That single fact drives every other number here.
 
 **Target game length (T).** The number of rounds a typical 1v1 game should last. Everything below is derived from T.
-Working value: **T = 20** (pending Alexander's pick between 15, 20 and 30).
+**T = 20** (Alexander, 2026-11-09): every team should win around round 20 on average.
 
 | Derived number | Rule of thumb | At T = 20 |
 | --- | --- | --- |
 | Plays per player | about T | 20 |
 | Cards seen per game | starting hand + one draw a turn, about T + 4 | 24 |
 | Deck size | Cards past about T + 8 are rarely drawn. Keep decks small enough that the cards you design show up. | 30 or fewer |
-| 1v1 board area | About 2.5 to 3 times T, so the two teams meet around 60% of the way in | 8x8 (64) |
-| Forest tree goal | Linear: one tree a turn at best, so about 0.85 to 0.95 times T | about 17 to 19 |
+| 1v1 board area | Big enough for each team's goal shape, small enough that teams meet around 60 to 75% of the way in | 10x10 (100), decided |
+| Forest tree goal | Linear: one tree a play. With one play a turn that caps it near T; Forest's extra-tree plays let it go higher. | set by the Forest design, tuned by sim |
 | Resource goals (Farm, Dark Forest) | Snowball: income grows by about one producer per turn, so totals grow with the square of the round. Set the goal so the goldfish bot (section 6) reaches it at about T - 1. | tune by sim |
 | Factory goal (Goods in one round) | Needs a Goods income rate, so it is reached when enough Goods makers are out. Tune by sim like the others. | tune by sim |
 
@@ -28,9 +28,21 @@ Two consequences are worth calling out:
 
 * **Linear goals and snowball goals don't line up by accident.** Forest's goal grows by at most one per turn;
   Farm and Dark Forest grow faster and faster. The goal numbers have to be tuned against T, not picked on their own.
-* **Board size decides whether teams ever meet.** On 12x12 with T = 20, the placeholder teams touched in under 10% of
-  games. On 8x8 they met around round 13 in 69% of games. Space is our main interaction, so the 1v1 board should be
-  small enough that it fills up.
+* **Board size decides whether teams ever meet**, and it has to fit every goal. With goals tuned to round 20, the
+  placeholder teams met in this share of games (and at this median round): 12x12 7 to 43% (round 16 to 18),
+  10x10 44 to 75% (round 15), 9x9 64 to 88% (round 14), 8x8 82 to 95% (round 12). Bot win rates barely moved.
+  Forest's goal of 30 connected trees needs about half of a 1v1 board to itself, which 8x8 (32 squares a side)
+  can't really give. Alexander picked **10x10** (2026-11-09): room for 30 trees, and teams still meet in most games.
+
+### What the starting position means
+
+* **Starting cards do nothing** (decided). They only mark your corner. All income comes from cards you play.
+* **The corner has only 2 neighbours.** Your first few cards fight over a tiny frontier: turn 1 has 2 legal squares,
+  turn 2 about 3. Cards that need neighbours (per-touching, "plant a sapling next to this") are weak early and should
+  be priced and timed for mid-game. Never design a card whose effect needs empty squares around the start.
+* **Every opening hand needs a free card**, or a team with nothing on the board can't play at all. The engine now
+  guarantees one (`MatchConfig.openingHandHasFreeCard`, proposed rule). Decks should still be about a third free
+  cards so later hands don't stall.
 
 ## 2. The value model
 
@@ -64,14 +76,32 @@ A card's **value** is what it gives you over its time on the board:
 | When played: X | X |
 | Every day: X, or every night: X | X × H |
 | Every N days (or nights): X | X × H / N |
-| Once, after N days (or nights): X | X × (1 − 5% per round waited), never below 50% |
-| Draw a card | 2 V per card (low: you can only play one card a turn anyway) |
+| Once, after N days (or nights): X | X × (1 − 5% per round waited), never below 50%. Avoid: see below. |
+| Put a specific card in your hand ("every 2 days: a Cow card") | 3 V per card, plus however far that card is above its own par |
+| Draw a random card | 2 V per card. Avoid: see below. |
 | Convert A into B | (B − A) per fire × 80%, because you can't always pay |
 | X per touching card (with a tag) | X × expected touching cards (2 for any card, 1.2 for a tag) per fire |
 | Counts towards your own goal (Forest "tree") | +3 V |
 | Takes an extra square, blocks a square, other special rules | Price by hand; a square is worth about 3 V |
 
 **H, the horizon**, is how many rounds a typical card works before the game ends: about T / 2. At T = 20, H = 10.
+
+### Card flow: make cards, don't draw them
+
+You only play one card a turn, so an extra random card rarely matters. Instead, cards **make specific cards**:
+a Barn puts a Cow card in your hand every 2 days (decided). Rules of thumb:
+
+* Your hand gets one card a turn from your deck and you play one a turn. Every made card is extra, so hands grow.
+  A full hand (8) loses new cards, including the draws you needed. In the sim, two "make a Workshop every 2 days"
+  cards filled the Factory's hand with Workshops and it never drew the cards it needed to win.
+* So: give makers `skipIfInHand` ("if you don't already have one"), keep each team to about one card made every
+  2 to 3 turns, and make the made card cheap enough to play straight away.
+
+### Avoid delayed one-shot payoffs
+
+"Once, after 3 days: gain 4 Goods" feels bad: you wait, nothing happens, then it's a dead card on the board. Prefer
+repeating effects ("every 3 days: gain 2 Goods"). The engine still supports one-shots; save them for rare, special
+cards.
 
 **Par** is what a card *should* be worth for its cost:
 
@@ -114,12 +144,11 @@ Start every card from one of these. Numbers are at T = 20 (H = 10). "Share" is a
 | **Sprout** (free producer) | Free. Every day or night: 1 tier 1. | Wheat Field: every day, 1 Wheat (10 V, par 10) | 25 to 35% |
 | **Upgrade** (paid producer) | Costs tier 1. Makes tier 2, or more tier 1. | Cow, 4 Wheat: every day, 1 Milk (20 V, par 16; trim or raise cost) | 20 to 30% |
 | **Slow burn** | Every N days: a bigger amount. Cheaper per play, lumpier. | Every 3 nights: 1 Ghoul (10 V, par 10 at cost 0) | 5 to 15% |
-| **Delayed payoff** | Once, after N: a lump sum. Good late, sets up a goal turn. | Clock Tower: once after 3 days, 5 Goods (12.8 V at Goods = 3 → cost about 2) | 5 to 10% |
 | **Converter** | Every day/night: spend A, get B. The bridge from tier 1 to the goal. | Night Shift: each night, 2 Parts → 1 Goods (0.8 V per fire, 8 V; make it free) | 5 to 15% |
 | **Neighbour** | X per touching card (with a tag). Rewards layout and makes space matter. | Chicken Coop: 1 Egg per touching crop (24 V; price it near cost 9 or make it 1 Egg per 2 crops) | 10 to 20% |
 | **Goal piece** | Counts towards the goal (tree), so its yield is lower. | Sapling: free tree, every 2 days 1 Acorn (5 + 3 = 8 V) | team specific |
 | **Day/night swing** | Different by day and by night. | Owl: by night 2 Acorns, by day nothing (20 V, cost about 7) | 5 to 15% |
-| **Helper** | Draw, discount, or a rules exception. Small and cheap. | Barn: draw 2 (4 V; free, or add a small producer) | 0 to 10% |
+| **Card maker** | Every N days or nights: put a specific card in your hand. Use `skipIfInHand`. | Barn, 3 Wheat: every 2 days a Cow card (5 Cows × (3 + Cow's 0 V above par) = 15 V, about on par) | 5 to 10% |
 
 Content rules that keep the model honest:
 
@@ -135,7 +164,7 @@ Content rules that keep the model honest:
 So the four teams can be compared, each team thread writes these down (in its own doc or a DESIGN.md section):
 
 1. The team's resources and their tiers, if different from the table above.
-2. Its goal number, tuned with the goldfish sim.
+2. Its goal number, tuned with the goldfish sim so the median win is about round 20 (`--sweep`).
 3. Its deck list: each card's template, cost, value, and its delta from par (the sim's `cards` report prints this).
 4. Every off-curve card and why.
 5. How the team uses day and night.
@@ -182,7 +211,8 @@ dotnet run -c Release --project Tools/BalanceSim -- --help
 dotnet run -c Release --project Tools/BalanceSim -- --games 200                     # everything
 dotnet run -c Release --project Tools/BalanceSim -- --teams Forest --only goldfish
 dotnet run -c Release --project Tools/BalanceSim -- --only cards
-dotnet run -c Release --project Tools/BalanceSim -- --set boardSize=8 --set forestGoalTrees=18
+dotnet run -c Release --project Tools/BalanceSim -- --set boardSize=10 --set forestGoalTrees=30
+dotnet run -c Release --project Tools/BalanceSim -- --teams Farm --sweep farmGoalEach=8,10,12,14   # tune a goal
 dotnet run -c Release --project Tools/BalanceSim -- --target 15 --out docs/balance-reports/2026-11-10-t15.md
 ```
 
@@ -208,8 +238,23 @@ The placeholder cards were never meant to be balanced, but they show what the to
 
 Also: on the 12x12 board the teams almost never touched before someone won.
 
+### Tuning the placeholders to round 20 (2026-11-09, later)
+
+As a dry run of the method, starting cards were made to do nothing, the worst placeholder cards were patched (Haunted
+Lantern every 2 nights, makers instead of draw, no one-shots), and the goals swept until each team's goldfish median
+was about 20. Those card patches weren't kept, because each team thread is replacing its cards. The real numbers come
+from each team's own deck, so this is only an example:
+
+| Team | Goal that gives a median of about round 20 | Notes |
+| --- | --- | --- |
+| Farm | 12 of each resource (was 20) | 3% of games stalled with no affordable card. |
+| Forest | 12 trees (was 30) | Placeholder deck with one play a turn; the Forest design adds extra tree plays and keeps 30. |
+| Factory | 8 Goods in a round (was 10) | Only after limiting Workshop makers; before that, a clogged hand meant it never won. |
+| Dark Forest | 24 Ghouls (was 13) | Ghoul makers snowball, so the number moves fast; 6% of games stalled. |
+
+With those goals, every 1v1 matchup ended at a median of round 18 and all four teams were between 35% and 65%.
+
 ## 8. Open questions for Alexander
 
-* **T, the target game length** (15, 20 or 30 rounds). Recommended 20.
-* 1v1 board size: the model suggests about 8x8 at T = 20.
+* Opening hand always has a free card (now on by default in the engine).
 * Deck size: the model suggests 30 or fewer, since only about 24 cards are seen per game.

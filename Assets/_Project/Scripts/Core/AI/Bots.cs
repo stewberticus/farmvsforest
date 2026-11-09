@@ -115,6 +115,11 @@ namespace FarmVsForest.Core
                     value += 3 * shortfall;
                 }
             }
+            else if (goal is GainInOneRoundGoal burst &&
+                     (def.effects ?? new List<EffectDefinition>()).Any(e => e.resource == burst.Type))
+            {
+                value += 6;
+            }
             else if (goal is ConnectedTaggedCardsGoal group && def.HasTag(group.Tag))
             {
                 value += 4;

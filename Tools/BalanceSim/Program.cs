@@ -23,6 +23,8 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
   --target N         Target game length in rounds (default 20)
   --set key=value    Override any MatchConfig number, e.g. --set boardSize=8 --set forestGoalTrees=19
                      (repeatable)
+  --sweep key=a,b,c  Goldfish each team once per value of a MatchConfig number and print a table, e.g.
+                     --teams Forest --sweep forestGoalTrees=12,14,16,18
   --seed N           First seed (default 1)
   --out FILE         Also write the report to FILE
 ";
@@ -32,6 +34,7 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
             int games = 200, seed = 1, target = 20;
             string bot = "greedy", only = null, outFile = null;
             bool mirrors = false;
+            string sweep = null;
             var teams = BalanceReport.AllTeams.ToList();
             var overrides = new List<(string key, string value)>();
 
@@ -46,6 +49,7 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
                     case "--mirrors": mirrors = true; break;
                     case "--only": only = Next().ToLowerInvariant(); break;
                     case "--target": target = int.Parse(Next()); break;
+                    case "--sweep": sweep = Next(); break;
                     case "--seed": seed = int.Parse(Next()); break;
                     case "--out": outFile = Next(); break;
                     case "--set":
@@ -69,6 +73,33 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
             {
                 foreach (var (key, value) in overrides) Apply(config, key, value);
             };
+
+            if (sweep != null)
+            {
+                var parts = sweep.Split('=');
+                string key = parts[0].Trim();
+                var table = new StringBuilder();
+                table.AppendLine("| Team | " + key + " | Reached goal | Median round | p10-p90 |");
+                table.AppendLine("| --- | --- | --- | --- | --- |");
+                foreach (var team in teams)
+                foreach (var value in parts[1].Split(',').Select(v => v.Trim()))
+                {
+                    sim.Configure = config =>
+                    {
+                        foreach (var (k, v) in overrides) Apply(config, k, v);
+                        Apply(config, key, value);
+                    };
+                    var runs = sim.Goldfish(team, games, bot, seed);
+                    var wins = runs.Where(r => r.WinnerSeat == 0 && r.End == EndKind.Goal).Select(r => r.Rounds).ToList();
+                    table.AppendLine("| " + team + " | " + value + " | " + (wins.Count * 100 / runs.Count) + "% | " +
+                                     (wins.Count == 0 ? "-" : BalanceReport.Median(wins).ToString("0.#")) + " | " +
+                                     (wins.Count == 0 ? "-" : BalanceReport.Percentile(wins, 0.1).ToString("0.#") + "-" +
+                                                              BalanceReport.Percentile(wins, 0.9).ToString("0.#")) + " |");
+                }
+                Console.WriteLine(table);
+                if (outFile != null) File.WriteAllText(outFile, table.ToString());
+                return 0;
+            }
 
             var flags = new List<string>();
             var sb = new StringBuilder();

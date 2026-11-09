@@ -67,8 +67,11 @@ namespace FarmVsForest.Core
                     ctx.Source + " wants to add card '" + e.cardId + "' to hand, but no card with that id is in the " +
                     "match. Add it to MatchConfig.cardCatalog or to a deck.");
             foreach (var p in ctx.TargetPlayers)
+            {
+                if (e.skipIfInHand && p.Hand.Exists(c => c.Definition.id == def.id)) continue;
                 for (int i = 0; i < e.amount; i++)
                     ctx.Match.AddToHand(p, def, ctx.Source);
+            }
         }
     }
 }
