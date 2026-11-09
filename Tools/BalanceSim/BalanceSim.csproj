@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Plays many bot-vs-bot matches with the real rules engine and prints a Markdown balance report.
+    Usage (from repo root): dotnet run -c Release with project Tools/BalanceSim, then options after a double dash.
+    See docs/BALANCE.md. Unity ignores this folder because it's outside Assets/.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>FarmVsForest.BalanceSim</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/_Project/Scripts/Core/**/*.cs" />
+  </ItemGroup>
+</Project>

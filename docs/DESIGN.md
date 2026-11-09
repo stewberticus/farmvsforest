@@ -49,6 +49,11 @@ Each round is one **day** followed by one **night**.
 | Factory | Make 10 Toys in one round (a day and its night). See [teams/FACTORY.md](teams/FACTORY.md). |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once. How Ghouls are made will be decided when Dark Forest is designed (no combining). |
 
+## Team designs
+
+* **Forest**: [teams/FOREST.md](teams/FOREST.md). Spreads by playing extra trees: after its normal card, Forest can pay
+  2 Acorns to play another tree card. Generator cards add Saplings to its hand.
+
 ## Open questions
 
 * How each team plays differently, including its day/night rhythm (designed team by team).
