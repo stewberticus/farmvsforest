@@ -47,7 +47,9 @@ namespace FarmVsForest.Tests
         [Test]
         public void Factory_WinsByMaking10ToysInOneRound_NotSavedUp()
         {
-            var m = Started(Vs(Team.Factory, Team.Farm));
+            var config = Vs(Team.Factory, Team.Farm);
+            config.factoryGoalToys = 10;
+            var m = Started(config);
             var factory = m.Players[0];
             Put(m, 0, Card("press", effects: Gain(EffectTrigger.Day, ResourceType.Toys, 6)), 0, 0);
             PassRound(m);

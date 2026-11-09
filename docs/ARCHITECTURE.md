@@ -52,7 +52,7 @@ their goal wins for their side (in 2v2, either partner's goal counts).
 | --- | --- | --- |
 | Farm | `HaveResourcesGoal` (Wheat, Milk, Eggs) | `farmGoalEach` = 40 |
 | Forest | `ConnectedTaggedCardsGoal` (cards tagged `tree`, one touching group) | `forestGoalTrees` = 30 |
-| Factory | `GainInOneRoundGoal` (Toys made between one dawn and the next) | `factoryGoalToys` = 10 |
+| Factory | `GainInOneRoundGoal` (Toys made between one dawn and the next) | `factoryGoalToys` = 13 |
 | Dark Forest | `HaveResourcesGoal` (Ghouls) | `darkForestGoalGhouls` = 13 |
 
 If the board fills up, the side owning the most squares wins (a tie is a draw). `roundLimit` is an optional safety net

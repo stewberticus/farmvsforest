@@ -115,6 +115,6 @@ namespace FarmVsForest.Core
             new EffectDefinition(trigger, EffectKind.ConvertResource, 1, Toys) { fromResource = Parts, fromAmount = 2 };
 
         private static EffectDefinition AddToHand(EffectTrigger trigger, string cardId) =>
-            new EffectDefinition(trigger, EffectKind.AddCardToHand, 1, interval: 2) { cardId = cardId };
+            new EffectDefinition(trigger, EffectKind.AddCardToHand, 1, interval: 2) { cardId = cardId, skipIfInHand = true };
     }
 }

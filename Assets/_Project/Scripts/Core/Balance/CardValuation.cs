@@ -66,7 +66,11 @@ namespace FarmVsForest.Core
         };
 
         /// <summary>Hand-set values for Custom effects, by customEffectId. Unknown ones are flagged.</summary>
-        public Dictionary<string, double> customEffectValue = new Dictionary<string, double>();
+        public Dictionary<string, double> customEffectValue = new Dictionary<string, double>
+        {
+            // Factory's Big Whistle: about 4 Assemblers each making 1 Toy (3 V) when it's played.
+            { RunTaggedCardsEffect.Id, 12 },
+        };
 
         public double ValueOf(ResourceType type) => resourceValue.TryGetValue(type, out var v) ? v : 1;
 

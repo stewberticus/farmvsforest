@@ -46,7 +46,7 @@ Each round is one **day** followed by one **night**.
 | --- | --- |
 | Farm | Have 40 Wheat, 40 Milk and 40 Eggs (was 20; raised to hit the round-20 target, pending Alexander's OK). |
 | Forest | Have 30 Tree cards all touching (one connected forest). |
-| Factory | Make 10 Toys in one round (a day and its night). See [teams/FACTORY.md](teams/FACTORY.md). |
+| Factory | Make 13 Toys in one round (a day and its night). See [teams/FACTORY.md](teams/FACTORY.md). |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once. How Ghouls are made will be decided when Dark Forest is designed (no combining). |
 
 ## Team designs
