@@ -52,7 +52,7 @@ namespace FarmVsForest.Core
         {
             { ResourceType.Wheat, 1 }, { ResourceType.Milk, 2 }, { ResourceType.Eggs, 2 },
             { ResourceType.Acorns, 1 }, { ResourceType.Honey, 2 },
-            { ResourceType.Parts, 1 }, { ResourceType.Goods, 3 },
+            { ResourceType.Parts, 1 }, { ResourceType.Toys, 3 },
             { ResourceType.Bats, 1 }, { ResourceType.Spiders, 1 }, { ResourceType.Ghouls, 3 },
         };
 

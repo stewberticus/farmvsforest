@@ -52,7 +52,7 @@ their goal wins for their side (in 2v2, either partner's goal counts).
 | --- | --- | --- |
 | Farm | `HaveResourcesGoal` (Wheat, Milk, Eggs) | `farmGoalEach` = 40 |
 | Forest | `ConnectedTaggedCardsGoal` (cards tagged `tree`, one touching group) | `forestGoalTrees` = 30 |
-| Factory | `GainInOneRoundGoal` (Goods made between one dawn and the next) | `factoryGoalGoods` = 10 |
+| Factory | `GainInOneRoundGoal` (Toys made between one dawn and the next) | `factoryGoalToys` = 10 |
 | Dark Forest | `HaveResourcesGoal` (Ghouls) | `darkForestGoalGhouls` = 13 |
 
 If the board fills up, the side owning the most squares wins (a tie is a draw). `roundLimit` is an optional safety net
@@ -87,7 +87,6 @@ Within a day or night, players go in seat order. Change `GameModes.Seats` to try
 Everything in `PlaceholderCards` except the starting cards' names is stand-in content. Still guesses in code:
 
 * Starting hand 4, draw 1 per turn, max hand 8 (extra draws are discarded), first player skips their first draw.
-* Factory's "single turn" is measured as one round (dawn to dawn), so night-shift cards count.
 * Running out of deck does nothing.
 * 2v2 partners sit on the same side; `canPlaceNextToAllies` is off.
 * If two goals are met at the same moment, the current player (then seat order) wins.

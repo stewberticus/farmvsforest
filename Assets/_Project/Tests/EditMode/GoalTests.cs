@@ -45,17 +45,17 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void Factory_WinsByMaking10GoodsInOneRound_NotSavedUp()
+        public void Factory_WinsByMaking10ToysInOneRound_NotSavedUp()
         {
             var m = Started(Vs(Team.Factory, Team.Farm));
             var factory = m.Players[0];
-            Put(m, 0, Card("press", effects: Gain(EffectTrigger.Day, ResourceType.Goods, 6)), 0, 0);
+            Put(m, 0, Card("press", effects: Gain(EffectTrigger.Day, ResourceType.Toys, 6)), 0, 0);
             PassRound(m);
             PassRound(m);
-            Assert.AreEqual(12, factory.Resources.Get(ResourceType.Goods));
-            Assert.IsFalse(m.IsOver, "12 Goods saved up over two rounds doesn't count");
+            Assert.AreEqual(12, factory.Resources.Get(ResourceType.Toys));
+            Assert.IsFalse(m.IsOver, "12 Toys saved up over two rounds doesn't count");
 
-            Put(m, 0, Card("night shift", effects: Gain(EffectTrigger.Night, ResourceType.Goods, 4)), 1, 0);
+            Put(m, 0, Card("night shift", effects: Gain(EffectTrigger.Night, ResourceType.Toys, 4)), 1, 0);
             PassRound(m);
             Assert.IsTrue(m.IsOver, "6 in the day + 4 at night is 10 in one round");
             Assert.AreEqual(factory.AllianceId, m.WinningAllianceId);

@@ -23,7 +23,7 @@ namespace FarmVsForest.Core
             {
                 case Team.Farm: return new[] { ResourceType.Wheat, ResourceType.Milk, ResourceType.Eggs };
                 case Team.Forest: return new[] { ResourceType.Acorns, ResourceType.Honey };
-                case Team.Factory: return new[] { ResourceType.Parts, ResourceType.Goods };
+                case Team.Factory: return new[] { ResourceType.Parts, ResourceType.Toys };
                 default: return new[] { ResourceType.Bats, ResourceType.Spiders, ResourceType.Ghouls };
             }
         }
@@ -49,7 +49,7 @@ namespace FarmVsForest.Core
                 case Team.Forest:
                     return new ConnectedTaggedCardsGoal(Tags.Tree, config.forestGoalTrees, "Trees");
                 case Team.Factory:
-                    return new GainInOneRoundGoal(ResourceType.Goods, config.factoryGoalGoods);
+                    return new GainInOneRoundGoal(ResourceType.Toys, config.factoryGoalToys);
                 default:
                     return new HaveResourcesGoal(config.darkForestGoalGhouls, ResourceType.Ghouls);
             }
@@ -127,7 +127,7 @@ namespace FarmVsForest.Core
 
     /// <summary>
     /// Gain N of a resource within one round (from the start of a day to the start of the next).
-    /// Factory: make 10 Goods in a single turn.
+    /// Factory: make 10 Toys in a single round (day + night).
     /// </summary>
     public class GainInOneRoundGoal : ITeamGoal
     {

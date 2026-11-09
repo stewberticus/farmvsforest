@@ -73,8 +73,8 @@ namespace FarmVsForest.Core
         /// </summary>
         public int forestExtraTreeAcorns = 2;
 
-        /// <summary>Factory wins by making this many Goods in one round.</summary>
-        public int factoryGoalGoods = 10;
+        /// <summary>Factory wins by making this many Toys in one round (day + night).</summary>
+        public int factoryGoalToys = 10;
         /// <summary>Dark Forest wins with this many Ghouls at once.</summary>
         public int darkForestGoalGhouls = 13;
 

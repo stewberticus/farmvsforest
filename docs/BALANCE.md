@@ -22,7 +22,7 @@ don't. That single fact drives every other number here.
 | 1v1 board area | Big enough for each team's goal shape, small enough that teams meet around 60 to 75% of the way in | 10x10 (100), decided |
 | Forest tree goal | Linear: one tree a play. With one play a turn that caps it near T; Forest's extra-tree plays let it go higher. | set by the Forest design, tuned by sim |
 | Resource goals (Farm, Dark Forest) | Snowball: income grows by about one producer per turn, so totals grow with the square of the round. Set the goal so the goldfish bot (section 6) reaches it at about T - 1. | tune by sim |
-| Factory goal (Goods in one round) | Needs a Goods income rate, so it is reached when enough Goods makers are out. Tune by sim like the others. | tune by sim |
+| Factory goal (Toys in one round) | Needs a Toys income rate, so it is reached when enough Toys makers are out. Tune by sim like the others. | tune by sim |
 
 Two consequences are worth calling out:
 
@@ -56,7 +56,7 @@ Each team has cheap resources, harder ones, and (for some teams) the goal resour
 | --- | --- | --- | --- | --- | --- |
 | 1: basic, from free cards | 1 V | Wheat | Acorns | Parts | Bats, Spiders |
 | 2: made by cards that cost tier 1 | 2 V | Milk, Eggs | Honey | | |
-| 3: the goal resource | 3 V | | | Goods | Ghouls |
+| 3: the goal resource | 3 V | | | Toys | Ghouls |
 
 These are starting values. Each team thread may retune its own tiers, and must say so in its design notes.
 
@@ -119,7 +119,7 @@ build-around card), but the team's design notes must say why.
 ### Day and night
 
 * **A day trigger and a night trigger are worth the same.** Both fire once a round, and both land before every
-  player's next turn. Factory's "Goods in one round" counts both.
+  player's next turn. Factory's "Toys in one round" counts both.
 * What makes day and night matter is cards that **care** about time: "every night, gain 2", "by day, gain 1 per
   touching flower", "at night, this counts as a tree". Price each half separately and add them.
 * Dark Forest plays at night, so for them a night effect comes just before their turn and a day effect half a round
