@@ -9,7 +9,7 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | --- | --- |
 | Tone | Cozy, cute, child/family friendly. Dark Forest is cute-spooky, never scary. |
 | Combat | None. Teams mostly ignore each other; the main interaction is competing for space. |
-| Board | 10x10 for 1v1 (decided 2026-11-09: fits Forest's 30-tree goal, teams still meet). 16x16 for 4 players, to tune. |
+| Board | 10x10 for 1v1 (decided 2026-11-09: teams still meet). 16x16 for 4 players, to tune. |
 | Start | Each player begins with one starting card in their corner. |
 | Movement | Cards never move once played. |
 | Placement | A new card must touch one of your own cards, edge to edge (no diagonals). |
@@ -45,7 +45,7 @@ Each round is one **day** followed by one **night**.
 | Team | Goal |
 | --- | --- |
 | Farm | Have 62 Wheat, 62 Milk and 62 Eggs. |
-| Forest | Have 33 Tree cards all touching (one connected forest). |
+| Forest | **Grow 16 Old Trees in one connected forest.** Trees grow Sapling > Young Tree > Old Tree on sunny mornings (when they touch an empty square). |
 | Factory | Make 15 Toys in a single round (a day and its night). |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once (decided; Dark Forest is paced by its cards). |
 
@@ -58,8 +58,9 @@ are tuned, not designed, so change them freely as cards change. They're tuned nu
 
 * **Farm**: [teams/FARM.md](teams/FARM.md). Land → Wheat → Milk and Eggs. Animals make more for every crop touching
   them, and Milk and Egg buildings add Cows, Chicken Coops and Wheat Fields to your hand.
-* **Forest**: [teams/FOREST.md](teams/FOREST.md). Spreads by playing extra trees: after its normal card, Forest can pay
-  2 Acorns to play another tree card. Generator cards add Saplings to its hand.
+* **Forest**: [teams/FOREST.md](teams/FOREST.md). Growth: trees grow from Sapling to Old Tree on sunny mornings (touching an
+  empty square), so spreading competes with leaving light. Forest can pay Acorns to play extra trees and compost cards
+  for Acorns.
 * **Dark Forest**: [teams/DARK_FOREST.md](teams/DARK_FOREST.md). Haunts invite Ghouls; every morning each Ghoul eats a
   Bat or Spider, and a morning you can't feed them all, one Ghoul goes home.
 

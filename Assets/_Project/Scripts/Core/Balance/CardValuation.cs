@@ -80,6 +80,8 @@ namespace FarmVsForest.Core
             { RunTaggedCardsEffect.Id, 12 },
             // Picnic Blanket: 2 free Ghoul meals a day, but only once you have Ghouls (about 60% of its life).
             { DarkForestCards.FreeMealsEffect, 1.2 },
+            // Forest growth: a step towards an Old Tree on each sunny morning.
+            { ForestCards.GrowEffect, 0.6 },
         };
 
         public double ValueOf(ResourceType type) => resourceValue.TryGetValue(type, out var v) ? v : 1;

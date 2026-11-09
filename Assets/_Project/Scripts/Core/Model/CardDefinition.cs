@@ -41,6 +41,8 @@ namespace FarmVsForest.Core
         public const string Tree = "tree";
         /// <summary>Marks a team's starting corner card.</summary>
         public const string Start = "start";
+        /// <summary>A fully grown tree. Forest's growth goal counts these.</summary>
+        public const string Old = "old";
         /// <summary>Factory machines that turn Parts into Toys. Wrapping Station and Big Whistle care about them.</summary>
         public const string Assembler = "assembler";
     }

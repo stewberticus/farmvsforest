@@ -321,6 +321,10 @@ own cards, so random placements still build one connected forest. Dark Forest is
 loses 6 rounds). Forest's "worst" bot isn't truly worst either: the cards the model rates lowest are free Saplings,
 which still build the forest.
 
+**Update (2026-11-09, Forest thread):** Forest's goal changed to growing **16 Old Trees** (see
+[teams/FOREST.md](teams/FOREST.md)). Forest is now good round 22, random round 25, worst round 54; good beats random
+86% and worst 99% in mirror matches. [Report](balance-reports/2026-11-09-forest-growth.md). Compost fixes Forest's lock-out.
+
 ### Lock-outs
 
 About 1% of solo games never finish, and a person would be stuck in them too:

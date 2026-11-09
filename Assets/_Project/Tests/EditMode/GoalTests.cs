@@ -36,6 +36,7 @@ namespace FarmVsForest.Tests
         public void Forest_WinsWith30TouchingTrees_ButNotScatteredOnes()
         {
             var config = Vs(Team.Forest, Team.Farm);
+            config.forestGoalOldTrees = 0; // the older "N connected trees" goal
             var m = Started(config);
             var tree = Card("tree", tags: new[] { Tags.Tree });
             // Two separate groups of 20 and 9 don't count.

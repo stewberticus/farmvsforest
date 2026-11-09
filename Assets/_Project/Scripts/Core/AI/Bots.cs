@@ -181,6 +181,18 @@ namespace FarmVsForest.Core
                 else if (other.Owner == p && TouchCares(def, other.Definition)) score += 1.5;
             }
 
+            // Forest growth: trees grow only while they touch an empty square (sunlight). Give growing cards room,
+            // and don't take the last open square from one of our growing trees.
+            if (ForestCards.Grows(def))
+                score += 1.0 * Math.Min(2, board.Neighbours(square).Count(board.IsEmpty));
+            foreach (var n in board.Neighbours(square))
+            {
+                var other = board.Get(n);
+                if (other == null || other.Owner != p || !ForestCards.Grows(other.Definition)) continue;
+                int open = board.Neighbours(n).Count(board.IsEmpty);
+                score -= open <= 1 ? 6 : 0.5;
+            }
+
             // Push towards the middle of the board to claim contested space first.
             double cx = (board.Width - 1) / 2.0, cy = (board.Height - 1) / 2.0;
             double dist = Math.Abs(square.x - cx) + Math.Abs(square.y - cy);

@@ -72,6 +72,11 @@ namespace FarmVsForest.Core
         /// paying this many Acorns on top of each card's cost. 0 turns the rule off.
         /// </summary>
         public int forestExtraTreeAcorns = 2;
+        /// <summary>
+        /// Forest's growth goal: this many Old Trees in one connected forest. 0 uses the older goal of
+        /// <see cref="forestGoalTrees"/> trees instead.
+        /// </summary>
+        public int forestGoalOldTrees = 16;
         /// <summary>Each further extra tree in the same turn costs this many more Acorns (2, then 3, then 4...).</summary>
         public int forestExtraTreeStep = 1;
         /// <summary>

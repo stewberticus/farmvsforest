@@ -4,7 +4,7 @@ namespace FarmVsForest.Core
     public class CardInstance
     {
         public int InstanceId { get; }
-        public CardDefinition Definition { get; }
+        public CardDefinition Definition { get; internal set; }
         public PlayerState Owner { get; }
         public Coord Position { get; internal set; }
         public bool IsOnBoard { get; internal set; }
@@ -16,6 +16,9 @@ namespace FarmVsForest.Core
         public int DaysSeen { get; internal set; }
         /// <summary>How many nights have started since this card was placed. Drives "every X nights" effects.</summary>
         public int NightsSeen { get; internal set; }
+
+        /// <summary>Growth steps saved up towards the next stage (Forest trees grow on sunny days).</summary>
+        public int GrowthProgress { get; internal set; }
 
         internal CardInstance(int instanceId, CardDefinition definition, PlayerState owner)
         {

@@ -60,7 +60,9 @@ namespace FarmVsForest.Core
                 case Team.Farm:
                     return new HaveResourcesGoal(config.farmGoalEach, ResourceType.Wheat, ResourceType.Milk, ResourceType.Eggs);
                 case Team.Forest:
-                    return new ConnectedTaggedCardsGoal(Tags.Tree, config.forestGoalTrees, "Trees");
+                    return config.forestGoalOldTrees > 0
+                        ? new ConnectedTaggedCardsGoal(Tags.Tree, config.forestGoalOldTrees, "Old Trees", Tags.Old)
+                        : new ConnectedTaggedCardsGoal(Tags.Tree, config.forestGoalTrees, "Trees");
                 case Team.Factory:
                     return new GainInOneRoundGoal(ResourceType.Toys, config.factoryGoalToys);
                 default:
@@ -94,11 +96,15 @@ namespace FarmVsForest.Core
         public int Amount { get; }
         public string Label { get; }
 
-        public ConnectedTaggedCardsGoal(string tag, int amount, string label)
+        /// <summary>If set, only cards with this tag count towards the amount (e.g. Old Trees in a forest of any trees).</summary>
+        public string CountTag { get; }
+
+        public ConnectedTaggedCardsGoal(string tag, int amount, string label, string countTag = null)
         {
             Tag = tag;
             Amount = amount;
             Label = label;
+            CountTag = countTag;
         }
 
         public bool IsMet(Match match, PlayerState player) => LargestGroup(match, player) >= Amount;
@@ -121,7 +127,7 @@ namespace FarmVsForest.Core
                 while (stack.Count > 0)
                 {
                     var c = stack.Pop();
-                    size++;
+                    if (CountTag == null || board.Get(c).Definition.HasTag(CountTag)) size++;
                     foreach (var n in board.Neighbours(c))
                     {
                         if (seen.Contains(n) || !Counts(board.Get(n), player)) continue;

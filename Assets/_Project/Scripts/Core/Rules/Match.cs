@@ -312,6 +312,23 @@ namespace FarmVsForest.Core
             return cost;
         }
 
+        /// <summary>
+        /// Turns a card on the board into another card in place (a Sapling growing into a Young Tree). It keeps its
+        /// square and owner; its timers start again.
+        /// </summary>
+        public void Transform(CardInstance card, CardDefinition into)
+        {
+            if (card == null || into == null || !card.IsOnBoard) return;
+            var from = card.Definition;
+            card.Definition = into;
+            card.DaysSeen = 0;
+            card.NightsSeen = 0;
+            card.GrowthProgress = 0;
+            Raise(new GameEvent { Type = GameEventType.CardGrew, Player = card.Owner, Card = card,
+                Message = from + " grew into " + into + " at " + card.Position });
+            CheckGoals();
+        }
+
         /// <summary>Whether the current player can compost a card now (Forest: once a turn, any card in hand).</summary>
         public bool CanCompost(int playerId, CardInstance card)
         {
