@@ -206,6 +206,8 @@ namespace FarmVsForest.Core
             return true;
         }
 
+        private readonly HashSet<PlayerState> _hadTurn = new HashSet<PlayerState>();
+
         private void BeginTurn(PlayerState player)
         {
             CurrentPlayer = player;
@@ -218,7 +220,7 @@ namespace FarmVsForest.Core
                 Message = "Turn " + TurnNumber + " (" + TimeOfDay + " " + Round + "): " + player
             });
 
-            bool skipDraw = TurnNumber == 1 && Config.firstPlayerSkipsDraw;
+            bool skipDraw = Config.everyoneSkipsFirstDraw ? _hadTurn.Add(player) : TurnNumber == 1 && Config.firstPlayerSkipsDraw;
             if (!skipDraw) DrawCards(player, Config.drawsPerTurn);
         }
 
