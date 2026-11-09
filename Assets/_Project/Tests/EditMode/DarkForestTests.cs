@@ -81,6 +81,37 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
+        public void Graveyard_AloneMakesNothing_ButHauntsTogetherDo()
+        {
+            var m = DarkVsFarm();
+            var dark = m.Players[0];
+            dark.Resources.Add(ResourceType.Bats, 100);
+            Put(m, 0, DarkForestCards.GigglingGraveyard, 3, 3);
+            PassRound(m);
+            PassRound(m);
+            Assert.AreEqual(0, dark.Resources.Get(ResourceType.Ghouls), "a lonely Graveyard makes no Ghouls");
+
+            Put(m, 0, DarkForestCards.GigglingGraveyard, 3, 4);
+            PassRound(m);
+            PassRound(m);
+            Assert.AreEqual(2, dark.Resources.Get(ResourceType.Ghouls), "two touching Graveyards make 1 Ghoul each");
+        }
+
+        [Test]
+        public void Lantern_MakesGhoulsForEachTouchingGlowMushrooms()
+        {
+            var m = DarkVsFarm();
+            var dark = m.Players[0];
+            dark.Resources.Add(ResourceType.Bats, 100);
+            Put(m, 0, DarkForestCards.HauntedLantern, 3, 3);
+            Put(m, 0, DarkForestCards.GlowMushrooms, 2, 3);
+            Put(m, 0, DarkForestCards.GlowMushrooms, 4, 3);
+            PassRound(m);
+            PassRound(m);
+            Assert.AreEqual(2, dark.Resources.Get(ResourceType.Ghouls));
+        }
+
+        [Test]
         public void EvilTree_DoesNothing_AndDeckIs30Cards()
         {
             Assert.IsEmpty(DarkForestCards.EvilTree.effects);
