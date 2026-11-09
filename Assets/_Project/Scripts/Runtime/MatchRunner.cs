@@ -34,6 +34,10 @@ namespace FarmVsForest.Runtime
             new SeatSetup { name = "Dark Forest", team = Team.DarkForest },
         };
 
+        [Tooltip("Cards that effects can add to a hand by id (e.g. a Barn adding a Cow) but that aren't in any deck. " +
+                 "Cards already in a deck don't need listing here.")]
+        public List<CardDefinitionAsset> extraCards = new List<CardDefinitionAsset>();
+
         [Tooltip("Turn off to start with an empty board; each player then begins on their corner square.")]
         public bool useStartingCards = true;
         public bool randomSeed = true;
@@ -63,6 +67,10 @@ namespace FarmVsForest.Runtime
             int count = GameModes.PlayerCount(config.mode);
             if (seats.Count < count)
                 throw new InvalidOperationException(config.mode + " needs " + count + " seats set up on " + name + ".");
+
+            config.cardCatalog = new List<CardDefinition>();
+            foreach (var c in extraCards) if (c != null) config.cardCatalog.Add(c.card);
+            foreach (Team team in Enum.GetValues(typeof(Team))) config.cardCatalog.AddRange(PlaceholderCards.ForTeam(team));
 
             config.players = new List<PlayerSetup>();
             for (int i = 0; i < count; i++)

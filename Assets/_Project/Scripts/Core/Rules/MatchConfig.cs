@@ -75,6 +75,13 @@ namespace FarmVsForest.Core
         /// <summary>Seed for shuffling. Same seed and same actions give the same match (useful for replays and netcode).</summary>
         public int seed = 12345;
 
+        /// <summary>
+        /// Cards that effects can create by id (AddCardToHand) even if they aren't in any deck. Cards in the players'
+        /// decks and starting cards are always findable, so only list extras here.
+        /// </summary>
+        /// <remarks>Not serialized: in Unity, MatchRunner fills this.</remarks>
+        [NonSerialized] public List<CardDefinition> cardCatalog = new List<CardDefinition>();
+
         /// <summary>One entry per seat, in seat order. Must match the mode's player count.</summary>
         /// <remarks>Not serialized: in Unity, MatchRunner fills this from DeckAssets.</remarks>
         [NonSerialized] public List<PlayerSetup> players = new List<PlayerSetup>();

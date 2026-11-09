@@ -72,7 +72,10 @@ Within a day or night, players go in seat order. Change `GameModes.Seats` to try
 
 * **New card (no code)**: Assets > Create > Farm vs Forest > Card. Fill in cost, tags and effects using the built-in
   kinds: `GainResource`, `DrawCard`, `ConvertResource` (spend `fromAmount` of `fromResource` for `amount` of
-  `resource`) and `GainPerTouching` (per touching card of yours, optionally only those with `tag`).
+  `resource`), `GainPerTouching` (per touching card of yours, optionally only those with `tag`) and `AddCardToHand`
+  (put `amount` new copies of the card with id `cardId` into your hand; it still costs its normal price to play, and
+  is lost if your hand is full). A card made by `AddCardToHand` must be in a deck, a starting card, or listed in
+  `MatchConfig.cardCatalog` (the `MatchRunner`'s **Extra Cards** in Unity).
 * **Starting cards**: set a seat's `startingCard` on the `MatchRunner`, or edit `PlaceholderCards.StartingCard`.
 * **New mechanic**: implement `IEffect`, register it with `EffectRegistry.Register("my_id", ...)`, and set an effect's
   kind to `Custom` with `customEffectId = "my_id"`. Or add a value to `EffectKind` and register it in `CreateDefault`.
