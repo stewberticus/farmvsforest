@@ -52,8 +52,10 @@ namespace FarmVsForest.Core
         public int targetRounds = 20;
         /// <summary>Median game length may be this many rounds off target.</summary>
         public int roundsTolerance = 3;
+        /// <summary>Alexander: games should last 20+ rounds on average. Flag a matchup whose mean is below this.</summary>
+        public double minMeanRounds = 20;
         /// <summary>Each 1v1 matchup should be within this of 50%.</summary>
-        public double matchupWinRateSpread = 0.10;
+        public double matchupWinRateSpread = 0.05;
         /// <summary>Going first should be within this of 50%.</summary>
         public double firstSeatSpread = 0.05;
         /// <summary>At least this share of games should end by someone reaching their goal.</summary>
@@ -219,7 +221,7 @@ namespace FarmVsForest.Core
             sb.AppendLine();
             sb.AppendLine("### Matchups");
             sb.AppendLine();
-            sb.AppendLine("| Matchup | Games | Win A | Win B | Draw | Seat 1 wins | Median rounds | p10-p90 | Goal / full / limit | First contact | Board fill |");
+            sb.AppendLine("| Matchup | Games | Win A | Win B | Draw | Seat 1 wins | Mean rounds | Median rounds | p10-p90 | Goal / full / limit | First contact | Board fill |");
             sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
             foreach (var kv in series)
             {
@@ -235,7 +237,7 @@ namespace FarmVsForest.Core
                 double limit = g.Count(r => r.End == EndKind.RoundLimit || r.End == EndKind.Unfinished) / (double)n;
                 var contact = g.Where(r => r.FirstContactRound > 0).Select(r => r.FirstContactRound).ToList();
                 sb.AppendLine("| " + a + " vs " + b + " | " + n + " | " + Pct(winA) + " | " + Pct(winB) + " | " + Pct(draws) +
-                              " | " + Pct(seat1) + " | " + Num(Median(rounds)) + " | " + Range(rounds) + " | " + Pct(goal) + " / " + Pct(full) + " / " + Pct(limit) +
+                              " | " + Pct(seat1) + " | " + Num(rounds.Average()) + " | " + Num(Median(rounds)) + " | " + Range(rounds) + " | " + Pct(goal) + " / " + Pct(full) + " / " + Pct(limit) +
                               " | " + (contact.Count == 0 ? "never" : "round " + Num(Median(contact)) + " (" + Pct(contact.Count / (double)n) + ")") +
                               " | " + Pct(g.Average(r => r.BoardFill)) + " |");
 
@@ -245,6 +247,8 @@ namespace FarmVsForest.Core
                     flags.Add(a + " vs " + b + ": seat 1 wins " + Pct(seat1) + " (target 50% ± " + Pct(t.firstSeatSpread) + ").");
                 if (Math.Abs(Median(rounds) - t.targetRounds) > t.roundsTolerance)
                     flags.Add(a + " vs " + b + ": median game is " + Num(Median(rounds)) + " rounds (target " + t.targetRounds + " ± " + t.roundsTolerance + ").");
+                if (rounds.Average() < t.minMeanRounds)
+                    flags.Add(a + " vs " + b + ": games average " + Num(rounds.Average()) + " rounds (target at least " + Num(t.minMeanRounds) + ").");
                 if (goal < t.minGoalEndings)
                     flags.Add(a + " vs " + b + ": only " + Pct(goal) + " of games end on a goal (target at least " + Pct(t.minGoalEndings) + ").");
             }
