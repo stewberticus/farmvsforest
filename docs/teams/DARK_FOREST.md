@@ -36,16 +36,17 @@ The Evil Tree starts in your corner. The starter deck is 30 cards.
 | Sleepy Web | 3 | 3 Bats | Every day: gain 2 Spiders (spun just before breakfast). | Day/night swing | 20 / 14.5 |
 | Bat Belfry | 2 | 5 Spiders | Every night: gain 1 Bat for each of your cards touching it. | Neighbour | 20 / 17.5 |
 | Picnic Blanket | 2 | 2 Bats | Every day: 2 of your Ghouls eat for free. | Helper | 12 / 13 |
-| Giggling Graveyard (Haunt) | 2 | 2 Bats, 2 Spiders | Every 3 nights: gain 1 Ghoul. | Slow burn | 10 / 16 |
-| Haunted Lantern (Haunt) | 1 | 6 Bats, 4 Spiders | Every night: gain 1 Ghoul. | Upgrade | 30 / 25 |
+| Giggling Graveyard (Haunt) | 2 | 2 Bats, 2 Spiders | Every 4 nights: gain 1 Ghoul. | Slow burn | 7.5 / 16 |
+| Haunted Lantern (Haunt) | 1 | 4 Bats, 3 Spiders | Every 2 nights: gain 1 Ghoul. | Upgrade | 15 / 20.5 |
 | Full Moon Shrine | 2 | 4 Spiders | Every 3 nights: gain 1 Ghoul for each touching Graveyard or Lantern. | Neighbour | 12 / 16 |
 
 ### Off-curve cards and why
 
-* **Ghoul makers (Graveyard, Shrine) price as weak, Lantern as strong.** Plays are what limit Dark Forest, not
-  Bats and Spiders, which pile up. Pace is set by how many Ghouls each play makes, so the sim decides these numbers:
-  two slow Graveyards and a single Lantern land the goldfish median on round 18 to 19. More Lanterns, or Graveyards every
-  2 nights, bring it down to 14 to 16.
+* **All the Ghoul makers price as weak.** That is on purpose. Alexander wants the goal kept at 13 Ghouls and games
+  lasting 20 rounds or more, so Dark Forest is slowed through its Haunts, not its goal. Plays limit Dark Forest more
+  than Bats and Spiders do, since those pile up, so the pace is set by how many Ghouls each play makes. Two Graveyards
+  (every 4 nights) and one Lantern (every 2 nights) give a goldfish median of round 22. A Lantern every night brings it
+  down to 19 or 20, and no Lantern at all pushes it to 23 or 24.
 * **Sleepy Web** is strong on paper, but taking it out of the deck doesn't change the pace. It is Dark Forest's
   day card.
 * **Picnic Blanket** is only useful once you have Ghouls. Kept because it supports the feeding rule (see below).
@@ -62,13 +63,13 @@ Full Moon Shrine wedged between Haunts. It doesn't need the middle of the board.
 
 ## Sim results (2026-11-09)
 
-Report: [balance-reports/2026-11-09-dark-forest-v2.md](../balance-reports/2026-11-09-dark-forest-v2.md), on the 10x10 board with
-a free card in the opening hand. With those rules the first deck (3 Graveyards, 6 Cobweb Corners) sped up to round 17,
-so one Graveyard became a Cobweb Corner.
+Target (Alexander, 2026-11-09): goal stays at 13 Ghouls, games last 20 or more rounds, and no team wins more than 55%.
+The balance thread aims every team at a solo (goldfish) median of round 22, so 1v1 games end around round 20.
 
-* **Goldfish: median round 18 to 19** (p10 to p90: 15 to 24), on target for T = 20 (18 to 20). Stable across seeds.
-* Matchups are against the old placeholder Farm, Forest and Factory decks, so they don't mean much until those teams
-  are designed.
+* **Goldfish: median round 22** (p10 to p90: 17 to 28), on the 10x10 board with a free card in the opening hand.
+  Stable across seeds (800 games each).
+* Matchups are settled in the cross-team balance pass, once Farm, Forest and Factory are tuned to the same
+  round-22 target.
 * **The feeding rule rarely bites in the sim**: about 0.03 Ghouls go home per game, because Bats and Spiders pile up
   (one play a turn leaves little to spend them on). Eating 2 or 3 each makes it bite more (1.6 or 3 Ghouls lost per
   game) without changing the pace much. To decide with Alexander.
@@ -76,4 +77,4 @@ so one Graveyard became a Cobweb Corner.
 ## Open
 
 * Should the feeding rule bite harder (more food per Ghoul, or Bats and Spiders that don't pile up)?
-* Goal number 13 is kept; the pace is tuned with cards instead.
+* Goal number 13 is decided (Alexander); the pace is tuned with cards instead.
