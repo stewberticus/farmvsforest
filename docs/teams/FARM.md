@@ -1,5 +1,7 @@
 # Farm
 
+> **Cross-team pass (2026-11-09):** the goal is now **48 of each** so that every 1v1 matchup is 40 to 60%. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
+
 The Farm is a tidy homestead. It wins by having **40 Wheat, 40 Milk and 40 Eggs** at the same time, and it gets
 there by laying out fields and animals well.
 

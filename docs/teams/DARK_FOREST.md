@@ -1,5 +1,7 @@
 # Dark Forest
 
+> **Cross-team pass (2026-11-09):** the goal is now **19 Ghouls** so that every 1v1 matchup is 40 to 60%. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
+
 Cute-spooky. Bats and Spiders come out at night, and Ghouls drop by for a party. Dark Forest plays at night and wins
 by throwing a **Ghoul Party: 13 Ghouls at once**.
 

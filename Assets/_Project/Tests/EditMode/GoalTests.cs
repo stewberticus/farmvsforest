@@ -6,7 +6,15 @@ namespace FarmVsForest.Tests
 {
     public class GoalTests
     {
-        private static MatchConfig Vs(Team a, Team b) => SimpleConfig(Card("x"), teams: new[] { a, b }, boardSize: 8);
+        /// <summary>Goal numbers are pinned here so these rule tests don't change when the goals are retuned.</summary>
+        private static MatchConfig Pinned(MatchConfig c)
+        {
+            c.factoryGoalToys = 10;
+            c.darkForestGoalGhouls = 13;
+            return c;
+        }
+
+        private static MatchConfig Vs(Team a, Team b) => Pinned(SimpleConfig(Card("x"), teams: new[] { a, b }, boardSize: 8));
 
         [Test]
         public void Farm_WinsWithEnoughOfEachResource()
@@ -101,8 +109,8 @@ namespace FarmVsForest.Tests
         [Test]
         public void TwoVsTwo_EitherPartnerReachingTheirGoalWinsForBoth()
         {
-            var config = SimpleConfig(Card("x"), mode: GameMode.TwoVsTwo,
-                teams: new[] { Team.Farm, Team.Forest, Team.DarkForest, Team.Factory });
+            var config = Pinned(SimpleConfig(Card("x"), mode: GameMode.TwoVsTwo,
+                teams: new[] { Team.Farm, Team.Forest, Team.DarkForest, Team.Factory }));
             var m = Started(config);
             var dark = m.Players[2];
             dark.Resources.Add(ResourceType.Ghouls, 13);

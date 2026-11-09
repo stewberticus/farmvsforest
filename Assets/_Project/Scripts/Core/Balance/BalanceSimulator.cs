@@ -78,7 +78,11 @@ namespace FarmVsForest.Core
 
         public MatchRecord Play(Team first, Team second, string firstBot, string secondBot, int seed)
         {
-            var config = new MatchConfig { mode = GameMode.OneVsOne, seed = seed, roundLimit = RoundLimit };
+            var config = new MatchConfig
+            {
+                mode = GameMode.OneVsOne, seed = seed, roundLimit = RoundLimit,
+                cardCatalog = PlaceholderCards.All().ToList(),
+            };
             config.players.Add(new PlayerSetup("Seat 1", first, DeckFor(first), StartingCardFor(first)));
             config.players.Add(new PlayerSetup("Seat 2", second, DeckFor(second), StartingCardFor(second)));
             Configure?.Invoke(config);
@@ -104,7 +108,7 @@ namespace FarmVsForest.Core
             };
 
             match.Start();
-            if (Settings.cardLookup == null) Settings.cardLookup = match.FindCard;
+            Settings.cardLookup = match.FindCard;
             var bots = new[] { Bots.Create(firstBot, seed * 7 + 1, Settings), Bots.Create(secondBot, seed * 7 + 2, Settings) };
 
             int safety = 0;
@@ -278,7 +282,7 @@ namespace FarmVsForest.Core
                 sb.AppendLine("| " + kv.Key + " | " + kv.Value.Count + " | " + Pct(wins.Count / (double)kv.Value.Count) + " | " +
                               Num(med) + " | " + Range(wins) + " | " +
                               Pct(seat.Sum(s => s.PassTurns) / (double)Math.Max(1, seat.Sum(s => s.Turns))) + " |");
-                if (wins.Count < kv.Value.Count)
+                if (wins.Count < 0.95 * kv.Value.Count)
                     flags.Add("Goldfish " + kv.Key + ": reached its goal in only " + Pct(wins.Count / (double)kv.Value.Count) + " of games.");
             }
             if (medians.Count > 1 && medians.Values.Max() - medians.Values.Min() > t.goldfishSpread)

@@ -1,5 +1,7 @@
 # Factory: the Toy Workshop
 
+> **Cross-team pass (2026-11-09):** the goal is now **12 Toys in one round** so that every 1v1 matchup is 40 to 60%. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
+
 A cozy little toy workshop. Tinkerers gather Parts (mostly by day), Assemblers turn Parts into Toys, and the
 Factory wins with one big round of toymaking. Code: `Assets/_Project/Scripts/Core/Content/FactoryCards.cs`.
 
