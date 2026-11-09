@@ -21,6 +21,9 @@ Balanced for **1v1**, with **2v2** and **1v1v1v1** for fun. See [docs/DESIGN.md]
 
 Tests: **Window > General > Test Runner > EditMode**, or without Unity: `dotnet test Tools/CoreTests`.
 
+Balance: `dotnet run -c Release --project Tools/BalanceSim -- --games 200` plays bot matches and reports win rates,
+game length and how every card prices against the curve. How to design and tune cards is in [docs/BALANCE.md](docs/BALANCE.md).
+
 ## Project layout
 
 | Path | What's in it |
@@ -30,6 +33,7 @@ Tests: **Window > General > Test Runner > EditMode**, or without Unity: `dotnet 
 | `Assets/_Project/Scripts/Editor` | Editor menus for generating placeholder assets and the prototype scene. |
 | `Assets/_Project/Tests/EditMode` | NUnit tests for the rules. Run in Unity or with `dotnet test`. |
 | `Tools/CoreTests` | A .NET project that compiles Core + tests outside Unity (also used by CI). |
+| `Tools/BalanceSim` | Bot-vs-bot balance simulator that prints a win-rate and card report. See [docs/BALANCE.md](docs/BALANCE.md). |
 | `docs/` | Design and architecture notes. |
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the systems fit together and how to add content.

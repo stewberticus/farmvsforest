@@ -20,6 +20,9 @@ The game's design (what the rules are and why) lives in [DESIGN.md](DESIGN.md). 
 | `EffectRegistry` / `IEffect` | Maps effect kinds to code. Register new `IEffect`s to add mechanics. |
 | `IPlacementRule` | Where cards may go. Default `TouchOwnCardPlacement`: an empty square touching one of your cards. |
 | `ITeamGoal`, `TeamRules` | How each team wins, and which teams play by day or by night. |
+| `IBot` (`GreedyBot`, `RandomBot`, `PassBot`) | Plays a turn for the current player. Used by the simulator; a start for AI opponents. |
+| `CardValuation`, `BalanceSettings` | Prices a card in value points against the cost curve ([BALANCE.md](BALANCE.md)). |
+| `BalanceSimulator`, `BalanceReport` | Plays many bot matches and writes the Markdown balance report (`Tools/BalanceSim`). |
 
 ## Round flow
 
