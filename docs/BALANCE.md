@@ -258,3 +258,37 @@ With those goals, every 1v1 matchup ended at a median of round 18 and all four t
 
 * Opening hand always has a free card (now on by default in the engine).
 * Deck size: the model suggests 30 or fewer, since only about 24 cards are seen per game.
+
+## 9. Cross-team pass (2026-11-09)
+
+All four team designs merged, then their goal numbers were tuned together. Reports:
+[before](balance-reports/2026-11-09-cross-team-before.md), [after](balance-reports/2026-11-09-cross-team-v1.md)
+(800 games per matchup, greedy bots, 10x10).
+
+| Team | Goal before → after | Goldfish median before → after | 1v1 win rate before → after |
+| --- | --- | --- | --- |
+| Farm | 40 of each → **48** | 20 → 20 | 46% → 52% |
+| Forest | 30 trees → **27** | 22 → 21 | 26% → 47% |
+| Factory | 10 Toys in a round → **12** | 16 → 19 | 64% → 53% |
+| Dark Forest | 13 Ghouls → **19** | 17 → 20 | 64% → 48% |
+
+After: every matchup is between 43% and 57%, games end at a median of round 18 to 19, and every game ends on a goal.
+Teams meet in about 30 to 90% of games, mostly around round 15. Forest meets everyone, Farm and Factory meet each
+other least.
+
+Value-model fixes made on the way:
+
+* Card makers now count only 10% of the made card's value above its par (`madeCardExcessShare`). Big Red Barn and
+  Nesting Box had been priced at +229%. In play they had no win-rate edge, so they're now on curve.
+* The simulator looks up made cards from each match's own catalog, so the Factory's makers get priced.
+
+Still open:
+
+* ~~Factory stalls in about 6% of goldfish games~~ Fixed in Factory v2: Assemblers always leave 3 Parts and Spare
+  Parts Bin trickles Parts, so the Factory can always build. Its goal went from 12 to 14 Toys to stay at round 20. See
+  [teams/FACTORY.md](teams/FACTORY.md).
+* **Farm vs Forest: the second seat wins 58%.** Watch it in playtests before changing anything.
+* Card flags that are the model's fault, not the card's: per-touching cards (Cow, Chicken Coop, Blossom Hive,
+  Wrapping Station) are priced at 1.2 touching cards, but each team's layout gets more. Their goals are tuned with
+  them in, so leave them unless playtests disagree.
+

@@ -64,9 +64,9 @@ namespace FarmVsForest.Core
         // ---- Team goals (starting numbers, to tune)
 
         /// <summary>Farm wins with this many Wheat, Milk and Eggs at once.</summary>
-        public int farmGoalEach = 40;
+        public int farmGoalEach = 48;
         /// <summary>Forest wins with this many Tree cards in one touching group.</summary>
-        public int forestGoalTrees = 30;
+        public int forestGoalTrees = 27;
         /// <summary>
         /// Forest's spreading rule: after their normal play, a Forest player can play extra Tree cards that turn by
         /// paying this many Acorns on top of each card's cost. 0 turns the rule off.
@@ -74,9 +74,13 @@ namespace FarmVsForest.Core
         public int forestExtraTreeAcorns = 2;
 
         /// <summary>Factory wins by making this many Toys in one round (day + night).</summary>
-        public int factoryGoalToys = 13;
+        public int factoryGoalToys = 14;
         /// <summary>Dark Forest wins with this many Ghouls at once.</summary>
-        public int darkForestGoalGhouls = 13;
+        public int darkForestGoalGhouls = 19;
+        /// <summary>Decided: every morning each Ghoul eats this many Bats or Spiders.</summary>
+        public int ghoulFoodEach = 1;
+        /// <summary>Decided: a morning when you can't feed all your Ghouls, this many wander home.</summary>
+        public int ghoulsLostWhenHungry = 1;
 
         /// <summary>
         /// Safety net: after this many rounds the match ends and whoever owns the most squares wins. 0 means no limit,

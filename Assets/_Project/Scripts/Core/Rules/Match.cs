@@ -9,7 +9,7 @@ namespace FarmVsForest.Core
     /// Has no Unity dependencies, so it can be unit tested, run on a server, or driven by an AI.
     ///
     /// Each round is a day then a night:
-    /// 1. Day starts: every card's Day effects fire. Then each day player (Farm, Forest, Factory) takes a turn.
+    /// 1. Day starts: every card's Day effects fire, then Dark Forest's Ghouls eat (<see cref="GhoulFeeding"/>). Then each day player (Farm, Forest, Factory) takes a turn.
     /// 2. Night starts: every card's Night effects fire. Then each night player (Dark Forest) takes a turn.
     /// A turn is: draw, then play up to <see cref="MatchConfig.cardsPerTurn"/> cards, then <see cref="EndTurn"/>.
     /// A phase with nobody to play (night in Farm vs Forest) just fires its effects.
@@ -169,6 +169,7 @@ namespace FarmVsForest.Core
                 }
 
                 FirePhaseEffects(time);
+                if (time == TimeOfDay.Day && !IsOver) GhoulFeeding.FeedAll(this);
                 CheckGoals();
                 if (IsOver) return;
 

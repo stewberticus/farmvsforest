@@ -72,11 +72,11 @@ namespace FarmVsForest.Tests
             Put(m, 0, F(FactoryCards.ToyAssemblerId), 0, 0);
             Put(m, 0, F(FactoryCards.NightShiftAssemblerId), 1, 0);
             Put(m, 0, F(FactoryCards.ScrapPileId), 0, 1);
-            m.GainResource(m.Players[0], ResourceType.Parts, 10);
+            m.GainResource(m.Players[0], ResourceType.Parts, 12);
 
             Assert.AreEqual(PlayResult.Ok, Whistle(m, 0, 2));
             Assert.AreEqual(2, Get(m, ResourceType.Toys));
-            Assert.AreEqual(1, Get(m, ResourceType.Parts), "10 - 5 for the Whistle - 2 x 2 run; the Scrap Pile isn't an Assembler, so it doesn't run");
+            Assert.AreEqual(3, Get(m, ResourceType.Parts), "12 - 5 for the Whistle - 2 x 2 run, leaving 3; the Scrap Pile isn't an Assembler, so it doesn't run");
         }
 
         [Test]
@@ -101,6 +101,31 @@ namespace FarmVsForest.Tests
             PassRound(m);
             PassRound(m);
             Assert.AreEqual(1, m.Players[0].Hand.Count(c => c.Definition.id == FactoryCards.ToyAssemblerId));
+        }
+
+        [Test]
+        public void Assemblers_OnlyUseSpareParts_AlwaysLeaving3()
+        {
+            var m = FactoryMatch();
+            Put(m, 0, F(FactoryCards.ToyAssemblerId), 0, 0);
+            Put(m, 0, F(FactoryCards.NightShiftAssemblerId), 1, 0);
+            m.GainResource(m.Players[0], ResourceType.Parts, 6);
+            PassRound(m);
+            Assert.AreEqual(1, Get(m, ResourceType.Toys), "day: 6 -> 4 Parts and a Toy; night: 4 isn't enough to keep 3");
+            Assert.AreEqual(4, Get(m, ResourceType.Parts));
+        }
+
+        [Test]
+        public void SparePartsBin_Gives2NowAnd1EveryThirdDay()
+        {
+            var m = FactoryMatch();
+            var bin = m.AddToHand(m.Players[0], F(FactoryCards.SparePartsBinId));
+            Put(m, 0, F(FactoryCards.ScrapPileId), 0, 0);
+            Assert.AreEqual(PlayResult.Ok, m.PlayCard(0, bin, new Coord(1, 0)));
+            Assert.AreEqual(2, Get(m, ResourceType.Parts));
+            int before = Get(m, ResourceType.Parts);
+            PassRound(m); PassRound(m); PassRound(m);
+            Assert.AreEqual(before + 3 + 1, Get(m, ResourceType.Parts), "3 from the Scrap Pile, 1 from the Bin on its 3rd day");
         }
     }
 }

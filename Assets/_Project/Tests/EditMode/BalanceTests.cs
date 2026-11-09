@@ -100,9 +100,9 @@ namespace FarmVsForest.Tests
             var s = new BalanceSettings();
             var barnScore = scores.First(c => c.Card.id == "test.barn");
             Assert.IsEmpty(barnScore.Warnings);
-            // 5 Cows over the horizon, each worth madeCardValue plus how far the Cow is above its own par.
+            // 5 Cows over the horizon, each worth madeCardValue plus a share of how far the Cow is above its own par.
             double cowExtra = 20 - s.Par(2);
-            Assert.AreEqual(5 * (s.madeCardValue + cowExtra), barnScore.Value, 1e-9);
+            Assert.AreEqual(5 * (s.madeCardValue + s.madeCardExcessShare * cowExtra), barnScore.Value, 1e-9);
         }
 
         [Test]
