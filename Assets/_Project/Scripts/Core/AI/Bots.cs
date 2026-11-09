@@ -79,7 +79,8 @@ namespace FarmVsForest.Core
                 double cardScore = ScoreCard(match, p, card.Definition);
                 foreach (var square in match.LegalSquares(p, card.Definition))
                 {
-                    double total = cardScore + ScoreSquare(match, p, card.Definition, square) + _rng.Range(0, 1000) / 1000.0 * Noise;
+                    double total = cardScore + ScoreSquare(match, p, card.Definition, square) +
+                                   TouchingValue(match, p, card.Definition, square) + _rng.Range(0, 1000) / 1000.0 * Noise;
                     if (total > bestScore)
                     {
                         bestScore = total;
@@ -153,6 +154,32 @@ namespace FarmVsForest.Core
                 board.Neighbours(square).Select(board.Get).Any(c => c != null && c.Owner == p && c.Definition.HasTag(group.Tag)))
                 score += 2;
             return score;
+        }
+
+        /// <summary>
+        /// The card's price assumes an average number of touching cards for "per touching" effects. Correct that for
+        /// this square: a Chicken Coop touching no crops is worth nothing, one touching three is worth a lot. Also counts
+        /// what this card adds to touching cards whose own effects care about it.
+        /// </summary>
+        private double TouchingValue(Match match, PlayerState p, CardDefinition def, Coord square)
+        {
+            var board = match.Board;
+            var mine = board.Neighbours(square).Select(board.Get).Where(c => c != null && c.Owner == p).ToList();
+            double v = 0;
+            foreach (var e in def.effects ?? new List<EffectDefinition>())
+            {
+                if (e.kind != EffectKind.GainPerTouching) continue;
+                double expected = string.IsNullOrEmpty(e.tag) ? _settings.expectedTouchingAny : _settings.expectedTouchingTagged;
+                int actual = mine.Count(c => string.IsNullOrEmpty(e.tag) || c.Definition.HasTag(e.tag));
+                v += (actual - expected) * e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
+            }
+            foreach (var n in mine)
+            foreach (var e in n.Definition.effects ?? new List<EffectDefinition>())
+            {
+                if (e.kind != EffectKind.GainPerTouching || !(string.IsNullOrEmpty(e.tag) || def.HasTag(e.tag))) continue;
+                v += e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
+            }
+            return v;
         }
 
         /// <summary>Does placing <paramref name="def"/> next to <paramref name="neighbour"/> help either card's per-touching effects?</summary>

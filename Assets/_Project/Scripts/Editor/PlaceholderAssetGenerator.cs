@@ -49,6 +49,8 @@ namespace FarmVsForest.Editor
         /// <summary>Copies in the starter deck: designed teams have a deck list, placeholder teams use 12 free / 7 paid.</summary>
         private static int Copies(Team team, CardDefinition def)
         {
+            if (team == Team.Farm)
+                return FarmCards.DeckCopies.TryGetValue(def.id, out var farmCopies) ? farmCopies : 0;
             if (team == Team.Forest)
                 foreach (var (card, copies) in ForestCards.DeckList)
                     if (card.id == def.id) return copies;

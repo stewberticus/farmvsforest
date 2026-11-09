@@ -50,7 +50,7 @@ their goal wins for their side (in 2v2, either partner's goal counts).
 
 | Team | Goal class | Config |
 | --- | --- | --- |
-| Farm | `HaveResourcesGoal` (Wheat, Milk, Eggs) | `farmGoalEach` = 20 |
+| Farm | `HaveResourcesGoal` (Wheat, Milk, Eggs) | `farmGoalEach` = 40 |
 | Forest | `ConnectedTaggedCardsGoal` (cards tagged `tree`, one touching group) | `forestGoalTrees` = 30 |
 | Factory | `GainInOneRoundGoal` (Goods made between one dawn and the next) | `factoryGoalGoods` = 10 |
 | Dark Forest | `HaveResourcesGoal` (Ghouls) | `darkForestGoalGhouls` = 13 |
