@@ -71,12 +71,25 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void StartingHands_AreDealt_AndFirstPlayerSkipsDrawByDefault()
+        public void StartingHands_AreDealt_AndNobodyDrawsOnTheirFirstTurn()
         {
             var config = PlaceholderCards.DefaultConfig(GameMode.OneVsOne);
             var m = Started(config);
             Assert.AreEqual(config.startingHandSize, m.Players[0].Hand.Count);
             Assert.AreEqual(config.startingHandSize, m.Players[1].Hand.Count);
+            m.EndTurn(0);
+            Assert.AreEqual(config.startingHandSize, m.Players[1].Hand.Count, "second player skips their first draw too");
+            m.EndTurn(1);
+            // Night passes (no night team here), then each player draws on their second turn.
+            Assert.AreEqual(config.startingHandSize + 1, m.Players[0].Hand.Count, "first player draws on their second turn");
+        }
+
+        [Test]
+        public void OldRule_OnlyTheFirstTurnOfTheMatchSkipsItsDraw()
+        {
+            var config = PlaceholderCards.DefaultConfig(GameMode.OneVsOne);
+            config.everyoneSkipsFirstDraw = false;
+            var m = Started(config);
             m.EndTurn(0);
             Assert.AreEqual(config.startingHandSize + 1, m.Players[1].Hand.Count, "second player draws on their turn");
         }

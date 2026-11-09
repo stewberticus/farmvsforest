@@ -50,8 +50,17 @@ namespace FarmVsForest.Core
         public int drawsPerTurn = 1;
         /// <summary>Decided: one card per turn.</summary>
         public int cardsPerTurn = 1;
-        /// <summary>The very first turn of the match skips its draw, to soften first-player advantage.</summary>
+        /// <summary>
+        /// Old rule: only the very first turn of the match skips its draw. It made going first weaker (seat 1 won
+        /// 42% of Farm vs Forest) and always hit a day team, never Dark Forest. Ignored while
+        /// <see cref="everyoneSkipsFirstDraw"/> is on.
+        /// </summary>
         public bool firstPlayerSkipsDraw = true;
+        /// <summary>
+        /// Proposed rule (2026-11-09): nobody draws on their own first turn; the opening hand is your first draw.
+        /// Every player gets the same number of cards by their Nth turn, so neither seat is a card behind.
+        /// </summary>
+        public bool everyoneSkipsFirstDraw = true;
 
         /// <summary>
         /// Starting cards make nothing, so a hand with no free card can't play at all. If true, the opening hand

@@ -334,3 +334,21 @@ About 1% of solo games never finish, and a person would be stuck in them too:
 * **Farm (0.8%)**: either the same hand lock, or Milk never starts. Cows come from the deck or from the Big Red Barn,
   and the Big Red Barn costs Milk.
 
+## 11. Going first (2026-11-09)
+
+Seat 1 won only 42% of Farm vs Forest. The cause was the old rule "the first turn of the match skips its draw": the
+first player was a card behind the second all game. It also always hit a day team (Dark Forest never takes turn 1),
+which quietly helped Dark Forest.
+
+Options tried (1,000 games per matchup, seeds 3001 and 4001):
+
+| Rule | Seat 1 wins | Matchups | Mean rounds |
+| --- | --- | --- | --- |
+| Old: first turn of the match skips its draw | 42 to 53% | 45 to 55% | 20.1 to 20.6 |
+| Nobody skips | 51 to 53% | 42 to 58% (Dark Forest drops to 42 to 45%) | 19.8 to 20.4 |
+| Nobody skips, Dark Forest starts with 5 cards | 50 to 53% | 39 to 61% (an extra card doesn't help Dark Forest) | 19.8 to 20.4 |
+| **Everyone skips their own first draw** (chosen) | 49 to 55% | 45 to 55% | 20.1 to 21.0 |
+
+`everyoneSkipsFirstDraw` (on by default): your opening hand is your first draw, so nobody draws on their own first
+turn. Every player has the same number of cards by their Nth turn. Dark Forest also skips one draw, which costs it
+little, so its matchups stay where they were.

@@ -35,7 +35,7 @@ namespace FarmVsForest.Tests
             var config = new MatchConfig
             {
                 mode = mode, boardSize = boardSize, fourPlayerBoardSize = boardSize, startingHandSize = 3,
-                firstPlayerSkipsDraw = false,
+                firstPlayerSkipsDraw = false, everyoneSkipsFirstDraw = false,
             };
             teams = teams ?? new[] { Team.Farm, Team.Forest, Team.Factory, Team.DarkForest };
             for (int i = 0; i < GameModes.PlayerCount(mode); i++)
