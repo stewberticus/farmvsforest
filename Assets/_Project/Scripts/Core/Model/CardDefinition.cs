@@ -41,5 +41,7 @@ namespace FarmVsForest.Core
         public const string Tree = "tree";
         /// <summary>Marks a team's starting corner card.</summary>
         public const string Start = "start";
+        /// <summary>Factory machines that turn Parts into Toys. Wrapping Station and Big Whistle care about them.</summary>
+        public const string Assembler = "assembler";
     }
 }

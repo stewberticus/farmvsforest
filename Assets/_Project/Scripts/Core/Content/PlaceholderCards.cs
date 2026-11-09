@@ -23,8 +23,7 @@ namespace FarmVsForest.Core
                     return Card("forest.huge_tree", "Huge Tree", team, "Every day: gain 1 Acorn.", Cost(),
                         new[] { Tags.Start, Tags.Tree }, Every(EffectTrigger.Day, ResourceType.Acorns, 1));
                 case Team.Factory:
-                    return Card("factory.headquarters", "Headquarters", team, "Every day: gain 1 Part.", Cost(),
-                        new[] { Tags.Start }, Every(EffectTrigger.Day, ResourceType.Parts, 1));
+                    return FactoryCards.Headquarters();
                 default:
                     return Card("dark.evil_tree", "Evil Tree", team, "Every night: gain 1 Bat.", Cost(),
                         new[] { Tags.Start, Tags.Tree }, Every(EffectTrigger.Night, ResourceType.Bats, 1));
@@ -39,7 +38,7 @@ namespace FarmVsForest.Core
             {
                 case Team.Farm: return Farm();
                 case Team.Forest: return Forest();
-                case Team.Factory: return Factory();
+                case Team.Factory: return FactoryCards.All();
                 default: return DarkForest();
             }
         }
@@ -47,9 +46,10 @@ namespace FarmVsForest.Core
         public static IEnumerable<CardDefinition> All() =>
             new[] { Team.Farm, Team.Forest, Team.Factory, Team.DarkForest }.SelectMany(ForTeam);
 
-        /// <summary>A 40-card deck: 12 copies of the team's free card and 7 of each other card.</summary>
+        /// <summary>A team's starting deck. Designed teams use their own list (Factory: <see cref="FactoryCards.Deck"/>); placeholder teams get 40 cards: 12 copies of the team's free card and 7 of each other card.</summary>
         public static List<CardDefinition> StarterDeck(Team team)
         {
+            if (team == Team.Factory) return FactoryCards.Deck();
             var deck = new List<CardDefinition>();
             foreach (var c in ForTeam(team))
             {
@@ -94,26 +94,6 @@ namespace FarmVsForest.Core
                 Card("forest.owls_hollow", "Owl's Hollow", T, "Every 3 nights: draw a card.", Cost(ResourceType.Acorns, 3),
                     new[] { Tags.Tree },
                     new EffectDefinition(EffectTrigger.Night, EffectKind.DrawCard, 1, interval: 3)),
-            };
-        }
-
-        private static List<CardDefinition> Factory()
-        {
-            const Team T = Team.Factory;
-            return new List<CardDefinition>
-            {
-                Card("factory.scrap_pile", "Scrap Pile", T, "Every day: gain 1 Part.", Cost(), new string[0],
-                    Every(EffectTrigger.Day, ResourceType.Parts, 1)),
-                Card("factory.workshop", "Workshop", T, "Every day: gain 2 Parts.", Cost(ResourceType.Parts, 2), new string[0],
-                    Every(EffectTrigger.Day, ResourceType.Parts, 2)),
-                Card("factory.assembler", "Night Shift Assembler", T, "Every night: turn 2 Parts into 1 Goods.",
-                    Cost(ResourceType.Parts, 3), new string[0],
-                    new EffectDefinition(EffectTrigger.Night, EffectKind.ConvertResource, 1, ResourceType.Goods)
-                        { fromResource = ResourceType.Parts, fromAmount = 2 }),
-                Card("factory.clock_tower", "Clock Tower", T, "Once, after 3 days: gain 4 Goods.", Cost(ResourceType.Parts, 4),
-                    new string[0], Every(EffectTrigger.Day, ResourceType.Goods, 4, interval: 3, repeat: false)),
-                Card("factory.warehouse", "Warehouse", T, "When played: draw a card.", Cost(ResourceType.Parts, 1), new string[0],
-                    new EffectDefinition(EffectTrigger.OnPlay, EffectKind.DrawCard, 1)),
             };
         }
 

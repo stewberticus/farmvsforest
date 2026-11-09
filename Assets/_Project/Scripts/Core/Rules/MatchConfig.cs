@@ -61,8 +61,8 @@ namespace FarmVsForest.Core
         public int farmGoalEach = 20;
         /// <summary>Forest wins with this many Tree cards in one touching group.</summary>
         public int forestGoalTrees = 30;
-        /// <summary>Factory wins by making this many Goods in one round.</summary>
-        public int factoryGoalGoods = 10;
+        /// <summary>Factory wins by making this many Toys in one round (day + night).</summary>
+        public int factoryGoalToys = 10;
         /// <summary>Dark Forest wins with this many Ghouls at once.</summary>
         public int darkForestGoalGhouls = 13;
 

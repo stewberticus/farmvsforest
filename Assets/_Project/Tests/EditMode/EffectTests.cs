@@ -88,17 +88,17 @@ namespace FarmVsForest.Tests
         public void Convert_SpendsOneResourceForAnother_OnlyIfAffordable()
         {
             var assembler = Card("assembler", effects: new EffectDefinition(EffectTrigger.Day, EffectKind.ConvertResource, 1,
-                ResourceType.Goods) { fromResource = ResourceType.Parts, fromAmount = 2 });
+                ResourceType.Toys) { fromResource = ResourceType.Parts, fromAmount = 2 });
             var m = Started(SimpleConfig(Card("x")));
             Put(m, 0, assembler, 0, 0);
             m.Players[0].Resources.Add(ResourceType.Parts, 3);
 
             PassRound(m);
             Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Parts));
-            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Goods));
+            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Toys));
             PassRound(m);
             Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Parts), "can't afford, nothing happens");
-            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Goods));
+            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Toys));
         }
 
         [Test]
