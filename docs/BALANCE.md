@@ -258,3 +258,41 @@ With those goals, every 1v1 matchup ended at a median of round 18 and all four t
 
 * Opening hand always has a free card (now on by default in the engine).
 * Deck size: the model suggests 30 or fewer, since only about 24 cards are seen per game.
+
+## 9. Cross-team pass (2026-11-09)
+
+All four team designs merged, then they were tuned together against Alexander's targets:
+
+* **Dark Forest's goal stays at 13 Ghouls.** Dark Forest is paced by its cards instead (Dark Forest thread, PR #10).
+* **Games last 20+ rounds on average.** A 1v1 ends when the faster team wins, so each team's solo (goldfish)
+  median has to be about round 22 for the matchups to average 20.
+* **No team wins more than 55% of any 1v1 matchup.**
+
+Reports: [before](balance-reports/2026-11-09-cross-team-before.md), [first pass](balance-reports/2026-11-09-cross-team-v1.md),
+[final](balance-reports/2026-11-09-cross-team-v2.md) (1,000 games per matchup, greedy bots, 10x10).
+
+| Team | Goal before → final | Goldfish median before → final | 1v1 win rate before → final |
+| --- | --- | --- | --- |
+| Farm | 40 of each → **62** | 20 → 22 | 46% → 50% |
+| Forest | 30 trees → **33** | 22 → 23 | 26% → 50% |
+| Factory | 10 Toys in a round → **15** (Factory v2 cards) | 16 → 22 | 64% → 52% |
+| Dark Forest | 13 Ghouls → **13** (slower Ghoul cards) | 17 → 22 | 64% → 48% |
+
+Final: every matchup is 45 to 55% on two different seeds (1,000 games each), games average 20.1 to 20.9 rounds, and
+every game ends on a goal. At 1,000 games a matchup's win rate is only known to about ±3%, so 55% versus 56% is noise.
+Teams meet in about 40 to 95% of games, mostly around round 15 to 18.
+
+Value-model fixes made on the way:
+
+* Card makers now count only 10% of the made card's value above its par (`madeCardExcessShare`). Big Red Barn and
+  Nesting Box had been priced at +229%. In play they had no win-rate edge, so they're now on curve.
+* The simulator looks up made cards from each match's own catalog, so the Factory's makers get priced.
+* The matchup table shows mean rounds, and flags a mean under 20 or a win rate outside 45 to 55%.
+
+Still open:
+
+* **Going second wins a little more often** (seat 1 wins 41 to 47% in most matchups, and 41% in Farm vs Forest).
+  Watch it in playtests before changing any rule.
+* Card flags that are the model's fault, not the card's: per-touching cards (Cow, Chicken Coop, Blossom Hive,
+  Wrapping Station) are priced at 1.2 touching cards, but each team's layout gets more. Their goals are tuned with
+  them in, so leave them unless playtests disagree.

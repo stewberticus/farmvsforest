@@ -44,18 +44,19 @@ namespace FarmVsForest.Core
             Card(MoonlightRobotId, "Moonlight Robot", "Every night: gain 2 Parts.", Cost(2), new string[0],
                 Gain(EffectTrigger.Night, Parts, 2)),
 
-            Card(ToyAssemblerId, "Toy Assembler", "Every day: turn 2 Parts into 1 Toy.", Cost(3),
+            Card(ToyAssemblerId, "Toy Assembler", "Every day: turn 2 spare Parts into 1 Toy (always leaves you 3 Parts).", Cost(3),
                 new[] { Tags.Assembler }, Convert(EffectTrigger.Day)),
 
-            Card(NightShiftAssemblerId, "Night Shift Assembler", "Every night: turn 2 Parts into 1 Toy.", Cost(3),
+            Card(NightShiftAssemblerId, "Night Shift Assembler", "Every night: turn 2 spare Parts into 1 Toy (always leaves you 3 Parts).", Cost(3),
                 new[] { Tags.Assembler }, Convert(EffectTrigger.Night)),
 
             Card(WrappingStationId, "Wrapping Station", "Every night: gain 1 Toy for each Assembler it touches.",
                 Cost(3), new string[0],
                 new EffectDefinition(EffectTrigger.Night, EffectKind.GainPerTouching, 1, Toys) { tag = Tags.Assembler }),
 
-            Card(SparePartsBinId, "Spare Parts Bin", "When played: gain 2 Parts.", Free(), new string[0],
-                Gain(EffectTrigger.OnPlay, Parts, 2)),
+            Card(SparePartsBinId, "Spare Parts Bin", "When played: gain 2 Parts. Every 3 days: gain 1 Part.", Free(),
+                new string[0], Gain(EffectTrigger.OnPlay, Parts, 2),
+                new EffectDefinition(EffectTrigger.Day, EffectKind.GainResource, 1, Parts, interval: 3)),
 
             Card(BlueprintDeskId, "Blueprint Desk", "Every 2 days: add a Toy Assembler to your hand.", Cost(2),
                 new string[0], AddToHand(EffectTrigger.Day, ToyAssemblerId)),
@@ -111,10 +112,14 @@ namespace FarmVsForest.Core
         private static EffectDefinition Gain(EffectTrigger trigger, ResourceType resource, int amount) =>
             new EffectDefinition(trigger, EffectKind.GainResource, amount, resource);
 
+        /// <summary>Assemblers only use spare Parts: they always leave this many for building.</summary>
+        public static int AssemblerKeepsParts = 3;
+
         private static EffectDefinition Convert(EffectTrigger trigger) =>
-            new EffectDefinition(trigger, EffectKind.ConvertResource, 1, Toys) { fromResource = Parts, fromAmount = 2 };
+            new EffectDefinition(trigger, EffectKind.ConvertResource, 1, Toys)
+                { fromResource = Parts, fromAmount = 2, fromKeep = AssemblerKeepsParts };
 
         private static EffectDefinition AddToHand(EffectTrigger trigger, string cardId) =>
-            new EffectDefinition(trigger, EffectKind.AddCardToHand, 1, interval: 2) { cardId = cardId };
+            new EffectDefinition(trigger, EffectKind.AddCardToHand, 1, interval: 2) { cardId = cardId, skipIfInHand = true };
     }
 }

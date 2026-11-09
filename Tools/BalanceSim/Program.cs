@@ -137,7 +137,8 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
 
             if (Want("cards"))
             {
-                var cards = teams.SelectMany(t => sim.DeckFor(t).Concat(new[] { sim.StartingCardFor(t) })).Where(c => c != null);
+                var cards = teams.SelectMany(t => sim.DeckFor(t).Concat(PlaceholderCards.ForTeam(t)).Concat(new[] { sim.StartingCardFor(t) }))
+                    .Where(c => c != null);
                 sb.AppendLine("## Cards (value model vs par, and how they did in the matchups above)");
                 sb.AppendLine();
                 sb.AppendLine(BalanceReport.Cards(cards, settings, allGames, flags));

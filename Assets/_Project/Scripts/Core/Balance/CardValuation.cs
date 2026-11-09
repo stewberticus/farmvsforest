@@ -34,6 +34,12 @@ namespace FarmVsForest.Core
         /// far that card is above its own par. More than a random draw because you know what you're getting.
         /// </summary>
         public double madeCardValue = 3;
+        /// <summary>
+        /// Share of the made card's value above its own par that counts towards the maker. Low, because every made
+        /// card still costs one of your plays and its own cost. Calibrated on the first cross-team sim (2026-11-09):
+        /// Big Red Barn and Nesting Box had no win-rate edge when played, which this share prices as on curve.
+        /// </summary>
+        public double madeCardExcessShare = 0.1;
         /// <summary>Finds a card by id, for pricing AddCardToHand. Set by EvaluateAll from the cards it's given.</summary>
         [NonSerialized] public Func<string, CardDefinition> cardLookup;
         /// <summary>A once-only delayed effect loses this fraction of its value for every round you wait.</summary>
@@ -68,6 +74,8 @@ namespace FarmVsForest.Core
         /// <summary>Hand-set values for Custom effects, by customEffectId. Unknown ones are flagged.</summary>
         public Dictionary<string, double> customEffectValue = new Dictionary<string, double>
         {
+            // Factory's Big Whistle: about 4 Assemblers each making 1 Toy (3 V) when it's played.
+            { RunTaggedCardsEffect.Id, 12 },
             // Picnic Blanket: 2 free Ghoul meals a day, but only once you have Ghouls (about 60% of its life).
             { DarkForestCards.FreeMealsEffect, 1.2 },
         };
@@ -167,7 +175,7 @@ namespace FarmVsForest.Core
                     double extra = 0;
                     if (made == null) warning = "Can't find card '" + e.cardId + "' to price AddCardToHand.";
                     else if (depth < 2) extra = Math.Max(0, Evaluate(made, s, depth + 1).Value - s.Par(Evaluate(made, s, depth + 1).Cost));
-                    each = e.amount * (s.madeCardValue + extra);
+                    each = e.amount * (s.madeCardValue + s.madeCardExcessShare * extra);
                     why = when + ": add " + e.amount + " " + (made?.displayName ?? e.cardId) + " card to hand";
                     break;
                 case EffectKind.ConvertResource:
@@ -211,11 +219,10 @@ namespace FarmVsForest.Core
         {
             s = s ?? new BalanceSettings();
             var unique = cards.Where(c => c != null).GroupBy(c => c.id).Select(g => g.First()).ToList();
-            if (s.cardLookup == null)
-            {
-                var byId = unique.Where(c => c.id != null).ToDictionary(c => c.id);
-                s.cardLookup = id => id != null && byId.TryGetValue(id, out var c) ? c : null;
-            }
+            // Look in the cards we were given first, then whatever lookup was already set (e.g. a match's catalog).
+            var byId = unique.Where(c => c.id != null).ToDictionary(c => c.id);
+            var fallback = s.cardLookup;
+            s.cardLookup = id => id != null && byId.TryGetValue(id, out var c) ? c : fallback?.Invoke(id);
             return unique.Select(c => Evaluate(c, s)).OrderByDescending(c => Math.Abs(c.Delta)).ToList();
         }
     }

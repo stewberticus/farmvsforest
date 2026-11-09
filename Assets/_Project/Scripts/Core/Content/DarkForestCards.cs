@@ -49,12 +49,12 @@ namespace FarmVsForest.Core
             new EffectDefinition(EffectTrigger.Day, EffectKind.Custom, 2) { customEffectId = FreeMealsEffect });
 
         public static CardDefinition GigglingGraveyard => Card("dark.giggling_graveyard", "Giggling Graveyard",
-            "Every 3 nights: gain 1 Ghoul.", Cost(ResourceType.Bats, 2, ResourceType.Spiders, 2), new[] { Haunt },
-            Every(EffectTrigger.Night, ResourceType.Ghouls, 1, interval: 3));
+            "Every 4 nights: gain 1 Ghoul.", Cost(ResourceType.Bats, 2, ResourceType.Spiders, 2), new[] { Haunt },
+            Every(EffectTrigger.Night, ResourceType.Ghouls, 1, interval: 4));
 
         public static CardDefinition HauntedLantern => Card("dark.haunted_lantern", "Haunted Lantern",
-            "Every night: gain 1 Ghoul.", Cost(ResourceType.Bats, 6, ResourceType.Spiders, 4), new[] { Haunt },
-            Every(EffectTrigger.Night, ResourceType.Ghouls, 1));
+            "Every 2 nights: gain 1 Ghoul.", Cost(ResourceType.Bats, 4, ResourceType.Spiders, 3), new[] { Haunt },
+            Every(EffectTrigger.Night, ResourceType.Ghouls, 1, interval: 2));
 
         public static CardDefinition FullMoonShrine => Card("dark.full_moon_shrine", "Full Moon Shrine",
             "Every 3 nights: gain 1 Ghoul for each touching Graveyard or Lantern.", Cost(ResourceType.Spiders, 4),
@@ -72,8 +72,8 @@ namespace FarmVsForest.Core
         /// <summary>How many copies of each card go in the 30-card starter deck.</summary>
         public static readonly Dictionary<string, int> Copies = new Dictionary<string, int>
         {
-            { "dark.bat_roost", 7 }, { "dark.cobweb_corner", 6 }, { "dark.glow_mushrooms", 4 }, { "dark.sleepy_web", 3 },
-            { "dark.bat_belfry", 2 }, { "dark.picnic_blanket", 2 }, { "dark.giggling_graveyard", 3 },
+            { "dark.bat_roost", 7 }, { "dark.cobweb_corner", 7 }, { "dark.glow_mushrooms", 4 }, { "dark.sleepy_web", 3 },
+            { "dark.bat_belfry", 2 }, { "dark.picnic_blanket", 2 }, { "dark.giggling_graveyard", 2 },
             { "dark.haunted_lantern", 1 }, { "dark.full_moon_shrine", 2 },
         };
 
