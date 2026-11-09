@@ -28,6 +28,7 @@ namespace FarmVsForest.Core
         private readonly List<PlayerState> _phaseQueue = new List<PlayerState>();
         private int _queuePos;
         private int _nextInstanceId = 1;
+        private readonly Dictionary<string, CardDefinition> _cardsById = new Dictionary<string, CardDefinition>(StringComparer.Ordinal);
 
         public MatchConfig Config { get; }
         public Board Board { get; private set; }
@@ -102,6 +103,7 @@ namespace FarmVsForest.Core
                 }
             }
 
+            IndexCards();
             IsStarted = true;
             Raise(new GameEvent { Type = GameEventType.MatchStarted, Message = "Match started: " + Config.mode });
 
@@ -109,6 +111,24 @@ namespace FarmVsForest.Core
 
             Round = 1;
             BeginPhase(TimeOfDay.Day);
+        }
+
+        /// <summary>Looks up a card definition by id among the catalog, every deck and every starting card.</summary>
+        public CardDefinition FindCard(string id) =>
+            id != null && _cardsById.TryGetValue(id, out var def) ? def : null;
+
+        private void IndexCards()
+        {
+            void Index(CardDefinition def)
+            {
+                if (def != null && !string.IsNullOrEmpty(def.id) && !_cardsById.ContainsKey(def.id)) _cardsById[def.id] = def;
+            }
+            foreach (var def in Config.cardCatalog ?? new List<CardDefinition>()) Index(def);
+            foreach (var setup in Config.players)
+            {
+                Index(setup.startingCard);
+                foreach (var def in setup.deck ?? new List<CardDefinition>()) Index(def);
+            }
         }
 
         public CardInstance CreateInstance(CardDefinition def, PlayerState owner) =>
@@ -307,6 +327,26 @@ namespace FarmVsForest.Core
                 Raise(new GameEvent { Type = GameEventType.CardDrawn, Player = player, Card = card,
                     Message = player + " drew a card" });
             }
+        }
+
+        /// <summary>
+        /// Creates a new copy of <paramref name="def"/> in the player's hand (it doesn't come from the deck).
+        /// With a full hand the card is lost, the same as an over-draw.
+        /// </summary>
+        public CardInstance AddToHand(PlayerState player, CardDefinition def, CardInstance source = null)
+        {
+            if (player.Hand.Count >= Config.maxHandSize)
+            {
+                Raise(new GameEvent { Type = GameEventType.CardBurned, Player = player, Source = source,
+                    Message = player + " had a full hand, so the " + def + (source != null ? " from " + source.Definition : "") +
+                              " was lost" });
+                return null;
+            }
+            var card = CreateInstance(def, player);
+            player.Hand.Add(card);
+            Raise(new GameEvent { Type = GameEventType.CardAddedToHand, Player = player, Card = card, Source = source,
+                Message = player + " got a " + def + (source != null ? " from " + source.Definition : "") });
+            return card;
         }
 
         public void GainResource(PlayerState player, ResourceType type, int amount, CardInstance source = null)

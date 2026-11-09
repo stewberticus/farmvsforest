@@ -14,6 +14,8 @@ namespace FarmVsForest.Core
         ResourcesSpent,
         GoalReached,
         MatchEnded,
+        /// <summary>A card effect put a brand new card into a player's hand (not drawn from the deck).</summary>
+        CardAddedToHand,
     }
 
     /// <summary>

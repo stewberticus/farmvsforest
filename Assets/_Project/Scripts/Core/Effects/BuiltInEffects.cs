@@ -52,3 +52,23 @@ namespace FarmVsForest.Core
         }
     }
 }
+
+namespace FarmVsForest.Core
+{
+    /// <summary>Puts new copies of a named card into the target players' hands, e.g. a Barn adding a Cow.</summary>
+    public class AddCardToHandEffect : IEffect
+    {
+        public void Apply(EffectContext ctx)
+        {
+            var e = ctx.Effect;
+            var def = ctx.Match.FindCard(e.cardId);
+            if (def == null)
+                throw new System.Collections.Generic.KeyNotFoundException(
+                    ctx.Source + " wants to add card '" + e.cardId + "' to hand, but no card with that id is in the " +
+                    "match. Add it to MatchConfig.cardCatalog or to a deck.");
+            foreach (var p in ctx.TargetPlayers)
+                for (int i = 0; i < e.amount; i++)
+                    ctx.Match.AddToHand(p, def, ctx.Source);
+        }
+    }
+}

@@ -142,7 +142,7 @@ namespace FarmVsForest.Core
         public static MatchConfig DefaultConfig(GameMode mode, int seed = 12345, params Team[] teams)
         {
             if (teams == null || teams.Length == 0) teams = new[] { Team.Farm, Team.Forest, Team.Factory, Team.DarkForest };
-            var config = new MatchConfig { mode = mode, seed = seed };
+            var config = new MatchConfig { mode = mode, seed = seed, cardCatalog = All().ToList() };
             for (int i = 0; i < GameModes.PlayerCount(mode); i++)
             {
                 var team = teams[i % teams.Length];

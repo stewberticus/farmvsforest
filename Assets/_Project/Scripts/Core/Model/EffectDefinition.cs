@@ -31,6 +31,11 @@ namespace FarmVsForest.Core
         ConvertResource = 2,
         /// <summary>Gain <c>amount</c> of <c>resource</c> for each of your cards touching this one that has <c>tag</c> (any card if empty).</summary>
         GainPerTouching = 3,
+        /// <summary>
+        /// Put <c>amount</c> new copies of the card with id <c>cardId</c> into your hand, e.g. "Every 2 days: add a Cow
+        /// to your hand". The new card still costs its normal price to play. If your hand is full the card is lost.
+        /// </summary>
+        AddCardToHand = 4,
         /// <summary>Looks up <see cref="EffectDefinition.customEffectId"/> in the EffectRegistry.</summary>
         Custom = 100,
     }
@@ -72,6 +77,9 @@ namespace FarmVsForest.Core
 
         /// <summary>Used by GainPerTouching: only touching cards with this tag count. Empty counts any of your cards.</summary>
         public string tag;
+
+        /// <summary>Used by AddCardToHand: the id of the card to create, e.g. "farm.cow".</summary>
+        public string cardId;
 
         /// <summary>Used when kind is Custom.</summary>
         public string customEffectId;
