@@ -64,7 +64,7 @@ namespace FarmVsForest.Core
         // ---- Team goals (starting numbers, to tune)
 
         /// <summary>Farm wins with this many Wheat, Milk and Eggs at once.</summary>
-        public int farmGoalEach = 20;
+        public int farmGoalEach = 40;
         /// <summary>Forest wins with this many Tree cards in one touching group.</summary>
         public int forestGoalTrees = 30;
         /// <summary>

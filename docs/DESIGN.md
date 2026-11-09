@@ -44,13 +44,15 @@ Each round is one **day** followed by one **night**.
 
 | Team | Goal |
 | --- | --- |
-| Farm | Have 20 Wheat, 20 Milk and 20 Eggs. |
+| Farm | Have 40 Wheat, 40 Milk and 40 Eggs (was 20; raised to hit the round-20 target, pending Alexander's OK). |
 | Forest | Have 30 Tree cards all touching (one connected forest). |
 | Factory | Make 10 Goods in a single turn (starting number). |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once. How Ghouls are made will be decided when Dark Forest is designed (no combining). |
 
 ## Team designs
 
+* **Farm**: [teams/FARM.md](teams/FARM.md). Land → Wheat → Milk and Eggs. Animals make more for every crop touching
+  them, and Milk and Egg buildings add Cows, Chicken Coops and Wheat Fields to your hand.
 * **Forest**: [teams/FOREST.md](teams/FOREST.md). Spreads by playing extra trees: after its normal card, Forest can pay
   2 Acorns to play another tree card. Generator cards add Saplings to its hand.
 
