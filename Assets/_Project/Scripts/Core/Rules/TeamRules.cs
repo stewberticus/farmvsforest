@@ -28,6 +28,17 @@ namespace FarmVsForest.Core
             }
         }
 
+        /// <summary>
+        /// The extra cost to play <paramref name="card"/> after the player has used their normal plays this turn, or
+        /// null if they can't. Forest: any Tree card, for <see cref="MatchConfig.forestExtraTreeAcorns"/> Acorns.
+        /// </summary>
+        public static List<ResourceAmount> ExtraPlayCost(Team team, CardDefinition card, MatchConfig config)
+        {
+            if (team == Team.Forest && config.forestExtraTreeAcorns > 0 && card.HasTag(Tags.Tree))
+                return new List<ResourceAmount> { new ResourceAmount(ResourceType.Acorns, config.forestExtraTreeAcorns) };
+            return null;
+        }
+
         /// <summary>The goal for a team, with numbers taken from the match config.</summary>
         public static ITeamGoal DefaultGoal(Team team, MatchConfig config)
         {
