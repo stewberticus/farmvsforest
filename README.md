@@ -13,9 +13,12 @@ Balanced for **1v1**, with **2v2** and **1v1v1v1** for fun. See [docs/DESIGN.md]
 1. Open the folder in **Unity Hub** (Add > Add project from disk) with a **Unity 6** editor.
    No `ProjectVersion.txt` is committed yet, so Hub will ask which editor to use. Commit the
    `ProjectSettings/` folder Unity creates on first open.
-2. In the menu bar: **Farm vs Forest > Create Prototype Scene**, then press **Play**.
-   You get a hot-seat debug board: click a card in your hand, click a cyan square, then **End Turn**.
-   Each player's goal progress is shown in the side panel.
+2. Press **Play** in any scene. If the scene has no `MatchRunner` (the empty starting scene is fine), the
+   **v1 demo** starts by itself. To keep a proper scene, use **Farm vs Forest > Create Demo Scene**.
+   Pick a mode, a team for each seat and Human or Bot, then **Start**. Click a card in your hand, click a glowing
+   square, and press **End Turn** (or Space). The side panel shows every team's resources and goal progress, the
+   banner shows day or night, and a winner screen appears at the end. With two or more humans it's hot-seat.
+   **Farm vs Forest > Create Prototype Scene (debug board)** gives the older bare debug board for testing rules.
 3. Optional: **Farm vs Forest > Generate Placeholder Card Assets** turns the placeholder cards into
    editable assets under `Assets/_Project/Data/`. Drag a deck asset onto a seat on the `Match` object to use it.
 
@@ -29,7 +32,7 @@ game length and how every card prices against the curve. How to design and tune 
 | Path | What's in it |
 | --- | --- |
 | `Assets/_Project/Scripts/Core` | The rules engine. Plain C#, no Unity references (`noEngineReferences`). |
-| `Assets/_Project/Scripts/Runtime` | Unity glue: card and deck ScriptableObjects, `MatchRunner`, the debug IMGUI board. |
+| `Assets/_Project/Scripts/Runtime` | Unity glue: card and deck ScriptableObjects, `MatchRunner`, the v1 demo UI (`DemoGame`) and the debug board. |
 | `Assets/_Project/Scripts/Editor` | Editor menus for generating placeholder assets and the prototype scene. |
 | `Assets/_Project/Tests/EditMode` | NUnit tests for the rules. Run in Unity or with `dotnet test`. |
 | `Tools/CoreTests` | A .NET project that compiles Core + tests outside Unity (also used by CI). |
