@@ -8,28 +8,58 @@ namespace FarmVsForest.Tests
 {
     public class MatchSetupTests
     {
-        [TestCase(GameMode.OneVsOne, 2, 2)]
-        [TestCase(GameMode.TwoVsTwo, 4, 2)]
-        [TestCase(GameMode.FreeForAll, 4, 4)]
-        public void Modes_HaveExpectedPlayersAndAlliances(GameMode mode, int players, int alliances)
+        [TestCase(GameMode.OneVsOne, 2, 2, 12)]
+        [TestCase(GameMode.TwoVsTwo, 4, 2, 16)]
+        [TestCase(GameMode.FreeForAll, 4, 4, 16)]
+        public void Modes_HaveExpectedPlayersAlliancesAndBoardSize(GameMode mode, int players, int alliances, int size)
         {
             var m = Started(PlaceholderCards.DefaultConfig(mode));
             Assert.AreEqual(players, m.Players.Count);
             Assert.AreEqual(alliances, m.Players.Select(p => p.AllianceId).Distinct().Count());
             Assert.AreEqual(players, m.Players.Select(p => p.Corner).Distinct().Count(), "each player gets their own corner");
+            Assert.AreEqual(size, m.Board.Width);
+            Assert.AreEqual(size, m.Board.Height);
         }
 
         [Test]
-        public void TwoVsTwo_TurnsAlternateBetweenSides()
+        public void StartingCards_ArePlacedInEachCorner()
         {
-            var m = Started(PlaceholderCards.DefaultConfig(GameMode.TwoVsTwo));
-            int last = -1;
-            for (int i = 0; i < 4; i++)
+            var m = Started(PlaceholderCards.DefaultConfig(GameMode.FreeForAll));
+            foreach (var p in m.Players)
             {
-                Assert.AreNotEqual(last, m.CurrentPlayer.AllianceId);
-                last = m.CurrentPlayer.AllianceId;
-                m.EndTurn(m.CurrentPlayer.Id);
+                var corner = p.Corner.ToCoord(m.Board.Width, m.Board.Height);
+                Assert.AreSame(p.StartingCard, m.Board.Get(corner));
+                Assert.IsTrue(p.StartingCard.Definition.HasTag(Tags.Start));
             }
+        }
+
+        [Test]
+        public void DayTeamsPlayInTheDay_DarkForestPlaysAtNight()
+        {
+            var m = Started(PlaceholderCards.DefaultConfig(GameMode.FreeForAll));
+            // Seats: Farm, Forest, Factory, Dark Forest.
+            var order = new[] { (0, TimeOfDay.Day), (1, TimeOfDay.Day), (2, TimeOfDay.Day), (3, TimeOfDay.Night), (0, TimeOfDay.Day) };
+            foreach (var (id, time) in order)
+            {
+                Assert.AreEqual(id, m.CurrentPlayer.Id);
+                Assert.AreEqual(time, m.TimeOfDay);
+                m.EndTurn(id);
+            }
+            Assert.AreEqual(2, m.Round);
+        }
+
+        [Test]
+        public void WithoutDarkForest_BothPlayInTheDay_AndNightJustPasses()
+        {
+            var m = Started(SimpleConfig(Card("x"), teams: new[] { Team.Farm, Team.Factory }));
+            Assert.AreEqual(0, m.CurrentPlayer.Id);
+            m.EndTurn(0);
+            Assert.AreEqual(1, m.CurrentPlayer.Id);
+            Assert.AreEqual(TimeOfDay.Day, m.TimeOfDay);
+            m.EndTurn(1);
+            Assert.AreEqual(0, m.CurrentPlayer.Id);
+            Assert.AreEqual(2, m.Round);
+            Assert.IsTrue(m.Log.Any(e => e.Type == GameEventType.NightStarted));
         }
 
         [Test]
@@ -38,17 +68,6 @@ namespace FarmVsForest.Tests
             var config = PlaceholderCards.DefaultConfig(GameMode.OneVsOne);
             config.mode = GameMode.FreeForAll;
             Assert.Throws<InvalidOperationException>(() => new Match(config).Start());
-        }
-
-        [Test]
-        public void HomeCards_ArePlacedInCorners()
-        {
-            var m = Started(PlaceholderCards.DefaultConfig(GameMode.FreeForAll));
-            foreach (var p in m.Players)
-            {
-                var corner = p.Corner.ToCoord(m.Board.Width, m.Board.Height);
-                Assert.AreSame(p.HomeCard, m.Board.Get(corner));
-            }
         }
 
         [Test]
@@ -73,25 +92,15 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void Rounds_AdvanceAfterEveryoneHasPlayed()
-        {
-            var m = Started(SimpleConfig(Card("x")));
-            Assert.AreEqual(1, m.Round);
-            m.EndTurn(0);
-            Assert.AreEqual(1, m.Round);
-            m.EndTurn(1);
-            Assert.AreEqual(2, m.Round);
-        }
-
-        [Test]
-        public void RoundLimit_EndsInDraw()
+        public void RoundLimit_EndsWithMostSquaresWinning()
         {
             var config = SimpleConfig(Card("x"));
             config.roundLimit = 2;
             var m = Started(config);
+            Put(m, 1, Card("a"), 5, 5);
             for (int i = 0; i < 4; i++) m.EndTurn(m.CurrentPlayer.Id);
             Assert.IsTrue(m.IsOver);
-            Assert.IsNull(m.WinningAllianceId);
+            Assert.AreEqual(m.Players[1].AllianceId, m.WinningAllianceId);
         }
 
         [Test]

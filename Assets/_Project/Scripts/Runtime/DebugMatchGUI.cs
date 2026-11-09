@@ -66,11 +66,10 @@ namespace FarmVsForest.Runtime
                 Color bg;
                 if (card != null) bg = TeamColors[card.Owner.Team];
                 else if (_legal.Contains(c)) bg = Color.cyan;
-                else if (M.Players.Any(p => !p.IsEliminated && M.IsInHomeZone(p, c))) bg = new Color(0.45f, 0.45f, 0.45f);
                 else bg = new Color(0.25f, 0.25f, 0.25f);
                 GUI.backgroundColor = bg;
 
-                string label = card == null ? "" : card.Definition.displayName + "\n" + card.Health + "/" + card.MaxHealth;
+                string label = card == null ? "" : card.Definition.displayName;
                 if (GUI.Button(r, label, _cell)) OnSquareClicked(c, card, player);
             }
             GUI.backgroundColor = oldColor;
@@ -78,7 +77,7 @@ namespace FarmVsForest.Runtime
 
         private void OnSquareClicked(Coord c, CardInstance occupant, PlayerState player)
         {
-            if (_selected != null)
+            if (_selected != null && player != null)
             {
                 var result = M.PlayCard(player.Id, _selected, c);
                 _message = result == PlayResult.Ok ? "" : "Can't play: " + result;
@@ -102,16 +101,23 @@ namespace FarmVsForest.Runtime
             }
             else
             {
-                GUILayout.Label("Round " + M.Round + " | Turn " + M.TurnNumber + " | " + p +
-                                " | Plays left: " + (M.Config.cardsPerTurn - p.CardsPlayedThisTurn));
+                GUILayout.Label((M.TimeOfDay == TimeOfDay.Day ? "Day " : "Night ") + M.Round + " | Turn " + M.TurnNumber +
+                                " | " + p + " | Plays left: " + (M.Config.cardsPerTurn - p.CardsPlayedThisTurn));
             }
 
             foreach (var pl in M.Players)
             {
                 string res = pl.Resources.ToString();
-                GUILayout.Label((pl == p ? "> " : "   ") + pl + (pl.IsEliminated ? " [OUT]" : "") +
-                                " | Side " + pl.AllianceId + " | Hand " + pl.Hand.Count + " Deck " + pl.Deck.Count +
-                                " | " + (res.Length > 0 ? res : "no resources"));
+                GUILayout.Label((pl == p ? "> " : "   ") + pl + " | Side " + pl.AllianceId + " | Squares " +
+                                M.SquaresOwnedBy(pl) + " | Hand " + pl.Hand.Count + " Deck " + pl.Deck.Count +
+                                " | " + (res.Length > 0 ? res : "no resources"), _wrap);
+                GUILayout.Label("      Goal: " + M.GoalOf(pl).Progress(M, pl), _wrap);
+            }
+
+            if (p == null)
+            {
+                GUILayout.EndArea();
+                return;
             }
 
             GUILayout.Space(8);
@@ -124,7 +130,7 @@ namespace FarmVsForest.Runtime
                 var prev = GUI.color;
                 if (!affordable) GUI.color = new Color(1, 1, 1, 0.5f);
                 string prefix = card == _selected ? "▶ " : "";
-                if (GUILayout.Button(prefix + d.displayName + " [" + cost + "] HP " + d.health + " - " + d.rulesText, _cell))
+                if (GUILayout.Button(prefix + d.displayName + " [" + cost + "] " + d.rulesText, _cell))
                     Select(card);
                 GUI.color = prev;
             }
@@ -139,8 +145,8 @@ namespace FarmVsForest.Runtime
             if (!string.IsNullOrEmpty(_message)) GUILayout.Label(_message);
 
             if (_inspected != null)
-                GUILayout.Label("Selected on board: " + _inspected.Definition.displayName + " (" + _inspected.Owner + ") HP " +
-                                _inspected.Health + "/" + _inspected.MaxHealth + " - " + _inspected.Definition.rulesText, _wrap);
+                GUILayout.Label("Selected on board: " + _inspected.Definition.displayName + " (" + _inspected.Owner + ") - " +
+                                _inspected.Definition.rulesText, _wrap);
 
             GUILayout.Space(8);
             GUILayout.Label("Log:");

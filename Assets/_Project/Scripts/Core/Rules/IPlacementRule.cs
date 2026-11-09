@@ -9,24 +9,28 @@ namespace FarmVsForest.Core
     }
 
     /// <summary>
-    /// Default rule: the square must be empty and either inside your corner's home zone
-    /// or next to one of your own cards (optionally your allies' too). Your territory grows outward from your corner.
+    /// The game's rule: the square must be empty and touch one of your own cards (edge to edge, using the board's
+    /// adjacency). Your territory grows outward from your starting corner card. A player with nothing on the board
+    /// (only possible when starting cards are turned off) may place on their corner square.
     /// </summary>
-    public class HomeZoneOrAdjacentPlacement : IPlacementRule
+    public class TouchOwnCardPlacement : IPlacementRule
     {
         public bool CanPlace(Match match, PlayerState player, CardDefinition card, Coord square)
         {
             var board = match.Board;
             if (!board.IsEmpty(square)) return false;
-            if (match.IsInHomeZone(player, square)) return true;
 
-            return board.Neighbours(square).Any(n =>
+            bool touches = board.Neighbours(square).Any(n =>
             {
                 var occupant = board.Get(n);
                 if (occupant == null) return false;
                 if (occupant.Owner == player) return true;
                 return match.Config.canPlaceNextToAllies && occupant.Owner.IsAlliedWith(player);
             });
+            if (touches) return true;
+
+            return square == player.Corner.ToCoord(board.Width, board.Height) &&
+                   !board.AllCards().Any(c => c.Owner == player);
         }
     }
 }

@@ -3,6 +3,8 @@ namespace FarmVsForest.Core
     public enum GameEventType
     {
         MatchStarted,
+        DayStarted,
+        NightStarted,
         TurnStarted,
         TurnEnded,
         CardDrawn,
@@ -10,10 +12,7 @@ namespace FarmVsForest.Core
         CardPlayed,
         ResourcesGained,
         ResourcesSpent,
-        CardDamaged,
-        CardHealed,
-        CardDestroyed,
-        PlayerEliminated,
+        GoalReached,
         MatchEnded,
     }
 

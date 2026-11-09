@@ -13,9 +13,9 @@ namespace FarmVsForest.Core
         {
             var r = new EffectRegistry();
             r.Register(EffectKind.GainResource, new GainResourceEffect());
-            r.Register(EffectKind.Damage, new DamageEffect());
-            r.Register(EffectKind.Heal, new HealEffect());
             r.Register(EffectKind.DrawCard, new DrawCardEffect());
+            r.Register(EffectKind.ConvertResource, new ConvertResourceEffect());
+            r.Register(EffectKind.GainPerTouching, new GainPerTouchingEffect());
             return r;
         }
 

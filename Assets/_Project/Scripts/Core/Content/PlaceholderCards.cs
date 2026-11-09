@@ -6,15 +6,32 @@ namespace FarmVsForest.Core
     /// <summary>
     /// Stand-in cards so the systems can be played and tested before real content exists.
     /// Every name, number and effect here is a placeholder; replace them with designed cards
-    /// (as CardDefinitionAssets in Unity) whenever you're ready.
+    /// (as CardDefinitionAssets in Unity) whenever you're ready. The starting cards' names are decided.
     /// </summary>
     public static class PlaceholderCards
     {
-        public static CardDefinition Home() => new CardDefinition
+        // ---------------------------------------------------------------- starting corner cards
+
+        public static CardDefinition StartingCard(Team team)
         {
-            id = "neutral.home", displayName = "Home", health = 10, tags = { "home" },
-            rulesText = "Your corner. If it's destroyed, you're out.",
-        };
+            switch (team)
+            {
+                case Team.Farm:
+                    return Card("farm.farm", "Farm", team, "Every day: gain 1 Wheat.", Cost(),
+                        new[] { Tags.Start }, Every(EffectTrigger.Day, ResourceType.Wheat, 1));
+                case Team.Forest:
+                    return Card("forest.huge_tree", "Huge Tree", team, "Every day: gain 1 Acorn.", Cost(),
+                        new[] { Tags.Start, Tags.Tree }, Every(EffectTrigger.Day, ResourceType.Acorns, 1));
+                case Team.Factory:
+                    return Card("factory.headquarters", "Headquarters", team, "Every day: gain 1 Part.", Cost(),
+                        new[] { Tags.Start }, Every(EffectTrigger.Day, ResourceType.Parts, 1));
+                default:
+                    return Card("dark.evil_tree", "Evil Tree", team, "Every night: gain 1 Bat.", Cost(),
+                        new[] { Tags.Start, Tags.Tree }, Every(EffectTrigger.Night, ResourceType.Bats, 1));
+            }
+        }
+
+        // ---------------------------------------------------------------- deck cards
 
         public static List<CardDefinition> ForTeam(Team team)
         {
@@ -30,121 +47,130 @@ namespace FarmVsForest.Core
         public static IEnumerable<CardDefinition> All() =>
             new[] { Team.Farm, Team.Forest, Team.Factory, Team.DarkForest }.SelectMany(ForTeam);
 
-        /// <summary>A 20-card deck: 8 copies of the team's free producer and 3 of each other card.</summary>
+        /// <summary>A 40-card deck: 12 copies of the team's free card and 7 of each other card.</summary>
         public static List<CardDefinition> StarterDeck(Team team)
         {
-            var cards = ForTeam(team);
             var deck = new List<CardDefinition>();
-            foreach (var c in cards)
+            foreach (var c in ForTeam(team))
             {
-                int copies = c.IsFree ? 8 : 3;
+                int copies = c.IsFree ? 12 : 7;
                 for (int i = 0; i < copies; i++) deck.Add(c);
             }
             return deck;
         }
 
-        // ---------------------------------------------------------------- helpers
-
-        private static CardDefinition Card(string id, string name, Team team, int health, string text,
-            ResourceType res, int cost, params EffectDefinition[] effects)
-        {
-            var def = new CardDefinition
-            {
-                id = id, displayName = name, team = team, health = health, rulesText = text,
-                effects = effects.ToList(),
-            };
-            if (cost > 0) def.cost.Add(new ResourceAmount(res, cost));
-            return def;
-        }
-
-        private static EffectDefinition Produce(ResourceType res, int amount) =>
-            new EffectDefinition(EffectTrigger.OnOwnerTurnStart, EffectKind.GainResource, EffectTarget.Owner, amount, res);
-
-        private static EffectDefinition Fx(EffectTrigger trigger, EffectKind kind, EffectTarget target, int amount, int range = 1) =>
-            new EffectDefinition(trigger, kind, target, amount, ResourceType.Food, range);
-
-        // ---------------------------------------------------------------- teams
-
         private static List<CardDefinition> Farm()
         {
-            const ResourceType R = ResourceType.Food;
             const Team T = Team.Farm;
             return new List<CardDefinition>
             {
-                Card("farm.wheat_field", "Wheat Field", T, 2, "Start of your turn: gain 1 Food.", R, 0, Produce(R, 1)),
-                Card("farm.barn", "Barn", T, 4, "When played: draw a card.", R, 2,
-                    Fx(EffectTrigger.OnPlay, EffectKind.DrawCard, EffectTarget.Owner, 1)),
-                Card("farm.scarecrow", "Scarecrow", T, 3, "End of your turn: 1 damage to adjacent enemies.", R, 1,
-                    Fx(EffectTrigger.OnOwnerTurnEnd, EffectKind.Damage, EffectTarget.AdjacentEnemies, 1)),
-                Card("farm.farmhouse", "Farmhouse", T, 5, "Start of your turn: heal adjacent allies by 1.", R, 3,
-                    Fx(EffectTrigger.OnOwnerTurnStart, EffectKind.Heal, EffectTarget.AdjacentAllies, 1)),
-                Card("farm.tractor", "Tractor", T, 4, "When played: 2 damage to adjacent enemies.", R, 4,
-                    Fx(EffectTrigger.OnPlay, EffectKind.Damage, EffectTarget.AdjacentEnemies, 2)),
+                Card("farm.wheat_field", "Wheat Field", T, "Every day: gain 1 Wheat.", Cost(), new[] { "crop" },
+                    Every(EffectTrigger.Day, ResourceType.Wheat, 1)),
+                Card("farm.cow", "Cow", T, "Every day: gain 1 Milk.", Cost(ResourceType.Wheat, 2), new[] { "animal" },
+                    Every(EffectTrigger.Day, ResourceType.Milk, 1)),
+                Card("farm.chicken_coop", "Chicken Coop", T, "Every day: gain 1 Egg for each touching crop.",
+                    Cost(ResourceType.Wheat, 2), new[] { "animal" },
+                    new EffectDefinition(EffectTrigger.Day, EffectKind.GainPerTouching, 1, ResourceType.Eggs) { tag = "crop" }),
+                Card("farm.barn", "Barn", T, "When played: draw 2 cards.", Cost(ResourceType.Wheat, 3), new string[0],
+                    new EffectDefinition(EffectTrigger.OnPlay, EffectKind.DrawCard, 2)),
+                Card("farm.barn_cat", "Sleepy Barn Cat", T, "Every night: gain 1 Wheat.", Cost(ResourceType.Milk, 1),
+                    new[] { "animal" }, Every(EffectTrigger.Night, ResourceType.Wheat, 1)),
             };
         }
 
         private static List<CardDefinition> Forest()
         {
-            const ResourceType R = ResourceType.Wood;
             const Team T = Team.Forest;
             return new List<CardDefinition>
             {
-                Card("forest.sapling", "Sapling", T, 2, "Start of your turn: gain 1 Wood.", R, 0, Produce(R, 1)),
-                Card("forest.old_oak", "Old Oak", T, 6, "Start of your turn: gain 1 Wood.", R, 2, Produce(R, 1)),
-                Card("forest.thorn_bush", "Thorn Bush", T, 3, "End of your turn: 1 damage to adjacent enemies.", R, 1,
-                    Fx(EffectTrigger.OnOwnerTurnEnd, EffectKind.Damage, EffectTarget.AdjacentEnemies, 1)),
-                Card("forest.druid_grove", "Druid Grove", T, 4, "Start of your turn: heal adjacent allies by 2.", R, 3,
-                    Fx(EffectTrigger.OnOwnerTurnStart, EffectKind.Heal, EffectTarget.AdjacentAllies, 2)),
-                Card("forest.wolf_den", "Wolf Den", T, 4, "When played: 2 damage to adjacent enemies.", R, 3,
-                    Fx(EffectTrigger.OnPlay, EffectKind.Damage, EffectTarget.AdjacentEnemies, 2)),
+                Card("forest.sapling", "Sapling", T, "Every 2 days: gain 1 Acorn.", Cost(), new[] { Tags.Tree },
+                    Every(EffectTrigger.Day, ResourceType.Acorns, 1, interval: 2)),
+                Card("forest.oak", "Oak", T, "Every day: gain 1 Acorn.", Cost(ResourceType.Acorns, 2), new[] { Tags.Tree },
+                    Every(EffectTrigger.Day, ResourceType.Acorns, 1)),
+                Card("forest.beehive", "Beehive", T, "Every day: gain 1 Honey.", Cost(ResourceType.Acorns, 2), new string[0],
+                    Every(EffectTrigger.Day, ResourceType.Honey, 1)),
+                Card("forest.squirrel_drey", "Squirrel Drey", T, "Every night: gain 2 Acorns.", Cost(ResourceType.Honey, 1),
+                    new[] { "animal" }, Every(EffectTrigger.Night, ResourceType.Acorns, 2)),
+                Card("forest.owls_hollow", "Owl's Hollow", T, "Every 3 nights: draw a card.", Cost(ResourceType.Acorns, 3),
+                    new[] { Tags.Tree },
+                    new EffectDefinition(EffectTrigger.Night, EffectKind.DrawCard, 1, interval: 3)),
             };
         }
 
         private static List<CardDefinition> Factory()
         {
-            const ResourceType R = ResourceType.Scrap;
             const Team T = Team.Factory;
             return new List<CardDefinition>
             {
-                Card("factory.scrap_heap", "Scrap Heap", T, 2, "Start of your turn: gain 1 Scrap.", R, 0, Produce(R, 1)),
-                Card("factory.assembly_line", "Assembly Line", T, 3,
-                    "Start of your turn: gain 2 Scrap. End of your turn: take 1 damage.", R, 2,
-                    Produce(R, 2), Fx(EffectTrigger.OnOwnerTurnEnd, EffectKind.Damage, EffectTarget.Self, 1)),
-                Card("factory.smokestack", "Smokestack", T, 4, "Start of your turn: 1 damage to ALL adjacent cards.", R, 2,
-                    Fx(EffectTrigger.OnOwnerTurnStart, EffectKind.Damage, EffectTarget.AdjacentCards, 1)),
-                Card("factory.turret", "Turret", T, 3, "End of your turn: 1 damage to enemies within 2 squares.", R, 3,
-                    Fx(EffectTrigger.OnOwnerTurnEnd, EffectKind.Damage, EffectTarget.AdjacentEnemies, 1, range: 2)),
-                Card("factory.generator", "Generator", T, 3, "When played: draw a card.", R, 1,
-                    Fx(EffectTrigger.OnPlay, EffectKind.DrawCard, EffectTarget.Owner, 1)),
+                Card("factory.scrap_pile", "Scrap Pile", T, "Every day: gain 1 Part.", Cost(), new string[0],
+                    Every(EffectTrigger.Day, ResourceType.Parts, 1)),
+                Card("factory.workshop", "Workshop", T, "Every day: gain 2 Parts.", Cost(ResourceType.Parts, 2), new string[0],
+                    Every(EffectTrigger.Day, ResourceType.Parts, 2)),
+                Card("factory.assembler", "Night Shift Assembler", T, "Every night: turn 2 Parts into 1 Goods.",
+                    Cost(ResourceType.Parts, 3), new string[0],
+                    new EffectDefinition(EffectTrigger.Night, EffectKind.ConvertResource, 1, ResourceType.Goods)
+                        { fromResource = ResourceType.Parts, fromAmount = 2 }),
+                Card("factory.clock_tower", "Clock Tower", T, "Once, after 3 days: gain 4 Goods.", Cost(ResourceType.Parts, 4),
+                    new string[0], Every(EffectTrigger.Day, ResourceType.Goods, 4, interval: 3, repeat: false)),
+                Card("factory.warehouse", "Warehouse", T, "When played: draw a card.", Cost(ResourceType.Parts, 1), new string[0],
+                    new EffectDefinition(EffectTrigger.OnPlay, EffectKind.DrawCard, 1)),
             };
         }
 
         private static List<CardDefinition> DarkForest()
         {
-            const ResourceType R = ResourceType.Shadow;
             const Team T = Team.DarkForest;
             return new List<CardDefinition>
             {
-                Card("dark.mushroom_ring", "Mushroom Ring", T, 2, "Start of your turn: gain 1 Shadow.", R, 0, Produce(R, 1)),
-                Card("dark.hollow_tree", "Hollow Tree", T, 3, "When destroyed: 2 damage to adjacent enemies.", R, 1,
-                    Fx(EffectTrigger.OnDestroyed, EffectKind.Damage, EffectTarget.AdjacentEnemies, 2)),
-                Card("dark.wisp", "Wisp", T, 2, "Start of your turn: 1 damage to adjacent enemies.", R, 2,
-                    Fx(EffectTrigger.OnOwnerTurnStart, EffectKind.Damage, EffectTarget.AdjacentEnemies, 1)),
-                Card("dark.nightshade", "Nightshade", T, 3, "When played: draw 2 cards.", R, 3,
-                    Fx(EffectTrigger.OnPlay, EffectKind.DrawCard, EffectTarget.Owner, 2)),
-                Card("dark.wraith_tree", "Wraith Tree", T, 5, "End of your turn: 1 damage to every enemy card.", R, 4,
-                    Fx(EffectTrigger.OnOwnerTurnEnd, EffectKind.Damage, EffectTarget.AllEnemyCards, 1)),
+                Card("dark.mushroom_ring", "Mushroom Ring", T, "Every night: gain 1 Spider.", Cost(), new string[0],
+                    Every(EffectTrigger.Night, ResourceType.Spiders, 1)),
+                Card("dark.bat_cave", "Bat Cave", T, "Every night: gain 2 Bats.", Cost(ResourceType.Spiders, 1), new string[0],
+                    Every(EffectTrigger.Night, ResourceType.Bats, 2)),
+                Card("dark.graveyard", "Spooky Graveyard", T, "Every 3 nights: gain 1 Ghoul.", Cost(ResourceType.Bats, 2),
+                    new string[0], Every(EffectTrigger.Night, ResourceType.Ghouls, 1, interval: 3)),
+                Card("dark.haunted_lantern", "Haunted Lantern", T, "Every night: gain 1 Ghoul.",
+                    Cost(ResourceType.Bats, 3, ResourceType.Spiders, 2), new string[0],
+                    Every(EffectTrigger.Night, ResourceType.Ghouls, 1)),
+                Card("dark.sleepy_web", "Sleepy Web", T, "Every day: gain 1 Spider.", Cost(ResourceType.Bats, 1), new string[0],
+                    Every(EffectTrigger.Day, ResourceType.Spiders, 1)),
             };
         }
 
-        /// <summary>A ready-to-play config with placeholder decks, handy for tests and the prototype scene.</summary>
-        public static MatchConfig DefaultConfig(GameMode mode, int seed = 12345)
+        // ---------------------------------------------------------------- config
+
+        /// <summary>A ready-to-play config with placeholder decks and starting cards, for tests and the prototype scene.</summary>
+        public static MatchConfig DefaultConfig(GameMode mode, int seed = 12345, params Team[] teams)
         {
-            var teams = new[] { Team.Farm, Team.Forest, Team.Factory, Team.DarkForest };
-            var config = new MatchConfig { mode = mode, seed = seed, homeCard = Home() };
+            if (teams == null || teams.Length == 0) teams = new[] { Team.Farm, Team.Forest, Team.Factory, Team.DarkForest };
+            var config = new MatchConfig { mode = mode, seed = seed };
             for (int i = 0; i < GameModes.PlayerCount(mode); i++)
-                config.players.Add(new PlayerSetup("Player " + (i + 1), teams[i], StarterDeck(teams[i])));
+            {
+                var team = teams[i % teams.Length];
+                config.players.Add(new PlayerSetup("Player " + (i + 1), team, StarterDeck(team), StartingCard(team)));
+            }
             return config;
         }
+
+        // ---------------------------------------------------------------- helpers
+
+        private static CardDefinition Card(string id, string name, Team team, string text, List<ResourceAmount> cost,
+            string[] tags, params EffectDefinition[] effects) =>
+            new CardDefinition
+            {
+                id = id, displayName = name, team = team, rulesText = text, cost = cost,
+                tags = tags.ToList(), effects = effects.ToList(),
+            };
+
+        private static List<ResourceAmount> Cost() => new List<ResourceAmount>();
+
+        private static List<ResourceAmount> Cost(ResourceType type, int amount) =>
+            new List<ResourceAmount> { new ResourceAmount(type, amount) };
+
+        private static List<ResourceAmount> Cost(ResourceType a, int amountA, ResourceType b, int amountB) =>
+            new List<ResourceAmount> { new ResourceAmount(a, amountA), new ResourceAmount(b, amountB) };
+
+        private static EffectDefinition Every(EffectTrigger trigger, ResourceType resource, int amount, int interval = 1,
+            bool repeat = true) =>
+            new EffectDefinition(trigger, EffectKind.GainResource, amount, resource, interval, repeat);
     }
 }

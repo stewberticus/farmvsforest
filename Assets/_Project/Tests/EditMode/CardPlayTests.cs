@@ -8,13 +8,12 @@ namespace FarmVsForest.Tests
     public class CardPlayTests
     {
         [Test]
-        public void FreeCard_CanBePlayedInHomeZone()
+        public void WithNoCardsOnBoard_YouStartOnYourCorner()
         {
             var m = Started(SimpleConfig(Card("free")));
-            var card = m.Players[0].Hand[0];
-            Assert.AreEqual(PlayResult.Ok, m.PlayCard(0, card, new Coord(1, 1)));
-            Assert.AreSame(card, m.Board.Get(new Coord(1, 1)));
-            Assert.IsFalse(m.Players[0].Hand.Contains(card));
+            var p0 = m.Players[0];
+            var squares = m.LegalSquares(p0, p0.Hand[0].Definition).ToList();
+            CollectionAssert.AreEqual(new[] { new Coord(0, 0) }, squares);
         }
 
         [Test]
@@ -26,7 +25,7 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void CannotPlayOnOpponentsTurn()
+        public void CannotPlayOnSomeoneElsesTurn()
         {
             var m = Started(SimpleConfig(Card("free")));
             Assert.AreEqual(PlayResult.NotYourTurn, m.PlayCard(1, 0, new Coord(5, 5)));
@@ -35,49 +34,51 @@ namespace FarmVsForest.Tests
         [Test]
         public void CannotAfford_WithoutResources_AndSpendsWhenPlayed()
         {
-            var m = Started(SimpleConfig(Card("pricey", foodCost: 2)));
+            var m = Started(SimpleConfig(Card("pricey", wheatCost: 2)));
             Assert.AreEqual(PlayResult.CannotAfford, m.PlayCard(0, 0, new Coord(0, 0)));
 
-            m.Players[0].Resources.Add(ResourceType.Food, 3);
+            m.Players[0].Resources.Add(ResourceType.Wheat, 3);
             Assert.AreEqual(PlayResult.Ok, m.PlayCard(0, 0, new Coord(0, 0)));
-            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Food));
+            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Wheat));
         }
 
         [Test]
-        public void Placement_HomeZoneOrNextToOwnCards()
+        public void NewCards_MustTouchYourOwnCard_EdgeToEdge()
         {
             var m = Started(SimpleConfig(Card("free")));
             var p0 = m.Players[0];
             var def = p0.Hand[0].Definition;
+            Put(m, 0, def, 2, 2);
 
-            Assert.IsTrue(m.CanPlaceOn(p0, def, new Coord(2, 2)), "edge of the 3x3 home zone");
-            Assert.IsFalse(m.CanPlaceOn(p0, def, new Coord(3, 3)), "outside home zone, nothing adjacent");
-
-            m.PlayCard(0, 0, new Coord(2, 2));
-            Assert.IsTrue(m.CanPlaceOn(p0, def, new Coord(3, 3)), "now adjacent to own card");
+            Assert.IsTrue(m.CanPlaceOn(p0, def, new Coord(3, 2)), "right");
+            Assert.IsTrue(m.CanPlaceOn(p0, def, new Coord(2, 1)), "below");
+            Assert.IsFalse(m.CanPlaceOn(p0, def, new Coord(3, 3)), "diagonal doesn't count");
+            Assert.IsFalse(m.CanPlaceOn(p0, def, new Coord(4, 2)), "two squares away");
             Assert.IsFalse(m.CanPlaceOn(p0, def, new Coord(2, 2)), "occupied");
             Assert.IsFalse(m.CanPlaceOn(m.Players[1], def, new Coord(3, 2)), "opponent can't build off my card");
         }
 
         [Test]
-        public void OrthogonalAdjacency_ExcludesDiagonals()
+        public void StartingCards_ArePlacedInCorners_AndYouBuildFromThem()
         {
-            var config = SimpleConfig(Card("free"));
-            config.adjacency = AdjacencyRule.Orthogonal;
-            var m = Started(config);
-            m.PlayCard(0, 0, new Coord(2, 2));
-            var def = m.Players[0].Hand[0].Definition;
-            Assert.IsTrue(m.CanPlaceOn(m.Players[0], def, new Coord(3, 2)));
-            Assert.IsFalse(m.CanPlaceOn(m.Players[0], def, new Coord(3, 3)));
+            var m = Started(PlaceholderCards.DefaultConfig(GameMode.OneVsOne));
+            var p0 = m.Players[0];
+            Assert.AreEqual("farm.farm", m.Board.Get(new Coord(0, 0)).Definition.id);
+            Assert.AreEqual("forest.huge_tree", m.Board.Get(new Coord(11, 11)).Definition.id);
+
+            var squares = m.LegalSquares(p0, p0.Hand[0].Definition).ToList();
+            CollectionAssert.AreEquivalent(new[] { new Coord(1, 0), new Coord(0, 1) }, squares);
         }
 
         [Test]
-        public void LegalSquares_AtStart_IsTheHomeZone()
+        public void OwningSquares_IsHavingACardOnThem()
         {
             var m = Started(SimpleConfig(Card("free")));
-            var squares = m.LegalSquares(m.Players[0], m.Players[0].Hand[0].Definition).ToList();
-            Assert.AreEqual(9, squares.Count);
-            Assert.IsTrue(squares.All(s => s.x <= 2 && s.y <= 2));
+            Put(m, 0, Card("a"), 0, 0);
+            Put(m, 0, Card("a"), 1, 0);
+            Put(m, 1, Card("a"), 5, 5);
+            Assert.AreEqual(2, m.SquaresOwnedBy(m.Players[0]));
+            Assert.AreEqual(1, m.SquaresOwnedBy(m.Players[1]));
         }
     }
 }

@@ -18,11 +18,16 @@ namespace FarmVsForest.Core
         public List<CardInstance> Discard { get; } = new List<CardInstance>();
         public ResourcePool Resources { get; } = new ResourcePool();
 
-        public int CardsPlayedThisTurn { get; internal set; }
-        public bool IsEliminated { get; internal set; }
+        /// <summary>
+        /// Everything this player has gained since the current round's day began. Factory's goal
+        /// ("make 10 Goods in a single turn") reads this.
+        /// </summary>
+        public ResourcePool GainedThisRound { get; } = new ResourcePool();
 
-        /// <summary>The card that must survive for this player to stay in the game, if the match uses one.</summary>
-        public CardInstance HomeCard { get; internal set; }
+        /// <summary>The card placed in this player's corner at the start, if any.</summary>
+        public CardInstance StartingCard { get; internal set; }
+
+        public int CardsPlayedThisTurn { get; internal set; }
 
         internal PlayerState(int id, string name, Team team, Corner corner, int allianceId)
         {
@@ -32,6 +37,9 @@ namespace FarmVsForest.Core
             Corner = corner;
             AllianceId = allianceId;
         }
+
+        /// <summary>Farm, Forest and Factory play during the day; Dark Forest plays at night.</summary>
+        public TimeOfDay PlaysDuring => TeamRules.PlaysDuring(Team);
 
         public bool IsAlliedWith(PlayerState other) => other != null && other.AllianceId == AllianceId;
 

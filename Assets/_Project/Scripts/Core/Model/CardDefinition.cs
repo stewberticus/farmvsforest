@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace FarmVsForest.Core
 {
     /// <summary>
-    /// The static data for a card: what it costs, how tough it is and what it does.
+    /// The static data for a card: what it costs and what it does once it's on the board.
     /// Pure data so it can be authored in Unity (via CardDefinitionAsset), loaded from JSON, or built in code.
     /// </summary>
     [Serializable]
@@ -19,10 +19,10 @@ namespace FarmVsForest.Core
         /// <summary>Resources spent to play the card. Empty means the card is free.</summary>
         public List<ResourceAmount> cost = new List<ResourceAmount>();
 
-        /// <summary>How much damage the card takes before it is destroyed. 0 or less means it can't be damaged.</summary>
-        public int health = 1;
-
-        /// <summary>Free-form tags ("building", "animal", "home") for effects and filters to key off.</summary>
+        /// <summary>
+        /// Free-form tags that effects and goals key off. For example Forest's goal counts cards tagged
+        /// <see cref="Tags.Tree"/>, and "gain 1 Egg per touching crop" counts cards tagged "crop".
+        /// </summary>
         public List<string> tags = new List<string>();
 
         public List<EffectDefinition> effects = new List<EffectDefinition>();
@@ -32,5 +32,14 @@ namespace FarmVsForest.Core
         public bool HasTag(string tag) => tags != null && tags.Contains(tag);
 
         public override string ToString() => displayName ?? id;
+    }
+
+    /// <summary>Tags the rules themselves look for.</summary>
+    public static class Tags
+    {
+        /// <summary>Counts towards Forest's goal of a connected forest.</summary>
+        public const string Tree = "tree";
+        /// <summary>Marks a team's starting corner card.</summary>
+        public const string Start = "start";
     }
 }

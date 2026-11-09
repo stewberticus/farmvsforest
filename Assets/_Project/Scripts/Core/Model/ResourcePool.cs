@@ -41,6 +41,8 @@ namespace FarmVsForest.Core
             return true;
         }
 
+        public void Clear() => _amounts.Clear();
+
         public IReadOnlyDictionary<ResourceType, int> Snapshot() => new Dictionary<ResourceType, int>(_amounts);
 
         public override string ToString() =>

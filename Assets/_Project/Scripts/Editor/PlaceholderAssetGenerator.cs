@@ -8,7 +8,7 @@ namespace FarmVsForest.Editor
 {
     /// <summary>
     /// Turns the code-defined placeholder cards into real assets you can edit in the inspector,
-    /// plus a starter deck per team. Safe to re-run: existing assets are left alone.
+    /// plus each team's starting card and a starter deck per team. Safe to re-run: existing assets are left alone.
     /// </summary>
     public static class PlaceholderAssetGenerator
     {
@@ -18,8 +18,6 @@ namespace FarmVsForest.Editor
         public static void Generate()
         {
             int created = 0;
-            var home = CreateCard(Root + "/Cards/Neutral", PlaceholderCards.Home(), ref created);
-
             foreach (Team team in System.Enum.GetValues(typeof(Team)))
             {
                 var deckPath = Root + "/Decks/" + team + " Starter.asset";
@@ -27,11 +25,13 @@ namespace FarmVsForest.Editor
                 var deck = deckExists ? null : ScriptableObject.CreateInstance<DeckAsset>();
                 if (deck != null) deck.team = team;
 
+                CreateCard(Root + "/Cards/" + team, PlaceholderCards.StartingCard(team), ref created);
+
                 foreach (var def in PlaceholderCards.ForTeam(team))
                 {
                     var asset = CreateCard(Root + "/Cards/" + team, def, ref created);
                     if (deck != null)
-                        deck.cards.Add(new DeckAsset.Entry { card = asset, copies = def.IsFree ? 8 : 3 });
+                        deck.cards.Add(new DeckAsset.Entry { card = asset, copies = def.IsFree ? 12 : 7 });
                 }
 
                 if (deck != null)
@@ -43,8 +43,7 @@ namespace FarmVsForest.Editor
             }
 
             AssetDatabase.SaveAssets();
-            Debug.Log("Farm vs Forest: created " + created + " placeholder assets under " + Root +
-                      ". Home card: " + AssetDatabase.GetAssetPath(home));
+            Debug.Log("Farm vs Forest: created " + created + " placeholder assets under " + Root + ".");
         }
 
         private static CardDefinitionAsset CreateCard(string folder, CardDefinition def, ref int created)
