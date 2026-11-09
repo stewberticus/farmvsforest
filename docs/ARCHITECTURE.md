@@ -50,7 +50,7 @@ their goal wins for their side (in 2v2, either partner's goal counts).
 
 | Team | Goal class | Config |
 | --- | --- | --- |
-| Farm | `HaveResourcesGoal` (Wheat, Milk, Eggs) | `farmGoalEach` = 20 |
+| Farm | `HaveResourcesGoal` (Wheat, Milk, Eggs) | `farmGoalEach` = 40 |
 | Forest | `ConnectedTaggedCardsGoal` (cards tagged `tree`, one touching group) | `forestGoalTrees` = 30 |
 | Factory | `GainInOneRoundGoal` (Toys made between one dawn and the next) | `factoryGoalToys` = 10 |
 | Dark Forest | `HaveResourcesGoal` (Ghouls) | `darkForestGoalGhouls` = 13 |
@@ -62,7 +62,7 @@ that ends the match the same way. Pass `goalFor` to the `Match` constructor to t
 
 | Mode | Seats | Sides | Board |
 | --- | --- | --- | --- |
-| 1v1 | Bottom-left, Top-right | 2 | `boardSize` (12) |
+| 1v1 | Bottom-left, Top-right | 2 | `boardSize` (10) |
 | 2v2 | BL (A), TR (B), TL (A), BR (B) | Partners share the left or right edge | `fourPlayerBoardSize` (16) |
 | 1v1v1v1 | BL, TL, TR, BR (clockwise) | 4 | `fourPlayerBoardSize` (16) |
 

@@ -37,7 +37,7 @@ namespace FarmVsForest.Core
         public GameMode mode = GameMode.OneVsOne;
 
         /// <summary>Board size for 2-player games (square). Starting point, to tune.</summary>
-        public int boardSize = 12;
+        public int boardSize = 10;
         /// <summary>Board size for 4-player games (square). Starting point, to tune.</summary>
         public int fourPlayerBoardSize = 16;
         /// <summary>Decided: cards must touch edge to edge, no diagonals.</summary>
@@ -53,12 +53,18 @@ namespace FarmVsForest.Core
         /// <summary>The very first turn of the match skips its draw, to soften first-player advantage.</summary>
         public bool firstPlayerSkipsDraw = true;
 
+        /// <summary>
+        /// Starting cards make nothing, so a hand with no free card can't play at all. If true, the opening hand
+        /// always has at least one free card (one is swapped in from the deck). Proposed rule, to confirm.
+        /// </summary>
+        public bool openingHandHasFreeCard = true;
+
         public List<ResourceAmount> startingResources = new List<ResourceAmount>();
 
         // ---- Team goals (starting numbers, to tune)
 
         /// <summary>Farm wins with this many Wheat, Milk and Eggs at once.</summary>
-        public int farmGoalEach = 20;
+        public int farmGoalEach = 40;
         /// <summary>Forest wins with this many Tree cards in one touching group.</summary>
         public int forestGoalTrees = 30;
         /// <summary>

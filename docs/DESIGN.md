@@ -9,7 +9,7 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | --- | --- |
 | Tone | Cozy, cute, child/family friendly. Dark Forest is cute-spooky, never scary. |
 | Combat | None. Teams mostly ignore each other; the main interaction is competing for space. |
-| Board | Starting point: 12x12 for 2 players, 16x16 for 4. Will be tuned during design. |
+| Board | 10x10 for 1v1 (decided 2026-11-09: fits Forest's 30-tree goal, teams still meet). 16x16 for 4 players, to tune. |
 | Start | Each player begins with one starting card in their corner. |
 | Movement | Cards never move once played. |
 | Placement | A new card must touch one of your own cards, edge to edge (no diagonals). |
@@ -44,13 +44,15 @@ Each round is one **day** followed by one **night**.
 
 | Team | Goal |
 | --- | --- |
-| Farm | Have 20 Wheat, 20 Milk and 20 Eggs. |
+| Farm | Have 40 Wheat, 40 Milk and 40 Eggs (was 20; raised to hit the round-20 target, pending Alexander's OK). |
 | Forest | Have 30 Tree cards all touching (one connected forest). |
 | Factory | Make 10 Toys in one round (a day and its night). See [teams/FACTORY.md](teams/FACTORY.md). |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once. How Ghouls are made will be decided when Dark Forest is designed (no combining). |
 
 ## Team designs
 
+* **Farm**: [teams/FARM.md](teams/FARM.md). Land → Wheat → Milk and Eggs. Animals make more for every crop touching
+  them, and Milk and Egg buildings add Cows, Chicken Coops and Wheat Fields to your hand.
 * **Forest**: [teams/FOREST.md](teams/FOREST.md). Spreads by playing extra trees: after its normal card, Forest can pay
   2 Acorns to play another tree card. Generator cards add Saplings to its hand.
 
