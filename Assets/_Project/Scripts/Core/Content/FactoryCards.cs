@@ -54,8 +54,8 @@ namespace FarmVsForest.Core
                 Cost(3), new string[0],
                 new EffectDefinition(EffectTrigger.Night, EffectKind.GainPerTouching, 1, Toys) { tag = Tags.Assembler }),
 
-            Card(SparePartsBinId, "Spare Parts Bin", "When played: gain 3 Parts.", Cost(1), new string[0],
-                Gain(EffectTrigger.OnPlay, Parts, 3)),
+            Card(SparePartsBinId, "Spare Parts Bin", "When played: gain 2 Parts.", Free(), new string[0],
+                Gain(EffectTrigger.OnPlay, Parts, 2)),
 
             Card(BlueprintDeskId, "Blueprint Desk", "Every 2 days: add a Toy Assembler to your hand.", Cost(2),
                 new string[0], AddToHand(EffectTrigger.Day, ToyAssemblerId)),
@@ -72,16 +72,16 @@ namespace FarmVsForest.Core
         /// <summary>How many copies of each card go in the 30-card starting deck.</summary>
         public static readonly Dictionary<string, int> DeckCounts = new Dictionary<string, int>
         {
-            { ScrapPileId, 7 },
+            { ScrapPileId, 9 },
             { TinkerShedId, 3 },
-            { MoonlightRobotId, 3 },
-            { ToyAssemblerId, 4 },
-            { NightShiftAssemblerId, 4 },
-            { WrappingStationId, 3 },
-            { SparePartsBinId, 2 },
+            { MoonlightRobotId, 2 },
+            { ToyAssemblerId, 3 },
+            { NightShiftAssemblerId, 3 },
+            { WrappingStationId, 4 },
+            { SparePartsBinId, 3 },
             { BlueprintDeskId, 1 },
             { ChargingDockId, 1 },
-            { BigWhistleId, 2 },
+            { BigWhistleId, 1 },
         };
 
         public static List<CardDefinition> Deck()

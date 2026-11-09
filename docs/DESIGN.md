@@ -37,7 +37,7 @@ Each round is one **day** followed by one **night**.
 | --- | --- | --- |
 | Farm | Farm | Wheat, Milk, Eggs |
 | Forest | Huge Tree | Acorns, Honey |
-| Factory | Headquarters | Parts, Goods |
+| Factory | Headquarters | Parts, Toys |
 | Dark Forest | Evil Tree | Bats, Spiders, Ghouls |
 
 ## Team goals
@@ -46,7 +46,7 @@ Each round is one **day** followed by one **night**.
 | --- | --- |
 | Farm | Have 20 Wheat, 20 Milk and 20 Eggs. |
 | Forest | Have 30 Tree cards all touching (one connected forest). |
-| Factory | Make 10 Goods in a single turn (starting number). |
+| Factory | Make 10 Toys in one round (a day and its night). See [teams/FACTORY.md](teams/FACTORY.md). |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once. How Ghouls are made will be decided when Dark Forest is designed (no combining). |
 
 ## Open questions
