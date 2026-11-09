@@ -12,7 +12,7 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | Board | Starting point: 12x12 for 2 players, 16x16 for 4. Will be tuned during design. |
 | Start | Each player begins with one starting card in their corner. |
 | Movement | Cards never move once played. |
-| Placement | A new card must touch one of your own cards. |
+| Placement | A new card must touch one of your own cards, edge to edge (no diagonals). |
 | Ownership | A square with your card on it is yours. |
 | Turn | Draw from your deck; play one card per turn if you can pay its cost. |
 | Modes | Balanced around **1v1**. 2v2 and 1v1v1v1 are fun extra modes. |
@@ -54,4 +54,3 @@ Each round is one **day** followed by one **night**.
 * How each team plays differently, including its day/night rhythm (designed team by team).
 * The card list for each team.
 * Tuning every goal number in playtests.
-* Does "touching" include diagonals?

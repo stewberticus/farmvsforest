@@ -2,75 +2,98 @@ using System;
 
 namespace FarmVsForest.Core
 {
+    /// <summary>The two halves of every round.</summary>
+    public enum TimeOfDay
+    {
+        Day = 0,
+        Night = 1,
+    }
+
     /// <summary>When an effect fires.</summary>
     public enum EffectTrigger
     {
         /// <summary>Once, right after the card is placed.</summary>
         OnPlay = 0,
-        /// <summary>At the start of each of the owner's turns, before they draw.</summary>
-        OnOwnerTurnStart = 1,
-        /// <summary>At the end of each of the owner's turns.</summary>
-        OnOwnerTurnEnd = 2,
-        /// <summary>When the card is destroyed and leaves the board.</summary>
-        OnDestroyed = 3,
+        /// <summary>When a day starts. Use <see cref="EffectDefinition.interval"/> for "every X days".</summary>
+        Day = 1,
+        /// <summary>When a night starts. Use <see cref="EffectDefinition.interval"/> for "every X nights".</summary>
+        Night = 2,
     }
 
     /// <summary>What the effect does. Add new built-ins here, or use Custom with a registered id.</summary>
     public enum EffectKind
     {
+        /// <summary>Gain <c>amount</c> of <c>resource</c>.</summary>
         GainResource = 0,
-        Damage = 1,
-        Heal = 2,
-        DrawCard = 3,
+        /// <summary>Draw <c>amount</c> cards.</summary>
+        DrawCard = 1,
+        /// <summary>Spend <c>fromAmount</c> of <c>fromResource</c> to gain <c>amount</c> of <c>resource</c>. Does nothing if you can't pay.</summary>
+        ConvertResource = 2,
+        /// <summary>Gain <c>amount</c> of <c>resource</c> for each of your cards touching this one that has <c>tag</c> (any card if empty).</summary>
+        GainPerTouching = 3,
         /// <summary>Looks up <see cref="EffectDefinition.customEffectId"/> in the EffectRegistry.</summary>
         Custom = 100,
     }
 
-    /// <summary>Who or what the effect applies to.</summary>
+    /// <summary>Who the effect applies to.</summary>
     public enum EffectTarget
     {
-        // Player targets
+        /// <summary>The card's owner.</summary>
         Owner = 0,
+        /// <summary>The owner and their partner in 2v2.</summary>
         OwnerAlliance = 1,
-        Opponents = 2,
-
-        // Card targets
-        Self = 10,
-        AdjacentCards = 11,
-        AdjacentAllies = 12,
-        AdjacentEnemies = 13,
-        AllEnemyCards = 14,
-        AllAlliedCards = 15,
     }
 
-    /// <summary>One line of card behaviour, e.g. "At the start of your turn, deal 1 damage to adjacent enemies."</summary>
+    /// <summary>
+    /// One line of card behaviour, e.g. "Every 3 nights: gain 1 Ghoul" is
+    /// trigger Night, interval 3, kind GainResource, resource Ghouls, amount 1.
+    /// </summary>
     [Serializable]
     public class EffectDefinition
     {
-        public EffectTrigger trigger = EffectTrigger.OnOwnerTurnStart;
+        public EffectTrigger trigger = EffectTrigger.Day;
         public EffectKind kind = EffectKind.GainResource;
         public EffectTarget target = EffectTarget.Owner;
         public int amount = 1;
-        /// <summary>Used by GainResource.</summary>
         public ResourceType resource;
-        /// <summary>How far "adjacent" reaches for Adjacent* targets. 1 means touching squares.</summary>
-        public int range = 1;
+
+        /// <summary>
+        /// For Day and Night triggers: fire on every Nth day (or night) since the card was placed.
+        /// 1 means every day. Ignored for OnPlay.
+        /// </summary>
+        public int interval = 1;
+        /// <summary>True: fire every <see cref="interval"/> days or nights. False: fire once, after that many, then never again.</summary>
+        public bool repeat = true;
+
+        /// <summary>Used by ConvertResource: what gets spent.</summary>
+        public ResourceType fromResource;
+        /// <summary>Used by ConvertResource: how much gets spent.</summary>
+        public int fromAmount;
+
+        /// <summary>Used by GainPerTouching: only touching cards with this tag count. Empty counts any of your cards.</summary>
+        public string tag;
+
         /// <summary>Used when kind is Custom.</summary>
         public string customEffectId;
 
         public EffectDefinition() { }
 
-        public EffectDefinition(EffectTrigger trigger, EffectKind kind, EffectTarget target, int amount,
-            ResourceType resource = ResourceType.Food, int range = 1)
+        public EffectDefinition(EffectTrigger trigger, EffectKind kind, int amount, ResourceType resource = default,
+            int interval = 1, bool repeat = true)
         {
             this.trigger = trigger;
             this.kind = kind;
-            this.target = target;
             this.amount = amount;
             this.resource = resource;
-            this.range = range;
+            this.interval = interval;
+            this.repeat = repeat;
         }
 
-        public static bool IsCardTarget(EffectTarget t) => (int)t >= 10;
+        /// <summary>Whether a Day/Night effect fires on the card's <paramref name="count"/>th day or night.</summary>
+        public bool FiresOn(int count)
+        {
+            int every = interval < 1 ? 1 : interval;
+            return repeat ? count > 0 && count % every == 0 : count == every;
+        }
     }
 }

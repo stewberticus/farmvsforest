@@ -1,4 +1,3 @@
-using System.Linq;
 using FarmVsForest.Core;
 using NUnit.Framework;
 using static FarmVsForest.Tests.TestHelpers;
@@ -7,30 +6,78 @@ namespace FarmVsForest.Tests
 {
     public class EffectTests
     {
-        private static EffectDefinition Fx(EffectTrigger t, EffectKind k, EffectTarget target, int amount, int range = 1) =>
-            new EffectDefinition(t, k, target, amount, ResourceType.Food, range);
+        [Test]
+        public void DayEffects_FireWhenEachDayStarts_ForEveryPlayersCards()
+        {
+            var m = Started(SimpleConfig(Card("x")));
+            Put(m, 0, Card("field", effects: Gain(EffectTrigger.Day, ResourceType.Wheat)), 0, 0);
+            Put(m, 1, Card("oak", effects: Gain(EffectTrigger.Day, ResourceType.Acorns)), 5, 5);
 
-        private static CardInstance Put(Match m, int playerId, CardDefinition def, int x, int y) =>
-            m.Summon(def, m.Players[playerId], new Coord(x, y));
+            PassRound(m);
+            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Wheat));
+            Assert.AreEqual(1, m.Players[1].Resources.Get(ResourceType.Acorns));
+            PassRound(m);
+            Assert.AreEqual(2, m.Players[0].Resources.Get(ResourceType.Wheat));
+        }
 
         [Test]
-        public void Producer_GivesResourcesAtStartOfOwnersTurn()
+        public void NightEffects_FireAtNightEvenWhenNobodyPlaysAtNight()
         {
-            var field = Card("field", effects: Fx(EffectTrigger.OnOwnerTurnStart, EffectKind.GainResource, EffectTarget.Owner, 1));
-            var m = Started(SimpleConfig(field));
-            m.PlayCard(0, 0, new Coord(0, 0));
-            Assert.AreEqual(0, m.Players[0].Resources.Get(ResourceType.Food));
+            var m = Started(SimpleConfig(Card("x")));
+            Put(m, 0, Card("cat", effects: Gain(EffectTrigger.Night, ResourceType.Wheat)), 0, 0);
 
             m.EndTurn(0);
-            Assert.AreEqual(0, m.Players[0].Resources.Get(ResourceType.Food), "doesn't fire on opponent's turn");
-            m.EndTurn(1);
-            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Food));
+            Assert.AreEqual(0, m.Players[0].Resources.Get(ResourceType.Wheat));
+            m.EndTurn(1); // day over; night fires with nobody to play, then day 2 begins
+            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Wheat));
+            Assert.AreEqual(2, m.Round);
+            Assert.AreEqual(TimeOfDay.Day, m.TimeOfDay);
+        }
+
+        [Test]
+        public void EveryXDays_Repeats()
+        {
+            var m = Started(SimpleConfig(Card("x")));
+            Put(m, 0, Card("sapling", effects: Gain(EffectTrigger.Day, ResourceType.Acorns, interval: 2)), 0, 0);
+            int[] expected = { 0, 1, 1, 2, 2, 3 };
+            foreach (int e in expected)
+            {
+                PassRound(m);
+                Assert.AreEqual(e, m.Players[0].Resources.Get(ResourceType.Acorns));
+            }
+        }
+
+        [Test]
+        public void OnceAfterXNights_FiresOnlyOnce()
+        {
+            var m = Started(SimpleConfig(Card("x")));
+            Put(m, 0, Card("egg", effects: Gain(EffectTrigger.Night, ResourceType.Eggs, 5, interval: 2, repeat: false)), 0, 0);
+            PassRound(m);
+            Assert.AreEqual(0, m.Players[0].Resources.Get(ResourceType.Eggs));
+            PassRound(m);
+            Assert.AreEqual(5, m.Players[0].Resources.Get(ResourceType.Eggs));
+            PassRound(m);
+            PassRound(m);
+            Assert.AreEqual(5, m.Players[0].Resources.Get(ResourceType.Eggs));
+        }
+
+        [Test]
+        public void IntervalsCount_FromWhenTheCardWasPlayed()
+        {
+            var m = Started(SimpleConfig(Card("x")));
+            PassRound(m);
+            PassRound(m);
+            Put(m, 0, Card("late", effects: Gain(EffectTrigger.Day, ResourceType.Wheat, interval: 2)), 0, 0);
+            PassRound(m);
+            Assert.AreEqual(0, m.Players[0].Resources.Get(ResourceType.Wheat), "first day since placing");
+            PassRound(m);
+            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Wheat), "second day since placing");
         }
 
         [Test]
         public void OnPlay_DrawCard()
         {
-            var barn = Card("barn", effects: Fx(EffectTrigger.OnPlay, EffectKind.DrawCard, EffectTarget.Owner, 2));
+            var barn = Card("barn", effects: new EffectDefinition(EffectTrigger.OnPlay, EffectKind.DrawCard, 2));
             var m = Started(SimpleConfig(barn));
             int before = m.Players[0].Hand.Count;
             m.PlayCard(0, 0, new Coord(0, 0));
@@ -38,75 +85,38 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void AdjacentEnemies_TakeDamage_AlliesDoNot()
+        public void Convert_SpendsOneResourceForAnother_OnlyIfAffordable()
         {
-            var plain = Card("plain", health: 3);
-            var thorns = Card("thorns", health: 3,
-                effects: Fx(EffectTrigger.OnOwnerTurnEnd, EffectKind.Damage, EffectTarget.AdjacentEnemies, 1));
-            var m = Started(SimpleConfig(plain));
+            var assembler = Card("assembler", effects: new EffectDefinition(EffectTrigger.Day, EffectKind.ConvertResource, 1,
+                ResourceType.Goods) { fromResource = ResourceType.Parts, fromAmount = 2 });
+            var m = Started(SimpleConfig(Card("x")));
+            Put(m, 0, assembler, 0, 0);
+            m.Players[0].Resources.Add(ResourceType.Parts, 3);
 
-            var mine = Put(m, 0, thorns, 3, 3);
-            var ally = Put(m, 0, plain, 3, 4);
-            var enemy = Put(m, 1, plain, 4, 4);
-            var farEnemy = Put(m, 1, plain, 5, 5);
-
-            m.EndTurn(0);
-            Assert.AreEqual(2, enemy.Health);
-            Assert.AreEqual(3, ally.Health);
-            Assert.AreEqual(3, farEnemy.Health, "out of range");
-            Assert.AreEqual(3, mine.Health);
+            PassRound(m);
+            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Parts));
+            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Goods));
+            PassRound(m);
+            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Parts), "can't afford, nothing happens");
+            Assert.AreEqual(1, m.Players[0].Resources.Get(ResourceType.Goods));
         }
 
         [Test]
-        public void Range2_ReachesFurther()
+        public void GainPerTouching_CountsOnlyYourTaggedNeighbours()
         {
-            var plain = Card("plain", health: 3);
-            var turret = Card("turret",
-                effects: Fx(EffectTrigger.OnOwnerTurnEnd, EffectKind.Damage, EffectTarget.AdjacentEnemies, 1, range: 2));
-            var m = Started(SimpleConfig(plain));
-            Put(m, 0, turret, 1, 1);
-            var enemy = Put(m, 1, plain, 3, 3);
-            m.EndTurn(0);
-            Assert.AreEqual(2, enemy.Health);
-        }
+            var coop = Card("coop", effects: new EffectDefinition(EffectTrigger.Day, EffectKind.GainPerTouching, 1,
+                ResourceType.Eggs) { tag = "crop" });
+            var crop = Card("crop", tags: new[] { "crop" });
+            var m = Started(SimpleConfig(Card("x")));
+            Put(m, 0, coop, 2, 2);
+            Put(m, 0, crop, 1, 2);
+            Put(m, 0, crop, 3, 2);
+            Put(m, 0, crop, 3, 3); // diagonal: doesn't touch
+            Put(m, 0, Card("other"), 2, 3); // touching but not a crop
+            Put(m, 1, crop, 2, 1); // touching but not mine
 
-        [Test]
-        public void LethalDamage_DestroysAndDiscards()
-        {
-            var plain = Card("plain", health: 1);
-            var bomb = Card("bomb", effects: Fx(EffectTrigger.OnPlay, EffectKind.Damage, EffectTarget.AdjacentEnemies, 5));
-            var m = Started(SimpleConfig(bomb));
-            var enemy = Put(m, 1, plain, 1, 1);
-
-            m.PlayCard(0, 0, new Coord(0, 0));
-            Assert.IsFalse(enemy.IsOnBoard);
-            Assert.IsNull(m.Board.Get(new Coord(1, 1)));
-            Assert.Contains(enemy, m.Players[1].Discard);
-        }
-
-        [Test]
-        public void OnDestroyed_FiresDeathEffect()
-        {
-            var plain = Card("plain", health: 5);
-            var hollow = Card("hollow", health: 1,
-                effects: Fx(EffectTrigger.OnDestroyed, EffectKind.Damage, EffectTarget.AdjacentEnemies, 2));
-            var m = Started(SimpleConfig(plain));
-            var tree = Put(m, 0, hollow, 2, 2);
-            var enemy = Put(m, 1, plain, 3, 3);
-
-            m.DealDamage(tree, 1);
-            Assert.AreEqual(3, enemy.Health);
-        }
-
-        [Test]
-        public void Heal_CapsAtMaxHealth()
-        {
-            var plain = Card("plain", health: 4);
-            var m = Started(SimpleConfig(plain));
-            var c = Put(m, 0, plain, 0, 0);
-            m.DealDamage(c, 1);
-            m.Heal(c, 5);
-            Assert.AreEqual(4, c.Health);
+            PassRound(m);
+            Assert.AreEqual(2, m.Players[0].Resources.Get(ResourceType.Eggs));
         }
 
         [Test]
@@ -116,44 +126,12 @@ namespace FarmVsForest.Tests
             var custom = new CountingEffect();
             registry.Register("count", custom);
             var def = Card("c", effects: new EffectDefinition
-                { trigger = EffectTrigger.OnPlay, kind = EffectKind.Custom, customEffectId = "count", target = EffectTarget.Owner });
+                { trigger = EffectTrigger.OnPlay, kind = EffectKind.Custom, customEffectId = "count" });
 
             var m = new Match(SimpleConfig(def), registry);
             m.Start();
             m.PlayCard(0, 0, new Coord(0, 0));
             Assert.AreEqual(1, custom.Calls);
-        }
-
-        [Test]
-        public void DestroyingHomeCard_EliminatesPlayer_AndEndsMatch()
-        {
-            var m = Started(PlaceholderCards.DefaultConfig(GameMode.OneVsOne));
-            m.DealDamage(m.Players[1].HomeCard, 999);
-            Assert.IsTrue(m.Players[1].IsEliminated);
-            Assert.IsTrue(m.IsOver);
-            Assert.AreEqual(m.Players[0].AllianceId, m.WinningAllianceId);
-        }
-
-        [Test]
-        public void FreeForAll_EliminatedPlayersAreSkipped()
-        {
-            var m = Started(PlaceholderCards.DefaultConfig(GameMode.FreeForAll));
-            m.DealDamage(m.Players[1].HomeCard, 999);
-            Assert.IsFalse(m.IsOver);
-            m.EndTurn(0);
-            Assert.AreEqual(2, m.CurrentPlayer.Id);
-        }
-
-        [Test]
-        public void TwoVsTwo_TeamWinsWhenBothOpponentsAreOut()
-        {
-            var m = Started(PlaceholderCards.DefaultConfig(GameMode.TwoVsTwo));
-            var enemies = m.Players.Where(p => p.AllianceId == 1).ToList();
-            m.DealDamage(enemies[0].HomeCard, 999);
-            Assert.IsFalse(m.IsOver);
-            m.DealDamage(enemies[1].HomeCard, 999);
-            Assert.IsTrue(m.IsOver);
-            Assert.AreEqual(0, m.WinningAllianceId);
         }
 
         private class CountingEffect : IEffect

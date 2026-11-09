@@ -18,6 +18,8 @@ namespace FarmVsForest.Runtime
             public Team team;
             [Tooltip("Leave empty to use the built-in placeholder deck for the team.")]
             public DeckAsset deck;
+            [Tooltip("Card placed in this seat's corner at the start. Empty uses the team's placeholder starting card.")]
+            public CardDefinitionAsset startingCard;
         }
 
         [Tooltip("Board size, hand size, cards per turn and other rule knobs.")]
@@ -32,9 +34,8 @@ namespace FarmVsForest.Runtime
             new SeatSetup { name = "Dark Forest", team = Team.DarkForest },
         };
 
-        [Tooltip("Card placed in each player's corner. Losing it knocks you out. Empty uses the placeholder Home.")]
-        public CardDefinitionAsset homeCard;
-        public bool useHomeCards = true;
+        [Tooltip("Turn off to start with an empty board; each player then begins on their corner square.")]
+        public bool useStartingCards = true;
         public bool randomSeed = true;
 
         public Match Match { get; private set; }
@@ -59,8 +60,6 @@ namespace FarmVsForest.Runtime
             var config = JsonUtility.FromJson<MatchConfig>(JsonUtility.ToJson(rules));
             if (randomSeed) config.seed = Environment.TickCount;
 
-            config.homeCard = !useHomeCards ? null : homeCard != null ? homeCard.card : PlaceholderCards.Home();
-
             int count = GameModes.PlayerCount(config.mode);
             if (seats.Count < count)
                 throw new InvalidOperationException(config.mode + " needs " + count + " seats set up on " + name + ".");
@@ -70,7 +69,9 @@ namespace FarmVsForest.Runtime
             {
                 var s = seats[i];
                 var deck = s.deck != null && s.deck.Count > 0 ? s.deck.ToDefinitions() : PlaceholderCards.StarterDeck(s.team);
-                config.players.Add(new PlayerSetup(s.name, s.team, deck));
+                var start = !useStartingCards ? null
+                    : s.startingCard != null ? s.startingCard.card : PlaceholderCards.StartingCard(s.team);
+                config.players.Add(new PlayerSetup(s.name, s.team, deck, start));
             }
             return config;
         }

@@ -9,9 +9,7 @@ namespace FarmVsForest.Core
         /// <summary>The card whose effect is firing.</summary>
         public CardInstance Source;
         public EffectDefinition Effect;
-        /// <summary>Resolved card targets (for card target types). For player targets this is empty.</summary>
-        public List<CardInstance> TargetCards = new List<CardInstance>();
-        /// <summary>Resolved player targets. For card target types this is the distinct owners of the target cards.</summary>
+        /// <summary>The players the effect applies to, from <see cref="EffectDefinition.target"/>.</summary>
         public List<PlayerState> TargetPlayers = new List<PlayerState>();
     }
 

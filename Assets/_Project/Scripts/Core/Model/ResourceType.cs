@@ -1,14 +1,28 @@
 namespace FarmVsForest.Core
 {
     /// <summary>
-    /// Resources that cards produce and spend. These are placeholders: add, rename or remove
-    /// values freely while the design settles. Nothing in the rules engine depends on specific values.
+    /// Every resource in the game. Each team has its own: Farm makes Wheat, Milk and Eggs; Forest makes Acorns and
+    /// Honey; Factory makes Parts and Goods; Dark Forest makes Bats, Spiders and Ghouls.
+    /// Values are explicit so card assets keep their meaning if the list is reordered.
     /// </summary>
     public enum ResourceType
     {
-        Food = 0,
-        Wood = 1,
-        Scrap = 2,
-        Shadow = 3,
+        // Farm
+        Wheat = 0,
+        Milk = 1,
+        Eggs = 2,
+
+        // Forest
+        Acorns = 10,
+        Honey = 11,
+
+        // Factory
+        Parts = 20,
+        Goods = 21,
+
+        // Dark Forest
+        Bats = 30,
+        Spiders = 31,
+        Ghouls = 32,
     }
 }

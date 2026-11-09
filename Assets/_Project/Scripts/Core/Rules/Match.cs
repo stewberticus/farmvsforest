@@ -8,47 +8,63 @@ namespace FarmVsForest.Core
     /// The rules engine for one match. Holds all game state and is the only thing that changes it.
     /// Has no Unity dependencies, so it can be unit tested, run on a server, or driven by an AI.
     ///
-    /// Turn structure: start-of-turn effects fire, then the player draws, then they may play up to
-    /// <see cref="MatchConfig.cardsPerTurn"/> cards, then end-of-turn effects fire and play passes on.
+    /// Each round is a day then a night:
+    /// 1. Day starts: every card's Day effects fire. Then each day player (Farm, Forest, Factory) takes a turn.
+    /// 2. Night starts: every card's Night effects fire. Then each night player (Dark Forest) takes a turn.
+    /// A turn is: draw, then play up to <see cref="MatchConfig.cardsPerTurn"/> cards, then <see cref="EndTurn"/>.
+    /// A phase with nobody to play (night in Farm vs Forest) just fires its effects.
+    ///
+    /// The match ends when a player reaches their team's goal, or when the board is full
+    /// (most squares wins; a tie is a draw).
     /// </summary>
     public class Match
     {
         private readonly EffectRegistry _effects;
         private readonly IPlacementRule _placement;
-        private readonly IWinCondition _winCondition;
+        private readonly Func<PlayerState, ITeamGoal> _goalFor;
+        private readonly Dictionary<PlayerState, ITeamGoal> _goals = new Dictionary<PlayerState, ITeamGoal>();
         private readonly List<PlayerState> _players = new List<PlayerState>();
         private readonly List<GameEvent> _log = new List<GameEvent>();
+        private readonly List<PlayerState> _phaseQueue = new List<PlayerState>();
+        private int _queuePos;
         private int _nextInstanceId = 1;
-        private int _currentIndex;
 
         public MatchConfig Config { get; }
         public Board Board { get; private set; }
         public GameRandom Random { get; }
         public IReadOnlyList<PlayerState> Players => _players;
         public IReadOnlyList<GameEvent> Log => _log;
-        public PlayerState CurrentPlayer => _players.Count == 0 ? null : _players[_currentIndex];
+
+        /// <summary>Whose turn it is. Null between phases and once the match is over.</summary>
+        public PlayerState CurrentPlayer { get; private set; }
 
         /// <summary>Counts every player-turn taken, starting at 1.</summary>
         public int TurnNumber { get; private set; }
-        /// <summary>A round is complete when every remaining player has had a turn. Starts at 1.</summary>
+        /// <summary>One round is a day and the night after it. Starts at 1.</summary>
         public int Round { get; private set; }
+        public TimeOfDay TimeOfDay { get; private set; }
         public bool IsStarted { get; private set; }
         public bool IsOver { get; private set; }
         /// <summary>The winning alliance, or null for a draw / match not over.</summary>
         public int? WinningAllianceId { get; private set; }
+        /// <summary>Why the match ended, e.g. "Farm reached its goal" or "The board is full".</summary>
+        public string EndReason { get; private set; }
 
         /// <summary>Raised for everything that happens. Subscribe from the presentation layer.</summary>
         public event Action<GameEvent> EventRaised;
 
+        /// <param name="goalFor">Override a player's win condition. Defaults to <see cref="TeamRules.DefaultGoal"/>.</param>
         public Match(MatchConfig config, EffectRegistry effects = null, IPlacementRule placement = null,
-            IWinCondition winCondition = null)
+            Func<PlayerState, ITeamGoal> goalFor = null)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             _effects = effects ?? EffectRegistry.CreateDefault();
-            _placement = placement ?? new HomeZoneOrAdjacentPlacement();
-            _winCondition = winCondition ?? new HomeCardWinCondition();
+            _placement = placement ?? new TouchOwnCardPlacement();
+            _goalFor = goalFor ?? (p => TeamRules.DefaultGoal(p.Team, Config));
             Random = new GameRandom(config.seed);
         }
+
+        public ITeamGoal GoalOf(PlayerState player) => _goals.TryGetValue(player, out var g) ? g : null;
 
         // ------------------------------------------------------------------ setup
 
@@ -60,7 +76,8 @@ namespace FarmVsForest.Core
                 throw new InvalidOperationException(Config.mode + " needs " + expected + " players, got " +
                                                     (Config.players?.Count ?? 0) + ".");
 
-            Board = new Board(Config.boardWidth, Config.boardHeight, Config.adjacency);
+            int size = Config.BoardSizeFor(expected);
+            Board = new Board(size, size, Config.adjacency);
             var seats = GameModes.Seats(Config.mode);
 
             for (int i = 0; i < expected; i++)
@@ -69,6 +86,7 @@ namespace FarmVsForest.Core
                 var player = new PlayerState(i, string.IsNullOrEmpty(setup.name) ? "Player " + (i + 1) : setup.name,
                     setup.team, seats[i].Corner, seats[i].AllianceId);
                 _players.Add(player);
+                _goals[player] = _goalFor(player);
 
                 foreach (var def in setup.deck ?? new List<CardDefinition>())
                     player.Deck.Add(CreateInstance(def, player));
@@ -76,11 +94,11 @@ namespace FarmVsForest.Core
 
                 player.Resources.Add(Config.startingResources);
 
-                if (Config.homeCard != null)
+                if (setup.startingCard != null)
                 {
-                    var home = CreateInstance(Config.homeCard, player);
-                    PutOnBoard(home, player.Corner.ToCoord(Board.Width, Board.Height));
-                    player.HomeCard = home;
+                    var start = CreateInstance(setup.startingCard, player);
+                    PutOnBoard(start, player.Corner.ToCoord(Board.Width, Board.Height));
+                    player.StartingCard = start;
                 }
             }
 
@@ -89,72 +107,105 @@ namespace FarmVsForest.Core
 
             foreach (var p in _players) DrawCards(p, Config.startingHandSize);
 
-            _currentIndex = 0;
             Round = 1;
-            BeginTurn(skipDraw: Config.firstPlayerSkipsDraw);
+            BeginPhase(TimeOfDay.Day);
         }
 
         public CardInstance CreateInstance(CardDefinition def, PlayerState owner) =>
             new CardInstance(_nextInstanceId++, def, owner);
 
-        // ------------------------------------------------------------------ turns
+        // ------------------------------------------------------------------ days, nights and turns
 
-        private void BeginTurn(bool skipDraw)
+        private void BeginPhase(TimeOfDay time)
         {
-            var player = CurrentPlayer;
+            while (!IsOver)
+            {
+                TimeOfDay = time;
+                CurrentPlayer = null;
+
+                if (time == TimeOfDay.Day)
+                {
+                    foreach (var p in _players) p.GainedThisRound.Clear();
+                    Raise(new GameEvent { Type = GameEventType.DayStarted, Message = "Day " + Round + " begins" });
+                }
+                else
+                {
+                    Raise(new GameEvent { Type = GameEventType.NightStarted, Message = "Night " + Round + " falls" });
+                }
+
+                FirePhaseEffects(time);
+                CheckGoals();
+                if (IsOver) return;
+
+                _phaseQueue.Clear();
+                _phaseQueue.AddRange(_players.Where(p => p.PlaysDuring == time));
+                _queuePos = 0;
+                if (_phaseQueue.Count > 0)
+                {
+                    BeginTurn(_phaseQueue[0]);
+                    return;
+                }
+
+                // Nobody plays in this phase: move straight on to the next one.
+                if (!AdvanceTime(ref time)) return;
+            }
+        }
+
+        /// <summary>Moves day to night, or night to the next day. Returns false if that ended the match.</summary>
+        private bool AdvanceTime(ref TimeOfDay time)
+        {
+            if (time == TimeOfDay.Day)
+            {
+                time = TimeOfDay.Night;
+                return true;
+            }
+
+            Round++;
+            if (Config.roundLimit > 0 && Round > Config.roundLimit)
+            {
+                EndByMostSquares("Round limit reached");
+                return false;
+            }
+            time = TimeOfDay.Day;
+            return true;
+        }
+
+        private void BeginTurn(PlayerState player)
+        {
+            CurrentPlayer = player;
             TurnNumber++;
             player.CardsPlayedThisTurn = 0;
             Raise(new GameEvent
             {
                 Type = GameEventType.TurnStarted, Player = player,
-                Message = "Turn " + TurnNumber + " (round " + Round + "): " + player
+                Message = "Turn " + TurnNumber + " (" + TimeOfDay + " " + Round + "): " + player
             });
 
-            FireForPlayerCards(player, EffectTrigger.OnOwnerTurnStart);
-            if (IsOver) return;
-
+            bool skipDraw = TurnNumber == 1 && Config.firstPlayerSkipsDraw;
             if (!skipDraw) DrawCards(player, Config.drawsPerTurn);
         }
 
         /// <summary>Ends the current player's turn. Returns false if it isn't their turn or the match is over.</summary>
         public bool EndTurn(int playerId)
         {
-            if (!IsStarted || IsOver || CurrentPlayer.Id != playerId) return false;
+            if (!IsStarted || IsOver || CurrentPlayer == null || CurrentPlayer.Id != playerId) return false;
 
             var player = CurrentPlayer;
-            FireForPlayerCards(player, EffectTrigger.OnOwnerTurnEnd);
             Raise(new GameEvent { Type = GameEventType.TurnEnded, Player = player, Message = player + " ended their turn" });
-            if (IsOver) return true;
 
-            int next = NextActiveIndex(_currentIndex);
-            if (next <= _currentIndex) Round++;
-            _currentIndex = next;
-
-            if (Config.roundLimit > 0 && Round > Config.roundLimit)
+            _queuePos++;
+            if (_queuePos < _phaseQueue.Count)
             {
-                EndMatch(null, "Round limit reached");
+                BeginTurn(_phaseQueue[_queuePos]);
                 return true;
             }
 
-            BeginTurn(skipDraw: false);
+            var time = TimeOfDay;
+            if (AdvanceTime(ref time)) BeginPhase(time);
             return true;
         }
 
-        private int NextActiveIndex(int from)
-        {
-            for (int step = 1; step <= _players.Count; step++)
-            {
-                int i = (from + step) % _players.Count;
-                if (!_players[i].IsEliminated) return i;
-            }
-            return from;
-        }
-
         // ------------------------------------------------------------------ playing cards
-
-        public bool IsInHomeZone(PlayerState player, Coord square) =>
-            Board.InBounds(square) &&
-            player.Corner.ToCoord(Board.Width, Board.Height).ChebyshevDistance(square) < Config.homeZoneSize;
 
         public bool CanPlaceOn(PlayerState player, CardDefinition card, Coord square) =>
             Board.InBounds(square) && _placement.CanPlace(this, player, card, square);
@@ -175,7 +226,7 @@ namespace FarmVsForest.Core
         {
             if (!IsStarted || IsOver) return PlayResult.GameOver;
             var player = CurrentPlayer;
-            if (player.Id != playerId || player.IsEliminated) return PlayResult.NotYourTurn;
+            if (player == null || player.Id != playerId) return PlayResult.NotYourTurn;
             if (card == null || !player.Hand.Contains(card)) return PlayResult.CardNotInHand;
             if (player.CardsPlayedThisTurn >= Config.cardsPerTurn) return PlayResult.NoPlaysLeft;
             if (!player.Resources.CanAfford(card.Definition.cost)) return PlayResult.CannotAfford;
@@ -201,7 +252,9 @@ namespace FarmVsForest.Core
             Raise(new GameEvent { Type = GameEventType.CardPlayed, Player = player, Card = card,
                 Message = player + " played " + card.Definition + " at " + square });
 
-            FireTrigger(card, EffectTrigger.OnPlay);
+            FireEffects(card, EffectTrigger.OnPlay);
+            CheckGoals();
+            if (!IsOver && Board.IsFull) EndByMostSquares("The board is full");
             return PlayResult.Ok;
         }
 
@@ -214,7 +267,7 @@ namespace FarmVsForest.Core
         }
 
         /// <summary>
-        /// Puts a new card on the board for a player with no cost, turn or placement checks.
+        /// Puts a new card on the board for a player with no cost, turn or placement checks, and no OnPlay effects.
         /// For token-spawning effects, scenarios and tests. Returns null if the square is taken.
         /// </summary>
         public CardInstance Summon(CardDefinition def, PlayerState owner, Coord square)
@@ -258,100 +311,104 @@ namespace FarmVsForest.Core
 
         public void GainResource(PlayerState player, ResourceType type, int amount, CardInstance source = null)
         {
-            if (amount == 0) return;
+            if (amount <= 0) return;
             player.Resources.Add(type, amount);
+            player.GainedThisRound.Add(type, amount);
             Raise(new GameEvent { Type = GameEventType.ResourcesGained, Player = player, Source = source,
                 Resource = type, Amount = amount,
-                Message = player + (amount > 0 ? " gained " : " lost ") + Math.Abs(amount) + " " + type +
-                          (source != null ? " from " + source.Definition : "") });
+                Message = player + " gained " + amount + " " + type + (source != null ? " from " + source.Definition : "") });
         }
 
-        public void DealDamage(CardInstance target, int amount, CardInstance source = null)
+        public void SpendResource(PlayerState player, ResourceType type, int amount, CardInstance source = null)
         {
-            if (target == null || !target.IsOnBoard || target.IsIndestructible || amount <= 0) return;
-            target.Health -= amount;
-            Raise(new GameEvent { Type = GameEventType.CardDamaged, Card = target, Source = source, Amount = amount,
-                Player = target.Owner,
-                Message = target.Definition + " took " + amount + " damage" +
-                          (source != null ? " from " + source.Definition : "") });
-            if (target.Health <= 0) Destroy(target, source);
-        }
-
-        public void Heal(CardInstance target, int amount, CardInstance source = null)
-        {
-            if (target == null || !target.IsOnBoard || target.IsIndestructible || amount <= 0) return;
-            int healed = Math.Min(amount, target.MaxHealth - target.Health);
-            if (healed <= 0) return;
-            target.Health += healed;
-            Raise(new GameEvent { Type = GameEventType.CardHealed, Card = target, Source = source, Amount = healed,
-                Player = target.Owner, Message = target.Definition + " healed " + healed });
-        }
-
-        public void Destroy(CardInstance card, CardInstance source = null)
-        {
-            if (card == null || !card.IsOnBoard) return;
-            Board.Remove(card);
-            card.IsOnBoard = false;
-            card.Owner.Discard.Add(card);
-            Raise(new GameEvent { Type = GameEventType.CardDestroyed, Card = card, Source = source, Player = card.Owner,
-                Message = card.Definition + " was destroyed" });
-
-            FireTrigger(card, EffectTrigger.OnDestroyed);
-            CheckEliminations();
+            if (amount <= 0) return;
+            player.Resources.Add(type, -amount);
+            Raise(new GameEvent { Type = GameEventType.ResourcesSpent, Player = player, Source = source,
+                Resource = type, Amount = amount,
+                Message = player + " spent " + amount + " " + type + (source != null ? " on " + source.Definition : "") });
         }
 
         // ------------------------------------------------------------------ effects
 
-        private void FireForPlayerCards(PlayerState player, EffectTrigger trigger)
+        private void FirePhaseEffects(TimeOfDay time)
         {
-            // Snapshot in a stable order so effects that destroy cards don't break iteration.
-            var cards = Board.AllCards().Where(c => c.Owner == player).OrderBy(c => c.InstanceId).ToList();
+            var trigger = time == TimeOfDay.Day ? EffectTrigger.Day : EffectTrigger.Night;
+            // Stable order: oldest card first.
+            var cards = Board.AllCards().OrderBy(c => c.InstanceId).ToList();
+            foreach (var card in cards)
+            {
+                if (time == TimeOfDay.Day) card.DaysSeen++;
+                else card.NightsSeen++;
+            }
             foreach (var card in cards)
             {
                 if (IsOver) return;
-                if (card.IsOnBoard) FireTrigger(card, trigger);
+                FireEffects(card, trigger);
             }
         }
 
-        private void FireTrigger(CardInstance card, EffectTrigger trigger)
+        private void FireEffects(CardInstance card, EffectTrigger trigger)
         {
             var effects = card.Definition.effects;
             if (effects == null) return;
             foreach (var def in effects)
             {
-                if (IsOver) return;
                 if (def.trigger != trigger) continue;
-                // A card destroyed partway through its own effects stops, unless these are its death effects.
-                if (trigger != EffectTrigger.OnDestroyed && !card.IsOnBoard) return;
+                if (trigger == EffectTrigger.Day && !def.FiresOn(card.DaysSeen)) continue;
+                if (trigger == EffectTrigger.Night && !def.FiresOn(card.NightsSeen)) continue;
 
                 var ctx = new EffectContext { Match = this, Source = card, Effect = def };
-                TargetResolver.Resolve(this, card, def, ctx.TargetCards, ctx.TargetPlayers);
+                if (def.target == EffectTarget.OwnerAlliance)
+                    ctx.TargetPlayers.AddRange(_players.Where(p => p.IsAlliedWith(card.Owner)));
+                else
+                    ctx.TargetPlayers.Add(card.Owner);
                 _effects.Resolve(def).Apply(ctx);
             }
         }
 
         // ------------------------------------------------------------------ winning
 
-        private void CheckEliminations()
+        /// <summary>How many squares each alliance owns (a card on a square means you own it).</summary>
+        public Dictionary<int, int> SquaresByAlliance()
+        {
+            var result = _players.Select(p => p.AllianceId).Distinct().ToDictionary(a => a, a => 0);
+            foreach (var card in Board.AllCards()) result[card.Owner.AllianceId]++;
+            return result;
+        }
+
+        public int SquaresOwnedBy(PlayerState player) => Board.AllCards().Count(c => c.Owner == player);
+
+        /// <summary>Checks every player's goal, starting with whoever is playing, and ends the match if one is met.</summary>
+        private void CheckGoals()
         {
             if (IsOver) return;
-            foreach (var p in _players)
+            int start = CurrentPlayer != null ? CurrentPlayer.Id : 0;
+            for (int i = 0; i < _players.Count; i++)
             {
-                if (p.IsEliminated || !_winCondition.IsEliminated(this, p)) continue;
-                p.IsEliminated = true;
-                Raise(new GameEvent { Type = GameEventType.PlayerEliminated, Player = p, Message = p + " was eliminated" });
+                var p = _players[(start + i) % _players.Count];
+                var goal = GoalOf(p);
+                if (goal == null || !goal.IsMet(this, p)) continue;
+                Raise(new GameEvent { Type = GameEventType.GoalReached, Player = p, Message = p + " reached their goal!" });
+                EndMatch(p.AllianceId, p.Team + " reached its goal");
+                return;
             }
+        }
 
-            var alliances = WinConditionHelpers.RemainingAlliances(this);
-            if (alliances.Length == 1) EndMatch(alliances[0], "Last side standing");
-            else if (alliances.Length == 0) EndMatch(null, "Everyone was eliminated");
+        private void EndByMostSquares(string reason)
+        {
+            var squares = SquaresByAlliance();
+            int best = squares.Values.Max();
+            var leaders = squares.Where(kv => kv.Value == best).Select(kv => kv.Key).ToList();
+            EndMatch(leaders.Count == 1 ? leaders[0] : (int?)null, reason + ", most squares wins");
         }
 
         private void EndMatch(int? winningAlliance, string reason)
         {
             if (IsOver) return;
             IsOver = true;
+            CurrentPlayer = null;
             WinningAllianceId = winningAlliance;
+            EndReason = reason;
             string who = winningAlliance.HasValue
                 ? string.Join(" & ", _players.Where(p => p.AllianceId == winningAlliance.Value).Select(p => p.ToString()))
                 : "nobody (draw)";

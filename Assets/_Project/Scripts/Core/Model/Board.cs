@@ -3,16 +3,17 @@ using System.Collections.Generic;
 
 namespace FarmVsForest.Core
 {
-    /// <summary>A rectangular grid of squares. Each square holds at most one card.</summary>
+    /// <summary>A square grid. Each square holds at most one card, and a card on a square means its owner owns it.</summary>
     public class Board
     {
         private readonly CardInstance[,] _cells;
+        private int _occupied;
 
         public int Width { get; }
         public int Height { get; }
         public AdjacencyRule Adjacency { get; }
 
-        public Board(int width, int height, AdjacencyRule adjacency = AdjacencyRule.EightWay)
+        public Board(int width, int height, AdjacencyRule adjacency = AdjacencyRule.Orthogonal)
         {
             if (width < 2 || height < 2) throw new ArgumentException("Board must be at least 2x2.");
             Width = width;
@@ -20,6 +21,10 @@ namespace FarmVsForest.Core
             Adjacency = adjacency;
             _cells = new CardInstance[width, height];
         }
+
+        public int SquareCount => Width * Height;
+        public int OccupiedCount => _occupied;
+        public bool IsFull => _occupied >= SquareCount;
 
         public bool InBounds(Coord c) => c.x >= 0 && c.y >= 0 && c.x < Width && c.y < Height;
 
@@ -32,24 +37,19 @@ namespace FarmVsForest.Core
             if (!IsEmpty(c)) throw new InvalidOperationException("Square " + c + " is not empty.");
             _cells[c.x, c.y] = card;
             card.Position = c;
+            _occupied++;
         }
 
-        internal void Remove(CardInstance card)
+        /// <summary>The squares touching <paramref name="center"/>, using the board's adjacency rule.</summary>
+        public IEnumerable<Coord> Neighbours(Coord center)
         {
-            if (Get(card.Position) == card) _cells[card.Position.x, card.Position.y] = null;
-        }
-
-        /// <summary>Squares within <paramref name="range"/> steps of <paramref name="center"/> (not including it).</summary>
-        public IEnumerable<Coord> Neighbours(Coord center, int range = 1)
-        {
-            for (int dx = -range; dx <= range; dx++)
-            for (int dy = -range; dy <= range; dy++)
+            for (int dx = -1; dx <= 1; dx++)
+            for (int dy = -1; dy <= 1; dy++)
             {
                 if (dx == 0 && dy == 0) continue;
+                if (Adjacency == AdjacencyRule.Orthogonal && dx != 0 && dy != 0) continue;
                 var c = new Coord(center.x + dx, center.y + dy);
-                if (!InBounds(c)) continue;
-                int dist = Adjacency == AdjacencyRule.EightWay ? center.ChebyshevDistance(c) : center.ManhattanDistance(c);
-                if (dist <= range) yield return c;
+                if (InBounds(c)) yield return c;
             }
         }
 

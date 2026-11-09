@@ -1,10 +1,12 @@
 # Farm vs Forest
 
-A digital card game played on a chess-like board. Players start in the corners, draw from their own deck,
-and play one card per turn onto a square if they can pay its cost. Some cards are free and produce resources;
-others cost resources and do something every turn or affect the squares around them.
+A cozy, family-friendly digital card game about growing your team across a shared board, like Carcassonne with
+cards. There's no combat. Each player starts with one card in their corner, draws from their own deck, and plays one
+card per turn onto an empty square touching their own cards, if they can pay its cost. Cards make resources by day
+or by night.
 
-Four themed teams: **Farm**, **Forest**, **Factory** and **Dark Forest**. Modes: **1v1**, **2v2** and **1v1v1v1**.
+Four themed teams, each with its own resources and way to win: **Farm**, **Forest**, **Factory** and **Dark Forest**.
+Balanced for **1v1**, with **2v2** and **1v1v1v1** for fun. See [docs/DESIGN.md](docs/DESIGN.md).
 
 ## Getting started
 
@@ -13,6 +15,7 @@ Four themed teams: **Farm**, **Forest**, **Factory** and **Dark Forest**. Modes:
    `ProjectSettings/` folder Unity creates on first open.
 2. In the menu bar: **Farm vs Forest > Create Prototype Scene**, then press **Play**.
    You get a hot-seat debug board: click a card in your hand, click a cyan square, then **End Turn**.
+   Each player's goal progress is shown in the side panel.
 3. Optional: **Farm vs Forest > Generate Placeholder Card Assets** turns the placeholder cards into
    editable assets under `Assets/_Project/Data/`. Drag a deck asset onto a seat on the `Match` object to use it.
 
