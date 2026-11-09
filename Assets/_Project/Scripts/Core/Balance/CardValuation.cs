@@ -66,7 +66,11 @@ namespace FarmVsForest.Core
         };
 
         /// <summary>Hand-set values for Custom effects, by customEffectId. Unknown ones are flagged.</summary>
-        public Dictionary<string, double> customEffectValue = new Dictionary<string, double>();
+        public Dictionary<string, double> customEffectValue = new Dictionary<string, double>
+        {
+            // Picnic Blanket: 2 free Ghoul meals a day, but only once you have Ghouls (about 60% of its life).
+            { DarkForestCards.FreeMealsEffect, 1.2 },
+        };
 
         public double ValueOf(ResourceType type) => resourceValue.TryGetValue(type, out var v) ? v : 1;
 
