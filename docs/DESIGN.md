@@ -43,7 +43,7 @@ Each round is one **day** followed by one **night**.
 | Farm | Have 20 Wheat, 20 Milk and 20 Eggs. |
 | Forest | Own over 50% of the board (25% in 1v1v1v1). |
 | Factory | Make X Goods in a single turn. |
-| Dark Forest | **Ghoul Party**: have 13 Ghouls at once. Ghouls are made at night by combining a Bat and a Spider. |
+| Dark Forest | **Ghoul Party**: have 13 Ghouls at once. How Ghouls are made is open (no combining). |
 
 ## Open questions
 
