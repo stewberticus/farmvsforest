@@ -32,12 +32,12 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | Farm | Have 20 Wheat, 20 Milk and 20 Eggs. |
 | Forest | Own over 50% of the board (25% in 1v1v1v1). |
 | Factory | Make X Goods in a single turn. |
-| Dark Forest | Something with Ghouls (open). |
+| Dark Forest | **Ghoul Party**: have 13 Ghouls at once. Ghouls only appear at night (every other round), made by combining a Bat and a Spider. |
 
 ## Open questions
 
 * How each team plays differently.
 * The card list for each team.
-* Dark Forest's goal, and the exact numbers for every goal.
+* Exact numbers for every goal (Factory X, Forest share).
 * Placement: must a new card touch one of your own cards?
 * Does "own the most squares" count only cards, or also squares a team has claimed in other ways?
