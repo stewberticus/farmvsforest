@@ -211,6 +211,7 @@ namespace FarmVsForest.Core
             CurrentPlayer = player;
             TurnNumber++;
             player.CardsPlayedThisTurn = 0;
+            player.CompostedThisTurn = false;
             Raise(new GameEvent
             {
                 Type = GameEventType.TurnStarted, Player = player,
@@ -305,10 +306,37 @@ namespace FarmVsForest.Core
         {
             var cost = new List<ResourceAmount>(def.cost ?? new List<ResourceAmount>());
             if (player.CardsPlayedThisTurn < Config.cardsPerTurn) return cost;
-            var extra = TeamRules.ExtraPlayCost(player.Team, def, Config);
+            var extra = TeamRules.ExtraPlayCost(player.Team, def, Config, player.CardsPlayedThisTurn - Config.cardsPerTurn);
             if (extra == null) return null;
             cost.AddRange(extra);
             return cost;
+        }
+
+        /// <summary>Whether the current player can compost a card now (Forest: once a turn, any card in hand).</summary>
+        public bool CanCompost(int playerId, CardInstance card)
+        {
+            if (!IsStarted || IsOver || CurrentPlayer == null || CurrentPlayer.Id != playerId) return false;
+            var player = CurrentPlayer;
+            return card != null && player.Hand.Contains(card) && !player.CompostedThisTurn &&
+                   TeamRules.CompostGain(player.Team, Config) != null;
+        }
+
+        /// <summary>
+        /// Discards a card from the current player's hand for its team's compost gain (Forest: 1 Acorn).
+        /// Doesn't use up a play. Returns false if not allowed.
+        /// </summary>
+        public bool Compost(int playerId, CardInstance card)
+        {
+            if (!CanCompost(playerId, card)) return false;
+            var player = CurrentPlayer;
+            player.Hand.Remove(card);
+            player.CompostedThisTurn = true;
+            Raise(new GameEvent { Type = GameEventType.CardComposted, Player = player, Card = card,
+                Message = player + " composted " + card.Definition });
+            foreach (var gain in TeamRules.CompostGain(player.Team, Config))
+                GainResource(player, gain.type, gain.amount, null);
+            CheckGoals();
+            return true;
         }
 
         /// <summary>Convenience overload: play by hand index.</summary>

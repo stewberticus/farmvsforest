@@ -39,6 +39,10 @@ namespace FarmVsForest.Core
                 var (card, square) = options[_rng.Range(0, options.Count)];
                 if (match.PlayCard(p.Id, card, square) != PlayResult.Ok) return;
             }
+            // Compost a random card now and then (Forest only; does nothing for other teams).
+            var me = match.CurrentPlayer;
+            if (!match.IsOver && me.Hand.Count > 0 && _rng.Range(0, 3) == 0)
+                match.Compost(me.Id, me.Hand[_rng.Range(0, me.Hand.Count)]);
         }
     }
 
@@ -77,6 +81,25 @@ namespace FarmVsForest.Core
         {
             for (int i = 0; i < 10 && !match.IsOver; i++)
                 if (!PlayBest(match)) break;
+            if (!match.IsOver) MaybeCompost(match);
+        }
+
+        /// <summary>
+        /// Forest's Compost: discard the least useful card for Acorns when the hand is getting full, or when it's
+        /// stuck with nothing affordable. The worst bot composts its best card instead.
+        /// </summary>
+        private void MaybeCompost(Match match)
+        {
+            var p = match.CurrentPlayer;
+            if (p.Hand.Count == 0 || !match.CanCompost(p.Id, p.Hand[0])) return;
+            bool stuck = Bots.Playable(match, p).Count == 0;
+            if (!stuck && p.Hand.Count < match.Config.maxHandSize - 1) return;
+            // Keep goal pieces (trees): they're worth more than the Acorn. Compost the weakest of the rest.
+            var goal = match.GoalOf(p) as ConnectedTaggedCardsGoal;
+            var ranked = p.Hand.Where(c => goal == null || !c.Definition.HasTag(goal.Tag))
+                .OrderBy(c => ScoreCard(match, p, c.Definition)).ToList();
+            if (ranked.Count == 0) return;
+            match.Compost(p.Id, Worst ? ranked.Last() : ranked.First());
         }
 
         private bool PlayBest(Match match)
@@ -187,11 +210,19 @@ namespace FarmVsForest.Core
                 int actual = mine.Count(c => string.IsNullOrEmpty(e.tag) || c.Definition.HasTag(e.tag));
                 v += (actual - expected) * e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
             }
+            foreach (var e in def.effects ?? new List<EffectDefinition>())
+            {
+                if (e.kind != EffectKind.GainPerEmptyTouching) continue;
+                int empty = board.Neighbours(square).Count(board.IsEmpty);
+                v += (empty - _settings.expectedTouchingEmpty) * e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
+            }
             foreach (var n in mine)
             foreach (var e in n.Definition.effects ?? new List<EffectDefinition>())
             {
-                if (e.kind != EffectKind.GainPerTouching || !(string.IsNullOrEmpty(e.tag) || def.HasTag(e.tag))) continue;
-                v += e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
+                double each = e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
+                if (e.kind == EffectKind.GainPerTouching && (string.IsNullOrEmpty(e.tag) || def.HasTag(e.tag))) v += each;
+                // Filling a square next to a card that wants empty space costs it that square.
+                else if (e.kind == EffectKind.GainPerEmptyTouching) v -= each;
             }
             return v;
         }

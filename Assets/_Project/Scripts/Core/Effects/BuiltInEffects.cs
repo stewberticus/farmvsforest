@@ -98,3 +98,19 @@ namespace FarmVsForest.Core
         }
     }
 }
+
+namespace FarmVsForest.Core
+{
+    /// <summary>Gain resources for each empty square touching this card, e.g. a Wildflower Meadow that wants open space.</summary>
+    public class GainPerEmptyTouchingEffect : IEffect
+    {
+        public void Apply(EffectContext ctx)
+        {
+            var board = ctx.Match.Board;
+            int count = board.Neighbours(ctx.Source.Position).Count(board.IsEmpty);
+            if (count == 0) return;
+            foreach (var p in ctx.TargetPlayers)
+                ctx.Match.GainResource(p, ctx.Effect.resource, ctx.Effect.amount * count, ctx.Source);
+        }
+    }
+}

@@ -14,6 +14,8 @@ namespace FarmVsForest.Core
 
         public const string HugeTreeId = "forest.huge_tree";
         public const string SaplingId = "forest.sapling";
+        /// <summary>Squirrel Dreys make more next to these.</summary>
+        public const string OakTag = "oak";
 
         /// <summary>Starting corner card. Does nothing; it's tree 1 of your forest.</summary>
         public static readonly CardDefinition HugeTree = Card(HugeTreeId, "Huge Tree",
@@ -23,15 +25,16 @@ namespace FarmVsForest.Core
             "A little tree. Does nothing else.", Free(), new[] { Tags.Tree });
 
         public static readonly CardDefinition SquirrelDrey = Card("forest.squirrel_drey", "Squirrel Drey",
-            "Every day: gain 1 Acorn.", Free(), new[] { "animal" },
-            Gain(EffectTrigger.Day, ResourceType.Acorns, 1));
+            "Every day: gain 1 Acorn, plus 1 for each Oak touching this.", Free(), new[] { "animal" },
+            Gain(EffectTrigger.Day, ResourceType.Acorns, 1),
+            new EffectDefinition(EffectTrigger.Day, EffectKind.GainPerTouching, 1, ResourceType.Acorns) { tag = OakTag });
 
-        public static readonly CardDefinition WildBeesNest = Card("forest.wild_bees_nest", "Wild Bees' Nest",
-            "Every 2 days: gain 1 Honey.", Free(), new[] { "animal" },
-            new EffectDefinition(EffectTrigger.Day, EffectKind.GainResource, 1, ResourceType.Honey, interval: 2));
+        public static readonly CardDefinition WildflowerMeadow = Card("forest.wildflower_meadow", "Wildflower Meadow",
+            "Every day: gain 1 Honey for each empty square touching this.", Free(), new[] { "flower" },
+            new EffectDefinition(EffectTrigger.Day, EffectKind.GainPerEmptyTouching, 1, ResourceType.Honey));
 
         public static readonly CardDefinition Oak = Card("forest.oak", "Oak",
-            "Every day: gain 1 Acorn.", Cost(ResourceType.Acorns, 2), new[] { Tags.Tree },
+            "Every day: gain 1 Acorn.", Cost(ResourceType.Acorns, 2), new[] { Tags.Tree, OakTag },
             Gain(EffectTrigger.Day, ResourceType.Acorns, 1));
 
         public static readonly CardDefinition BlossomHive = Card("forest.blossom_hive", "Blossom Hive",
@@ -62,7 +65,7 @@ namespace FarmVsForest.Core
         {
             (Sapling, 10),
             (SquirrelDrey, 4),
-            (WildBeesNest, 3),
+            (WildflowerMeadow, 3),
             (Oak, 3),
             (BlossomHive, 2),
             (DormouseDen, 2),

@@ -32,10 +32,23 @@ namespace FarmVsForest.Core
         /// The extra cost to play <paramref name="card"/> after the player has used their normal plays this turn, or
         /// null if they can't. Forest: any Tree card, for <see cref="MatchConfig.forestExtraTreeAcorns"/> Acorns.
         /// </summary>
-        public static List<ResourceAmount> ExtraPlayCost(Team team, CardDefinition card, MatchConfig config)
+        /// <param name="extrasSoFar">Extra plays already made this turn.</param>
+        public static List<ResourceAmount> ExtraPlayCost(Team team, CardDefinition card, MatchConfig config, int extrasSoFar = 0)
         {
             if (team == Team.Forest && config.forestExtraTreeAcorns > 0 && card.HasTag(Tags.Tree))
-                return new List<ResourceAmount> { new ResourceAmount(ResourceType.Acorns, config.forestExtraTreeAcorns) };
+                return new List<ResourceAmount>
+                {
+                    new ResourceAmount(ResourceType.Acorns,
+                        config.forestExtraTreeAcorns + config.forestExtraTreeStep * System.Math.Max(0, extrasSoFar)),
+                };
+            return null;
+        }
+
+        /// <summary>What a team gets for composting (discarding) a card, or null if it can't. Forest: Acorns.</summary>
+        public static List<ResourceAmount> CompostGain(Team team, MatchConfig config)
+        {
+            if (team == Team.Forest && config.forestCompostAcorns > 0)
+                return new List<ResourceAmount> { new ResourceAmount(ResourceType.Acorns, config.forestCompostAcorns) };
             return null;
         }
 

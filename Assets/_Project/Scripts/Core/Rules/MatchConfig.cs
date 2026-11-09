@@ -72,6 +72,13 @@ namespace FarmVsForest.Core
         /// paying this many Acorns on top of each card's cost. 0 turns the rule off.
         /// </summary>
         public int forestExtraTreeAcorns = 2;
+        /// <summary>Each further extra tree in the same turn costs this many more Acorns (2, then 3, then 4...).</summary>
+        public int forestExtraTreeStep = 1;
+        /// <summary>
+        /// Forest's Compost rule: once a turn, a Forest player can discard a card from their hand to gain this many
+        /// Acorns. 0 turns the rule off.
+        /// </summary>
+        public int forestCompostAcorns = 1;
 
         /// <summary>Factory wins by making this many Toys in one round (day + night).</summary>
         public int factoryGoalToys = 15;
