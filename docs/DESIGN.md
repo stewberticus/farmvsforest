@@ -23,7 +23,7 @@ Each round is one **day** followed by one **night**.
 * Farm, Forest and Factory take their turns during the **day**.
 * Dark Forest takes its turn at **night**.
 * With no Dark Forest player (e.g. Farm vs Forest), everyone plays during the day and the night only fires night effects.
-* Day and night is mostly flavour and timing: effects trigger the same way for every team, whoever is playing.
+* Day and night matters to **every team**: each team has cards that work in the day, at night, or differently in each. Effects trigger the same way whoever is playing.
 * Card effects can trigger:
   * every day, or every night,
   * every X days or every X nights (repeating),
