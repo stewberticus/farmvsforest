@@ -44,13 +44,14 @@ Each round is one **day** followed by one **night**.
 
 | Team | Goal |
 | --- | --- |
-| Farm | Have 48 Wheat, 48 Milk and 48 Eggs. |
-| Forest | Have 27 Tree cards all touching (one connected forest). |
-| Factory | Make 14 Toys in a single round (a day and its night). |
-| Dark Forest | **Ghoul Party**: have 19 Ghouls at once. |
+| Farm | Have 62 Wheat, 62 Milk and 62 Eggs. |
+| Forest | Have 33 Tree cards all touching (one connected forest). |
+| Factory | Make 15 Toys in a single round (a day and its night). |
+| Dark Forest | **Ghoul Party**: have 13 Ghouls at once (decided; Dark Forest is paced by its cards). |
 
-Goal numbers come from the cross-team balance pass (2026-11-09) so that every team wins around round 20 and every 1v1
-matchup is 40 to 60% in the bot sim. They're tuned numbers, not design: change them freely as cards change. See
+Goal numbers come from the cross-team balance pass (2026-11-09). Alexander's targets: games last 20+ rounds on
+average and no team wins more than 55% of any 1v1 matchup in the bot sim. Except the 13 Ghouls, the goal numbers
+are tuned, not designed, so change them freely as cards change. They're tuned numbers, not design: change them freely as cards change. See
 [BALANCE.md](BALANCE.md#9-cross-team-pass-2026-11-09).
 
 ## Team designs

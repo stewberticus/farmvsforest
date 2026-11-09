@@ -1,6 +1,6 @@
 # Forest
 
-> **Cross-team pass (2026-11-09):** the goal is now **27 trees** so that every 1v1 matchup is 40 to 60%. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
+> **Cross-team pass (2026-11-09):** the goal is now **33 trees** so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
 
 The Forest grows. It wins by having **30 tree cards in one connected group**, and its whole kit is about getting
 more trees down than one card a turn allows.

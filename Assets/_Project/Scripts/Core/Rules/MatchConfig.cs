@@ -66,7 +66,7 @@ namespace FarmVsForest.Core
         /// <summary>Farm wins with this many Wheat, Milk and Eggs at once.</summary>
         public int farmGoalEach = 62;
         /// <summary>Forest wins with this many Tree cards in one touching group.</summary>
-        public int forestGoalTrees = 32;
+        public int forestGoalTrees = 33;
         /// <summary>
         /// Forest's spreading rule: after their normal play, a Forest player can play extra Tree cards that turn by
         /// paying this many Acorns on top of each card's cost. 0 turns the rule off.

@@ -1,12 +1,14 @@
 # Factory: the Toy Workshop
 
+> **Cross-team pass (2026-11-09):** the goal is now **15 Toys in a round** so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup.
+
 A cozy little toy workshop. Tinkerers gather Parts (mostly by day), Assemblers turn Parts into Toys, and the
 Factory wins with one big round of toymaking. Code: `Assets/_Project/Scripts/Core/Content/FactoryCards.cs`.
 
 Agreed with Alexander on 2026-11-09:
 
 * Theme: toy workshop. The goal resource is **Toys** (renamed from Goods); Parts stay.
-* Goal: make Toys in one round (a day and its night). Started at 10; now **14** after tuning (see Balance). Toys from day cards, night cards and cards played that
+* Goal: make Toys in one round (a day and its night). Started at 10; now **15** after the cross-team pass (see [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09)). Toys from day cards, night cards and cards played that
   round all count; Toys saved up from earlier rounds don't.
 * Headquarters, the starting corner card, does nothing.
 * No "draw a card" cards. Cards that make more cards add a specific card to your hand instead.
@@ -40,7 +42,7 @@ Agreed with Alexander on 2026-11-09:
 
 * **Early (rounds 1 to 6):** free Scrap Piles and Spare Parts Bins, then Tinker Sheds next to Scrap Piles.
 * **Middle:** Moonlight Robots for night Parts, Assemblers, and Wrapping Stations tucked between Assemblers.
-* **Finish:** save Parts for a round, then the Big Whistle runs every Assembler an extra time to tip past 14 Toys.
+* **Finish:** save Parts for a round, then the Big Whistle runs every Assembler an extra time to tip past 15 Toys.
 
 **Day and night:** Parts come mostly by day (Scrap Pile, Tinker Shed) and Toys mostly at night (Night Shift
 Assembler, Wrapping Station). Moonlight Robot only works at night.
