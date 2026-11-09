@@ -17,6 +17,7 @@ namespace FarmVsForest.Core
             r.Register(EffectKind.ConvertResource, new ConvertResourceEffect());
             r.Register(EffectKind.GainPerTouching, new GainPerTouchingEffect());
             r.Register(EffectKind.AddCardToHand, new AddCardToHandEffect());
+            DarkForestCards.RegisterEffects(r);
             return r;
         }
 

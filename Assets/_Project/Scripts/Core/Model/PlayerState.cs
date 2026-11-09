@@ -29,6 +29,9 @@ namespace FarmVsForest.Core
 
         public int CardsPlayedThisTurn { get; internal set; }
 
+        /// <summary>Dark Forest: Ghouls that eat for free this morning (Picnic Blanket). Reset after Ghouls eat.</summary>
+        public int FreeMeals { get; internal set; }
+
         internal PlayerState(int id, string name, Team team, Corner corner, int allianceId)
         {
             Id = id;

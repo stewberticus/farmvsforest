@@ -65,6 +65,10 @@ namespace FarmVsForest.Core
         public int factoryGoalGoods = 10;
         /// <summary>Dark Forest wins with this many Ghouls at once.</summary>
         public int darkForestGoalGhouls = 13;
+        /// <summary>Decided: every morning each Ghoul eats this many Bats or Spiders.</summary>
+        public int ghoulFoodEach = 1;
+        /// <summary>Decided: a morning when you can't feed all your Ghouls, this many wander home.</summary>
+        public int ghoulsLostWhenHungry = 1;
 
         /// <summary>
         /// Safety net: after this many rounds the match ends and whoever owns the most squares wins. 0 means no limit,
