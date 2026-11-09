@@ -10,9 +10,9 @@ Balanced for **1v1**, with **2v2** and **1v1v1v1** for fun. See [docs/DESIGN.md]
 
 ## Getting started
 
-1. Open the folder in **Unity Hub** (Add > Add project from disk) with a **Unity 6** editor.
-   No `ProjectVersion.txt` is committed yet, so Hub will ask which editor to use. Commit the
-   `ProjectSettings/` folder Unity creates on first open.
+1. Open the folder in **Unity Hub** (Add > Add project from disk) with **Unity 6000.6.7f1** (the version in
+   `ProjectSettings/ProjectVersion.txt`). A different Unity 6 version works too, but Hub will ask to switch and
+   Unity may bump package versions; commit those changes only if the whole team moves to that version.
 2. Press **Play** in any scene. If the scene has no `MatchRunner` (the empty starting scene is fine), the
    **v1 demo** starts by itself. To keep a proper scene, use **Farm vs Forest > Create Demo Scene**.
    Pick a mode, a team for each seat and Human or Bot, then **Start**. Click a card in your hand, click a glowing
