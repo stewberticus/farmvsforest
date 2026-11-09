@@ -46,7 +46,7 @@ Each round is one **day** followed by one **night**.
 | --- | --- |
 | Farm | Have 48 Wheat, 48 Milk and 48 Eggs. |
 | Forest | Have 27 Tree cards all touching (one connected forest). |
-| Factory | Make 12 Toys in a single round (a day and its night). |
+| Factory | Make 14 Toys in a single round (a day and its night). |
 | Dark Forest | **Ghoul Party**: have 19 Ghouls at once. |
 
 Goal numbers come from the cross-team balance pass (2026-11-09) so that every team wins around round 20 and every 1v1

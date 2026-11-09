@@ -284,8 +284,9 @@ Value-model fixes made on the way:
 
 Still open:
 
-* **Factory stalls in about 6% of goldfish games** (14% pass turns): its hand fills with cards it can't afford.
-  For the Factory thread.
+* ~~Factory stalls in about 6% of goldfish games~~ Fixed in Factory v2: Assemblers always leave 3 Parts and Spare
+  Parts Bin trickles Parts, so the Factory can always build. Its goal went from 12 to 14 Toys to stay at round 20. See
+  [teams/FACTORY.md](teams/FACTORY.md).
 * **Farm vs Forest: the second seat wins 58%.** Watch it in playtests before changing anything.
 * Card flags that are the model's fault, not the card's: per-touching cards (Cow, Chicken Coop, Blossom Hive,
   Wrapping Station) are priced at 1.2 touching cards, but each team's layout gets more. Their goals are tuned with

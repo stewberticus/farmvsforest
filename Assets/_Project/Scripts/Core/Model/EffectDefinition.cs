@@ -74,6 +74,11 @@ namespace FarmVsForest.Core
         public ResourceType fromResource;
         /// <summary>Used by ConvertResource: how much gets spent.</summary>
         public int fromAmount;
+        /// <summary>
+        /// Used by ConvertResource: only convert if at least this much <c>fromResource</c> is left afterwards, e.g. Factory
+        /// Assemblers only use spare Parts so there's always something left to build with. 0 converts whenever it can pay.
+        /// </summary>
+        public int fromKeep;
 
         /// <summary>Used by GainPerTouching: only touching cards with this tag count. Empty counts any of your cards.</summary>
         public string tag;

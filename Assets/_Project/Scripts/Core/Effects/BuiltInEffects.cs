@@ -28,7 +28,7 @@ namespace FarmVsForest.Core
             var e = ctx.Effect;
             foreach (var p in ctx.TargetPlayers)
             {
-                if (p.Resources.Get(e.fromResource) < e.fromAmount) continue;
+                if (p.Resources.Get(e.fromResource) < e.fromAmount + e.fromKeep) continue;
                 ctx.Match.SpendResource(p, e.fromResource, e.fromAmount, ctx.Source);
                 ctx.Match.GainResource(p, e.resource, e.amount, ctx.Source);
             }
