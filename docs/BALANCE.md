@@ -307,13 +307,19 @@ player beats the others with identical cards. [Report](balance-reports/2026-11-0
 | Team | Good | Random | Worst | Good beats random | Good beats worst |
 | --- | --- | --- | --- | --- | --- |
 | Farm | round 22 | round 40 | never | 97% | 99% |
-| Forest | round 23 | round 45 | round 28 | 98% | 82% |
+| Forest | round 23 | round 24 | round 28 | 71% | 82% |
 | Factory | round 21 | round 41.5 | round 49 | 99% | 100% |
 | Dark Forest | round 22 | round 28 | round 34 | 86% | 97% |
 
-Decisions matter a lot for every team: playing well is worth 6 to 20+ rounds, and the better player wins 82 to 100%
-of mirror matches. Dark Forest is the most forgiving (random play only loses 6 rounds). Forest's "worst" bot isn't
-truly worst: the cards the model rates lowest are free Saplings, which still build the forest.
+The random bot takes every extra play it can afford, the same as the good bot. (Until 2026-11-09 it played one card
+a turn, so Forest's random bot skipped its Acorn extra plays and looked far worse than the worst bot: round 45.)
+
+Decisions matter a lot for Farm, Factory and Dark Forest: playing well is worth 6 to 20+ rounds, and the better
+player wins 86 to 100% of mirror matches. **Forest barely rewards skill**: random play finishes only 1 round behind
+good play and loses just 71% of mirror matches. Almost every Forest card is a tree, and every card has to touch your
+own cards, so random placements still build one connected forest. Dark Forest is next most forgiving (random play
+loses 6 rounds). Forest's "worst" bot isn't truly worst either: the cards the model rates lowest are free Saplings,
+which still build the forest.
 
 ### Lock-outs
 

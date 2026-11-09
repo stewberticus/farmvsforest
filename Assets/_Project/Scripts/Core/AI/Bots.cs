@@ -19,7 +19,10 @@ namespace FarmVsForest.Core
         public void PlayTurn(Match match) { }
     }
 
-    /// <summary>Plays a random affordable card on a random legal square. A floor: any real strategy should beat it.</summary>
+    /// <summary>
+    /// Plays a random affordable card on a random legal square, and keeps going while extra plays are possible
+    /// (Forest's Acorn trees), like <see cref="GreedyBot"/>. A floor: any real strategy should beat it.
+    /// </summary>
     public class RandomBot : IBot
     {
         private readonly GameRandom _rng;
@@ -28,11 +31,14 @@ namespace FarmVsForest.Core
 
         public void PlayTurn(Match match)
         {
-            var p = match.CurrentPlayer;
-            var options = Bots.Options(match, p).ToList();
-            if (options.Count == 0) return;
-            var (card, square) = options[_rng.Range(0, options.Count)];
-            match.PlayCard(p.Id, card, square);
+            for (int i = 0; i < 10 && !match.IsOver; i++)
+            {
+                var p = match.CurrentPlayer;
+                var options = Bots.Options(match, p).ToList();
+                if (options.Count == 0) return;
+                var (card, square) = options[_rng.Range(0, options.Count)];
+                if (match.PlayCard(p.Id, card, square) != PlayResult.Ok) return;
+            }
         }
     }
 
