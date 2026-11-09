@@ -304,26 +304,26 @@ and **worst** (the greedy bot's scoring turned upside down: it always picks what
 It reports each one's solo finish round, then plays mirror matches (same team on both sides) to see how often the good
 player beats the others with identical cards. [Report](balance-reports/2026-11-09-skill.md), 400 games each.
 
+Numbers after the Dark Forest (#15) and Forest growth goal (#16) changes:
+
 | Team | Good | Random | Worst | Good beats random | Good beats worst |
 | --- | --- | --- | --- | --- | --- |
 | Farm | round 22 | round 40 | never | 97% | 99% |
-| Forest | round 23 | round 24 | round 28 | 71% | 82% |
+| Forest | round 22 | round 25 | round 54 (19% finish) | 88% | 98% |
 | Factory | round 21 | round 41.5 | round 49 | 99% | 100% |
-| Dark Forest | round 22 | round 28 | round 34 | 86% | 97% |
+| Dark Forest | round 22 | round 38 (76% finish) | never | 93% | 100% |
 
 The random bot takes every extra play it can afford, the same as the good bot. (Until 2026-11-09 it played one card
-a turn, so Forest's random bot skipped its Acorn extra plays and looked far worse than the worst bot: round 45.)
+a turn, so Forest's random bot skipped its Acorn extra plays and looked worse than the worst bot.)
 
-Decisions matter a lot for Farm, Factory and Dark Forest: playing well is worth 6 to 20+ rounds, and the better
-player wins 86 to 100% of mirror matches. **Forest barely rewards skill**: random play finishes only 1 round behind
-good play and loses just 71% of mirror matches. Almost every Forest card is a tree, and every card has to touch your
-own cards, so random placements still build one connected forest. Dark Forest is next most forgiving (random play
-loses 6 rounds). Forest's "worst" bot isn't truly worst either: the cards the model rates lowest are free Saplings,
-which still build the forest.
+Decisions now matter for every team: the good player beats random play in 88 to 99% of mirror matches and the worst
+play in 98 to 100%. Forest is still the most forgiving (random play loses only 3 rounds), then Dark Forest, whose
+Haunts now depend on placement. History: before #15 and #16, Forest random play was 1 round behind good (71% mirror)
+and Dark Forest 6 rounds (86%); see the Forest growth goal in [teams/FOREST.md](teams/FOREST.md) and
+[teams/DARK_FOREST.md](teams/DARK_FOREST.md).
 
-**Update (2026-11-09, Forest thread):** Forest's goal changed to growing **16 Old Trees** (see
-[teams/FOREST.md](teams/FOREST.md)). Forest is now good round 22, random round 25, worst round 54; good beats random
-86% and worst 99% in mirror matches. [Report](balance-reports/2026-11-09-forest-growth.md). Compost fixes Forest's lock-out.
+1v1 after both changes (1,000 games per matchup, seed 3001): every matchup 45 to 55% (Forest vs Dark Forest is at
+the 55% edge), games average 20.1 to 20.6 rounds, seat 1 wins 42 to 53% (Farm vs Forest is the outlier at 42%).
 
 ### Lock-outs
 
