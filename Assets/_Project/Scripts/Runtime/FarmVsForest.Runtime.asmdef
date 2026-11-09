@@ -1,0 +1,16 @@
+{
+    "name": "FarmVsForest.Runtime",
+    "rootNamespace": "FarmVsForest.Runtime",
+    "references": [
+        "FarmVsForest.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
