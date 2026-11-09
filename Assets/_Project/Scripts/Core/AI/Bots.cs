@@ -60,14 +60,21 @@ namespace FarmVsForest.Core
 
         public string Name => "greedy";
 
+        /// <summary>Plays the best card, then keeps going while extra plays are possible (Forest's Acorn trees).</summary>
         public void PlayTurn(Match match)
+        {
+            for (int i = 0; i < 10 && !match.IsOver; i++)
+                if (!PlayBest(match)) break;
+        }
+
+        private bool PlayBest(Match match)
         {
             var p = match.CurrentPlayer;
             double bestScore = double.NegativeInfinity;
             CardInstance bestCard = null;
             Coord bestSquare = default;
 
-            foreach (var card in p.Hand.Where(c => p.Resources.CanAfford(c.Definition.cost)).ToList())
+            foreach (var card in Bots.Playable(match, p))
             {
                 double cardScore = ScoreCard(match, p, card.Definition);
                 foreach (var square in match.LegalSquares(p, card.Definition))
@@ -82,7 +89,7 @@ namespace FarmVsForest.Core
                 }
             }
 
-            if (bestCard != null) match.PlayCard(p.Id, bestCard, bestSquare);
+            return bestCard != null && match.PlayCard(p.Id, bestCard, bestSquare) == PlayResult.Ok;
         }
 
         private CardScore Score(CardDefinition def)
@@ -161,8 +168,16 @@ namespace FarmVsForest.Core
     {
         /// <summary>Every (card, square) the player could play right now.</summary>
         public static IEnumerable<(CardInstance card, Coord square)> Options(Match match, PlayerState p) =>
-            p.Hand.Where(c => p.Resources.CanAfford(c.Definition.cost)).ToList()
+            Playable(match, p)
                 .SelectMany(c => match.LegalSquares(p, c.Definition).Select(sq => (c, sq)));
+
+        /// <summary>Cards in hand the player can pay for right now, counting any extra-play cost.</summary>
+        public static List<CardInstance> Playable(Match match, PlayerState p) =>
+            p.Hand.Where(c =>
+            {
+                var cost = match.TotalCost(p, c.Definition);
+                return cost != null && p.Resources.CanAfford(cost);
+            }).ToList();
 
         public static IBot Create(string name, int seed, BalanceSettings settings = null)
         {
