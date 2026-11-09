@@ -12,6 +12,8 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | Board | Starting point: 12x12 for 2 players, 16x16 for 4. Will be tuned during design. |
 | Start | Each player begins with one starting card in their corner. |
 | Movement | Cards never move once played. |
+| Placement | A new card must touch one of your own cards. |
+| Ownership | A square with your card on it is yours. |
 | Turn | Draw from your deck; play one card per turn if you can pay its cost. |
 | Modes | Balanced around **1v1**. 2v2 and 1v1v1v1 are fun extra modes. |
 | Win | Each team has its **own goal** (below). If the board fills first, whoever owns the most squares wins. |
@@ -38,19 +40,18 @@ Each round is one **day** followed by one **night**.
 | Factory | Headquarters | Parts, Goods |
 | Dark Forest | Evil Tree | Bats, Spiders, Ghouls |
 
-## Team goals (draft, being brainstormed)
+## Team goals
 
 | Team | Goal |
 | --- | --- |
 | Farm | Have 20 Wheat, 20 Milk and 20 Eggs. |
-| Forest | Own over 50% of the board (25% in 1v1v1v1). |
-| Factory | Make X Goods in a single turn. |
-| Dark Forest | **Ghoul Party**: have 13 Ghouls at once. How Ghouls are made is open (no combining). |
+| Forest | Have 30 Tree cards all touching (one connected forest). |
+| Factory | Make 10 Goods in a single turn (starting number). |
+| Dark Forest | **Ghoul Party**: have 13 Ghouls at once. How Ghouls are made will be decided when Dark Forest is designed (no combining). |
 
 ## Open questions
 
-* How each team plays differently.
+* How each team plays differently, including its day/night rhythm (designed team by team).
 * The card list for each team.
-* Exact numbers for every goal (Factory X, Forest share).
-* Placement: must a new card touch one of your own cards?
-* Does "own the most squares" count only cards, or also squares a team has claimed in other ways?
+* Tuning every goal number in playtests.
+* Does "touching" include diagonals?
