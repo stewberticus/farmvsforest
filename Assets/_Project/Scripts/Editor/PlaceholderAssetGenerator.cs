@@ -31,7 +31,7 @@ namespace FarmVsForest.Editor
                 {
                     var asset = CreateCard(Root + "/Cards/" + team, def, ref created);
                     if (deck != null)
-                        deck.cards.Add(new DeckAsset.Entry { card = asset, copies = def.IsFree ? 12 : 7 });
+                        deck.cards.Add(new DeckAsset.Entry { card = asset, copies = Copies(team, def) });
                 }
 
                 if (deck != null)
@@ -44,6 +44,15 @@ namespace FarmVsForest.Editor
 
             AssetDatabase.SaveAssets();
             Debug.Log("Farm vs Forest: created " + created + " placeholder assets under " + Root + ".");
+        }
+
+        /// <summary>Copies in the starter deck: designed teams have a deck list, placeholder teams use 12 free / 7 paid.</summary>
+        private static int Copies(Team team, CardDefinition def)
+        {
+            if (team == Team.Forest)
+                foreach (var (card, copies) in ForestCards.DeckList)
+                    if (card.id == def.id) return copies;
+            return def.IsFree ? 12 : 7;
         }
 
         private static CardDefinitionAsset CreateCard(string folder, CardDefinition def, ref int created)

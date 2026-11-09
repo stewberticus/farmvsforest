@@ -61,6 +61,12 @@ namespace FarmVsForest.Core
         public int farmGoalEach = 20;
         /// <summary>Forest wins with this many Tree cards in one touching group.</summary>
         public int forestGoalTrees = 30;
+        /// <summary>
+        /// Forest's spreading rule: after their normal play, a Forest player can play extra Tree cards that turn by
+        /// paying this many Acorns on top of each card's cost. 0 turns the rule off.
+        /// </summary>
+        public int forestExtraTreeAcorns = 2;
+
         /// <summary>Factory wins by making this many Goods in one round.</summary>
         public int factoryGoalGoods = 10;
         /// <summary>Dark Forest wins with this many Ghouls at once.</summary>

@@ -249,8 +249,9 @@ namespace FarmVsForest.Core
             var player = CurrentPlayer;
             if (player == null || player.Id != playerId) return PlayResult.NotYourTurn;
             if (card == null || !player.Hand.Contains(card)) return PlayResult.CardNotInHand;
-            if (player.CardsPlayedThisTurn >= Config.cardsPerTurn) return PlayResult.NoPlaysLeft;
-            if (!player.Resources.CanAfford(card.Definition.cost)) return PlayResult.CannotAfford;
+            var cost = TotalCost(player, card.Definition);
+            if (cost == null) return PlayResult.NoPlaysLeft;
+            if (!player.Resources.CanAfford(cost)) return PlayResult.CannotAfford;
             if (!CanPlaceOn(player, card.Definition, square)) return PlayResult.InvalidSquare;
             return PlayResult.Ok;
         }
@@ -262,10 +263,11 @@ namespace FarmVsForest.Core
             if (result != PlayResult.Ok) return result;
 
             var player = CurrentPlayer;
-            player.Resources.TrySpend(card.Definition.cost);
-            if (!card.Definition.IsFree)
+            var cost = TotalCost(player, card.Definition);
+            player.Resources.TrySpend(cost);
+            if (cost.Exists(c => c.amount > 0))
                 Raise(new GameEvent { Type = GameEventType.ResourcesSpent, Player = player, Card = card,
-                    Message = player + " paid " + string.Join(", ", card.Definition.cost) });
+                    Message = player + " paid " + string.Join(", ", cost) });
 
             player.Hand.Remove(card);
             PutOnBoard(card, square);
@@ -277,6 +279,21 @@ namespace FarmVsForest.Core
             CheckGoals();
             if (!IsOver && Board.IsFull) EndByMostSquares("The board is full");
             return PlayResult.Ok;
+        }
+
+        /// <summary>
+        /// What playing <paramref name="def"/> would cost the player right now: the card's cost, plus any extra-play
+        /// cost if they've used their normal plays this turn (Forest can pay Acorns to play extra trees).
+        /// Null means they have no plays left for this card.
+        /// </summary>
+        public List<ResourceAmount> TotalCost(PlayerState player, CardDefinition def)
+        {
+            var cost = new List<ResourceAmount>(def.cost ?? new List<ResourceAmount>());
+            if (player.CardsPlayedThisTurn < Config.cardsPerTurn) return cost;
+            var extra = TeamRules.ExtraPlayCost(player.Team, def, Config);
+            if (extra == null) return null;
+            cost.AddRange(extra);
+            return cost;
         }
 
         /// <summary>Convenience overload: play by hand index.</summary>

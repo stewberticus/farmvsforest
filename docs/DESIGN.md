@@ -49,6 +49,13 @@ Each round is one **day** followed by one **night**.
 | Factory | Make 10 Goods in a single turn (starting number). |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once. Haunt cards (paid for with Bats and Spiders) invite Ghouls; every morning each Ghoul eats a Bat or Spider, and a morning you can't feed them all, one Ghoul goes home. See [teams/DARK_FOREST.md](teams/DARK_FOREST.md). |
 
+## Team designs
+
+* **Forest**: [teams/FOREST.md](teams/FOREST.md). Spreads by playing extra trees: after its normal card, Forest can pay
+  2 Acorns to play another tree card. Generator cards add Saplings to its hand.
+* **Dark Forest**: [teams/DARK_FOREST.md](teams/DARK_FOREST.md). Haunts invite Ghouls; every morning each Ghoul eats a
+  Bat or Spider, and a morning you can't feed them all, one Ghoul goes home.
+
 ## Open questions
 
 * How each team plays differently, including its day/night rhythm (designed team by team).

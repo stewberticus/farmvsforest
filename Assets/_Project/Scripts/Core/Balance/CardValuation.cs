@@ -29,6 +29,11 @@ namespace FarmVsForest.Core
 
         /// <summary>One extra card in hand. Low, because you can only play one card a turn anyway.</summary>
         public double drawValue = 2;
+        /// <summary>
+        /// A card an effect puts in your hand (AddCardToHand). Worth more than a random draw: you know what you'll get,
+        /// and for Forest a Sapling is an extra tree you can play with Acorns.
+        /// </summary>
+        public double addCardValue = 3;
         /// <summary>A once-only delayed effect loses this fraction of its value for every round you wait.</summary>
         public double delayDiscountPerRound = 0.05;
         /// <summary>Delayed effects never drop below this fraction of their face value.</summary>
@@ -161,6 +166,10 @@ namespace FarmVsForest.Core
                     each = e.amount * s.ValueOf(e.resource) * touching;
                     why = when + ": " + e.amount + " " + e.resource + " per touching " + (string.IsNullOrEmpty(e.tag) ? "card" : e.tag) +
                           " (x" + touching.ToString("0.#") + ")";
+                    break;
+                case EffectKind.AddCardToHand:
+                    each = e.amount * s.addCardValue;
+                    why = when + ": add " + e.amount + " " + e.cardId + " to hand";
                     break;
                 default:
                     if (e.customEffectId != null && s.customEffectValue.TryGetValue(e.customEffectId, out var cv))
