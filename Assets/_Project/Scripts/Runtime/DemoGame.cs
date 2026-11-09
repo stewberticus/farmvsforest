@@ -400,6 +400,15 @@ namespace FarmVsForest.Runtime
             // A darker band shows the owner when two players share a team.
             Fill(new Rect(inset.x, inset.yMax - 8, inset.width, 8), Color.Lerp(col, Ink, 0.35f + 0.15f * card.Owner.Id));
             if (card.Definition.HasTag(Tags.Start)) Outline(inset, Ink, 3);
+            var grow = ForestCards.GrowthOf(card.Definition);
+            if (grow != null)
+            {
+                bool sunny = m.Board.Neighbours(card.Position).Any(m.Board.IsEmpty);
+                var growStyle = new GUIStyle(_cellText) { alignment = TextAnchor.LowerCenter, fontSize = Mathf.Max(9, _cellText.fontSize - 2) };
+                growStyle.normal.textColor = sunny ? new Color(1f, 0.92f, 0.4f) : new Color(0.75f, 0.75f, 0.8f);
+                GUI.Label(new Rect(inset.x, inset.y, inset.width, inset.height - 9),
+                    (sunny ? "sun " : "shade ") + card.GrowthProgress + "/" + grow.amount, growStyle);
+            }
             if (card == _lastPlayed) Outline(inset, Accent, 3);
             var style = new GUIStyle(_cellText);
             style.normal.textColor = card.Owner.Team == Team.Forest || card.Owner.Team == Team.DarkForest ? Paper : Ink;
@@ -426,7 +435,17 @@ namespace FarmVsForest.Runtime
 
         private void OnSquareClicked(Coord c, PlayerState current)
         {
-            if (_selected == null || current == null || IsBot(current)) return;
+            if (current == null || IsBot(current)) return;
+            if (_selected == null)
+            {
+                // Forest: click one of your growing trees to pollinate it with Honey.
+                var tree = M.Board.Get(c);
+                if (tree != null && tree.Owner == current && ForestCards.GrowthOf(tree.Definition) != null)
+                    _message = M.Pollinate(current.Id, tree)
+                        ? "The bees pollinated your " + tree.Definition.displayName + "."
+                        : "Pollinating costs " + M.Config.forestPollinateHoney + " Honey.";
+                return;
+            }
             var result = M.PlayCard(current.Id, _selected, c);
             _message = result == PlayResult.Ok ? "" : Explain(result, _selected.Definition);
             ClearSelection();
@@ -580,6 +599,16 @@ namespace FarmVsForest.Runtime
                 }
             }
 
+            if (_selected != null && M.CanCompost(p.Id, _selected) &&
+                GUI.Button(new Rect(handArea.xMax - 230, handArea.yMax - 28, 230, 28),
+                    "Compost it (+" + M.Config.forestCompostAcorns + " Acorn)", _button))
+            {
+                var composted = _selected;
+                ClearSelection();
+                M.Compost(p.Id, composted);
+                _message = "Composted " + composted.Definition.displayName + ".";
+            }
+
             if (!string.IsNullOrEmpty(_message))
                 GUI.Label(new Rect(handArea.x, handArea.yMax - 24, handArea.width, 26), _message,
                     new GUIStyle(_label) { normal = { textColor = new Color(1f, 0.85f, 0.6f) } });
@@ -589,7 +618,9 @@ namespace FarmVsForest.Runtime
                     new GUIStyle(_label) { normal = { textColor = Paper } });
             else
                 GUI.Label(new Rect(handArea.x, handArea.yMax - 24, handArea.width, 26),
-                    "Pick a card, then a glowing square. Space ends your turn.", new GUIStyle(_label) { normal = { textColor = Paper } });
+                    p.Team == Team.Forest
+                        ? "Pick a card, then a glowing square. Click a growing tree to pollinate it (" + m.Config.forestPollinateHoney + " Honey)."
+                        : "Pick a card, then a glowing square. Space ends your turn.", new GUIStyle(_label) { normal = { textColor = Paper } });
         }
 
         private void DrawHandCard(CardDefinition def, List<ResourceAmount> cost, Rect r, bool playable, bool selected)

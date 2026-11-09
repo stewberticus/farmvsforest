@@ -85,7 +85,7 @@ namespace FarmVsForest.Core
         /// Forest's growth goal: this many Old Trees in one connected forest. 0 uses the older goal of
         /// <see cref="forestGoalTrees"/> trees instead.
         /// </summary>
-        public int forestGoalOldTrees = 16;
+        public int forestGoalOldTrees = 20;
         /// <summary>Each further extra tree in the same turn costs this many more Acorns (2, then 3, then 4...).</summary>
         public int forestExtraTreeStep = 1;
         /// <summary>
@@ -93,6 +93,11 @@ namespace FarmVsForest.Core
         /// Acorns. 0 turns the rule off.
         /// </summary>
         public int forestCompostAcorns = 1;
+        /// <summary>
+        /// Forest's Pollinate rule: on your turn, spend this much Honey to make one of your growing trees grow one step
+        /// right away (it doesn't need sunlight). As often as you can pay. 0 turns the rule off.
+        /// </summary>
+        public int forestPollinateHoney = 2;
 
         /// <summary>Factory wins by making this many Toys in one round (day + night).</summary>
         public int factoryGoalToys = 15;

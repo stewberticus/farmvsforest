@@ -112,12 +112,40 @@ namespace FarmVsForest.Core
                 var card = ctx.Source;
                 var board = ctx.Match.Board;
                 if (!board.Neighbours(card.Position).Any(board.IsEmpty)) return;
-                card.GrowthProgress++;
-                if (card.GrowthProgress < ctx.Effect.amount) return;
-                var into = ctx.Match.FindCard(ctx.Effect.cardId) ??
-                           (ById.TryGetValue(ctx.Effect.cardId ?? "", out var d) ? d : null);
-                ctx.Match.Transform(card, into);
+                GrowOneStep(ctx.Match, card);
             }
+        }
+
+        /// <summary>The growth effect on a card, or null if it doesn't grow.</summary>
+        public static EffectDefinition GrowthOf(CardDefinition def) =>
+            def.effects?.FirstOrDefault(e => e.kind == EffectKind.Custom && e.customEffectId == GrowEffect);
+
+        /// <summary>Adds one growth step to a card, turning it into its next stage when it has enough.</summary>
+        public static void GrowOneStep(Match match, CardInstance card)
+        {
+            var grow = GrowthOf(card.Definition);
+            if (grow == null) return;
+            card.GrowthProgress++;
+            if (card.GrowthProgress < grow.amount) return;
+            var into = match.FindCard(grow.cardId) ?? (ById.TryGetValue(grow.cardId ?? "", out var d) ? d : null);
+            match.Transform(card, into);
+        }
+
+        /// <summary>Growth steps a card still needs to become an Old Tree (0 if it's old or doesn't grow).</summary>
+        public static int StepsToOld(CardInstance card)
+        {
+            int steps = 0;
+            var def = card.Definition;
+            int progress = card.GrowthProgress;
+            for (int guard = 0; guard < 5; guard++)
+            {
+                var grow = GrowthOf(def);
+                if (grow == null) break;
+                steps += System.Math.Max(0, grow.amount - progress);
+                progress = 0;
+                if (!ById.TryGetValue(grow.cardId ?? "", out def)) break;
+            }
+            return steps;
         }
 
         /// <summary>True if this card grows (has a growth effect).</summary>

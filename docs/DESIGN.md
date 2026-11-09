@@ -45,7 +45,7 @@ Each round is one **day** followed by one **night**.
 | Team | Goal |
 | --- | --- |
 | Farm | Have 62 Wheat, 62 Milk and 62 Eggs. |
-| Forest | **Grow 16 Old Trees in one connected forest.** Trees grow Sapling > Young Tree > Old Tree on sunny mornings (when they touch an empty square). |
+| Forest | **Grow 20 Old Trees in one connected forest.** Trees grow Sapling > Young Tree > Old Tree on sunny mornings (when they touch an empty square). |
 | Factory | Make 15 Toys in a single round (a day and its night). |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once (decided; Dark Forest is paced by its cards). |
 
@@ -59,8 +59,8 @@ are tuned, not designed, so change them freely as cards change. They're tuned nu
 * **Farm**: [teams/FARM.md](teams/FARM.md). Land → Wheat → Milk and Eggs. Animals make more for every crop touching
   them, and Milk and Egg buildings add Cows, Chicken Coops and Wheat Fields to your hand.
 * **Forest**: [teams/FOREST.md](teams/FOREST.md). Growth: trees grow from Sapling to Old Tree on sunny mornings (touching an
-  empty square), so spreading competes with leaving light. Forest can pay Acorns to play extra trees and compost cards
-  for Acorns.
+  empty square), so spreading competes with leaving light. Forest can pay Acorns to play extra trees, compost cards
+  for Acorns, and spend Honey to pollinate (a tree grows a step).
 * **Dark Forest**: [teams/DARK_FOREST.md](teams/DARK_FOREST.md). Haunts invite Ghouls; every morning each Ghoul eats a
   Bat or Spider, and a morning you can't feed them all, one Ghoul goes home.
 

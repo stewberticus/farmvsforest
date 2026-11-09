@@ -18,6 +18,7 @@ namespace FarmVsForest.Core
         CardAddedToHand,
         CardComposted,
         CardGrew,
+        CardPollinated,
     }
 
     /// <summary>
