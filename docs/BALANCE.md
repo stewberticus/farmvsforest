@@ -213,4 +213,3 @@ Also: on the 12x12 board the teams almost never touched before someone won.
 * **T, the target game length** (15, 20 or 30 rounds). Recommended 20.
 * 1v1 board size: the model suggests about 8x8 at T = 20.
 * Deck size: the model suggests 30 or fewer, since only about 24 cards are seen per game.
-* Factory's "single turn" is measured as one round (dawn to dawn) in code; confirm.
