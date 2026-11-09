@@ -72,8 +72,8 @@ namespace FarmVsForest.Core
         /// <summary>How many copies of each card go in the 30-card starter deck.</summary>
         public static readonly Dictionary<string, int> Copies = new Dictionary<string, int>
         {
-            { "dark.bat_roost", 7 }, { "dark.cobweb_corner", 6 }, { "dark.glow_mushrooms", 4 }, { "dark.sleepy_web", 3 },
-            { "dark.bat_belfry", 2 }, { "dark.picnic_blanket", 2 }, { "dark.giggling_graveyard", 3 },
+            { "dark.bat_roost", 7 }, { "dark.cobweb_corner", 7 }, { "dark.glow_mushrooms", 4 }, { "dark.sleepy_web", 3 },
+            { "dark.bat_belfry", 2 }, { "dark.picnic_blanket", 2 }, { "dark.giggling_graveyard", 2 },
             { "dark.haunted_lantern", 1 }, { "dark.full_moon_shrine", 2 },
         };
 

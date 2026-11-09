@@ -31,12 +31,12 @@ The Evil Tree starts in your corner. The starter deck is 30 cards.
 | --- | --- | --- | --- | --- | --- |
 | Evil Tree | start | - | Does nothing. Your home in the dark woods. | Start | - |
 | Bat Roost | 7 | free | Every night: gain 1 Bat. | Sprout | 10 / 10 |
-| Cobweb Corner | 6 | free | Every night: gain 1 Spider. | Sprout | 10 / 10 |
+| Cobweb Corner | 7 | free | Every night: gain 1 Spider. | Sprout | 10 / 10 |
 | Glow Mushrooms | 4 | free | Every night: gain 1 Bat for each touching Glow Mushrooms. | Neighbour | 12 / 10 |
 | Sleepy Web | 3 | 3 Bats | Every day: gain 2 Spiders (spun just before breakfast). | Day/night swing | 20 / 14.5 |
 | Bat Belfry | 2 | 5 Spiders | Every night: gain 1 Bat for each of your cards touching it. | Neighbour | 20 / 17.5 |
 | Picnic Blanket | 2 | 2 Bats | Every day: 2 of your Ghouls eat for free. | Helper | 12 / 13 |
-| Giggling Graveyard (Haunt) | 3 | 2 Bats, 2 Spiders | Every 3 nights: gain 1 Ghoul. | Slow burn | 10 / 16 |
+| Giggling Graveyard (Haunt) | 2 | 2 Bats, 2 Spiders | Every 3 nights: gain 1 Ghoul. | Slow burn | 10 / 16 |
 | Haunted Lantern (Haunt) | 1 | 6 Bats, 4 Spiders | Every night: gain 1 Ghoul. | Upgrade | 30 / 25 |
 | Full Moon Shrine | 2 | 4 Spiders | Every 3 nights: gain 1 Ghoul for each touching Graveyard or Lantern. | Neighbour | 12 / 16 |
 
@@ -44,7 +44,7 @@ The Evil Tree starts in your corner. The starter deck is 30 cards.
 
 * **Ghoul makers (Graveyard, Shrine) price as weak, Lantern as strong.** Plays are what limit Dark Forest, not
   Bats and Spiders, which pile up. Pace is set by how many Ghouls each play makes, so the sim decides these numbers:
-  three slow Graveyards and a single Lantern land the goldfish median on round 18. More Lanterns, or Graveyards every
+  two slow Graveyards and a single Lantern land the goldfish median on round 18 to 19. More Lanterns, or Graveyards every
   2 nights, bring it down to 14 to 16.
 * **Sleepy Web** is strong on paper, but taking it out of the deck doesn't change the pace. It is Dark Forest's
   day card.
@@ -62,9 +62,11 @@ Full Moon Shrine wedged between Haunts. It doesn't need the middle of the board.
 
 ## Sim results (2026-11-09)
 
-Report: [balance-reports/2026-11-09-dark-forest-v1.md](../balance-reports/2026-11-09-dark-forest-v1.md).
+Report: [balance-reports/2026-11-09-dark-forest-v2.md](../balance-reports/2026-11-09-dark-forest-v2.md), on the 10x10 board with
+a free card in the opening hand. With those rules the first deck (3 Graveyards, 6 Cobweb Corners) sped up to round 17,
+so one Graveyard became a Cobweb Corner.
 
-* **Goldfish: median round 18** (p10 to p90: 15 to 23), on target for T = 20 (18 to 20). Stable across seeds.
+* **Goldfish: median round 18 to 19** (p10 to p90: 15 to 24), on target for T = 20 (18 to 20). Stable across seeds.
 * Matchups are against the old placeholder Farm, Forest and Factory decks, so they don't mean much until those teams
   are designed.
 * **The feeding rule rarely bites in the sim**: about 0.03 Ghouls go home per game, because Bats and Spiders pile up
