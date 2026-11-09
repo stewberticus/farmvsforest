@@ -52,6 +52,8 @@ namespace FarmVsForest.Core
         public double expectedTouchingAny = 2.0;
         /// <summary>Expected number of touching cards that have a specific tag.</summary>
         public double expectedTouchingTagged = 1.2;
+        /// <summary>Expected number of empty squares touching a card over its life (they fill up as the game goes on).</summary>
+        public double expectedTouchingEmpty = 1.0;
 
         /// <summary>V per resource. Tier 1 = 1, tier 2 = 2, the goal resource is tier 3. Teams retune these.</summary>
         public Dictionary<ResourceType, double> resourceValue = new Dictionary<ResourceType, double>
@@ -78,6 +80,8 @@ namespace FarmVsForest.Core
             { RunTaggedCardsEffect.Id, 12 },
             // Picnic Blanket: 2 free Ghoul meals a day, but only once you have Ghouls (about 60% of its life).
             { DarkForestCards.FreeMealsEffect, 1.2 },
+            // Forest growth: a step towards an Old Tree on each sunny morning.
+            { ForestCards.GrowEffect, 0.6 },
         };
 
         public double ValueOf(ResourceType type) => resourceValue.TryGetValue(type, out var v) ? v : 1;
@@ -169,6 +173,11 @@ namespace FarmVsForest.Core
                 case EffectKind.DrawCard:
                     each = e.amount * s.drawValue;
                     why = when + ": draw " + e.amount;
+                    break;
+                case EffectKind.GainPerEmptyTouching:
+                    each = e.amount * s.ValueOf(e.resource) * s.expectedTouchingEmpty;
+                    why = when + ": " + e.amount + " " + e.resource + " per touching empty square (x" +
+                          s.expectedTouchingEmpty.ToString("0.#") + ")";
                     break;
                 case EffectKind.AddCardToHand:
                     var made = s.cardLookup?.Invoke(e.cardId);

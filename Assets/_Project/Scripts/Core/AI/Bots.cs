@@ -19,7 +19,10 @@ namespace FarmVsForest.Core
         public void PlayTurn(Match match) { }
     }
 
-    /// <summary>Plays a random affordable card on a random legal square. A floor: any real strategy should beat it.</summary>
+    /// <summary>
+    /// Plays a random affordable card on a random legal square, and keeps going while extra plays are possible
+    /// (Forest's Acorn trees), like <see cref="GreedyBot"/>. A floor: any real strategy should beat it.
+    /// </summary>
     public class RandomBot : IBot
     {
         private readonly GameRandom _rng;
@@ -28,11 +31,18 @@ namespace FarmVsForest.Core
 
         public void PlayTurn(Match match)
         {
-            var p = match.CurrentPlayer;
-            var options = Bots.Options(match, p).ToList();
-            if (options.Count == 0) return;
-            var (card, square) = options[_rng.Range(0, options.Count)];
-            match.PlayCard(p.Id, card, square);
+            for (int i = 0; i < 10 && !match.IsOver; i++)
+            {
+                var p = match.CurrentPlayer;
+                var options = Bots.Options(match, p).ToList();
+                if (options.Count == 0) return;
+                var (card, square) = options[_rng.Range(0, options.Count)];
+                if (match.PlayCard(p.Id, card, square) != PlayResult.Ok) return;
+            }
+            // Compost a random card now and then (Forest only; does nothing for other teams).
+            var me = match.CurrentPlayer;
+            if (!match.IsOver && me.Hand.Count > 0 && _rng.Range(0, 3) == 0)
+                match.Compost(me.Id, me.Hand[_rng.Range(0, me.Hand.Count)]);
         }
     }
 
@@ -51,20 +61,45 @@ namespace FarmVsForest.Core
         public double SpendWeight = 0.5;
         /// <summary>Random noise added to each option, so games vary.</summary>
         public double Noise = 1.0;
+        /// <summary>
+        /// Plays the worst option it can find instead of the best (it still plays a card every turn if it can).
+        /// Stands in for the weakest sensible player, to measure how much decisions matter.
+        /// </summary>
+        public bool Worst;
 
-        public GreedyBot(int seed, BalanceSettings settings = null)
+        public GreedyBot(int seed, BalanceSettings settings = null, bool worst = false)
         {
             _rng = new GameRandom(seed);
             _settings = settings ?? new BalanceSettings();
+            Worst = worst;
         }
 
-        public string Name => "greedy";
+        public string Name => Worst ? "worst" : "greedy";
 
         /// <summary>Plays the best card, then keeps going while extra plays are possible (Forest's Acorn trees).</summary>
         public void PlayTurn(Match match)
         {
             for (int i = 0; i < 10 && !match.IsOver; i++)
                 if (!PlayBest(match)) break;
+            if (!match.IsOver) MaybeCompost(match);
+        }
+
+        /// <summary>
+        /// Forest's Compost: discard the least useful card for Acorns when the hand is getting full, or when it's
+        /// stuck with nothing affordable. The worst bot composts its best card instead.
+        /// </summary>
+        private void MaybeCompost(Match match)
+        {
+            var p = match.CurrentPlayer;
+            if (p.Hand.Count == 0 || !match.CanCompost(p.Id, p.Hand[0])) return;
+            bool stuck = Bots.Playable(match, p).Count == 0;
+            if (!stuck && p.Hand.Count < match.Config.maxHandSize - 1) return;
+            // Keep goal pieces (trees): they're worth more than the Acorn. Compost the weakest of the rest.
+            var goal = match.GoalOf(p) as ConnectedTaggedCardsGoal;
+            var ranked = p.Hand.Where(c => goal == null || !c.Definition.HasTag(goal.Tag))
+                .OrderBy(c => ScoreCard(match, p, c.Definition)).ToList();
+            if (ranked.Count == 0) return;
+            match.Compost(p.Id, Worst ? ranked.Last() : ranked.First());
         }
 
         private bool PlayBest(Match match)
@@ -80,7 +115,9 @@ namespace FarmVsForest.Core
                 foreach (var square in match.LegalSquares(p, card.Definition))
                 {
                     double total = cardScore + ScoreSquare(match, p, card.Definition, square) +
-                                   TouchingValue(match, p, card.Definition, square) + _rng.Range(0, 1000) / 1000.0 * Noise;
+                                   TouchingValue(match, p, card.Definition, square);
+                    if (Worst) total = -total;
+                    total += _rng.Range(0, 1000) / 1000.0 * Noise;
                     if (total > bestScore)
                     {
                         bestScore = total;
@@ -144,6 +181,18 @@ namespace FarmVsForest.Core
                 else if (other.Owner == p && TouchCares(def, other.Definition)) score += 1.5;
             }
 
+            // Forest growth: trees grow only while they touch an empty square (sunlight). Give growing cards room,
+            // and don't take the last open square from one of our growing trees.
+            if (ForestCards.Grows(def))
+                score += 1.0 * Math.Min(2, board.Neighbours(square).Count(board.IsEmpty));
+            foreach (var n in board.Neighbours(square))
+            {
+                var other = board.Get(n);
+                if (other == null || other.Owner != p || !ForestCards.Grows(other.Definition)) continue;
+                int open = board.Neighbours(n).Count(board.IsEmpty);
+                score -= open <= 1 ? 6 : 0.5;
+            }
+
             // Push towards the middle of the board to claim contested space first.
             double cx = (board.Width - 1) / 2.0, cy = (board.Height - 1) / 2.0;
             double dist = Math.Abs(square.x - cx) + Math.Abs(square.y - cy);
@@ -173,11 +222,19 @@ namespace FarmVsForest.Core
                 int actual = mine.Count(c => string.IsNullOrEmpty(e.tag) || c.Definition.HasTag(e.tag));
                 v += (actual - expected) * e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
             }
+            foreach (var e in def.effects ?? new List<EffectDefinition>())
+            {
+                if (e.kind != EffectKind.GainPerEmptyTouching) continue;
+                int empty = board.Neighbours(square).Count(board.IsEmpty);
+                v += (empty - _settings.expectedTouchingEmpty) * e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
+            }
             foreach (var n in mine)
             foreach (var e in n.Definition.effects ?? new List<EffectDefinition>())
             {
-                if (e.kind != EffectKind.GainPerTouching || !(string.IsNullOrEmpty(e.tag) || def.HasTag(e.tag))) continue;
-                v += e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
+                double each = e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
+                if (e.kind == EffectKind.GainPerTouching && (string.IsNullOrEmpty(e.tag) || def.HasTag(e.tag))) v += each;
+                // Filling a square next to a card that wants empty space costs it that square.
+                else if (e.kind == EffectKind.GainPerEmptyTouching) v -= each;
             }
             return v;
         }
@@ -212,6 +269,7 @@ namespace FarmVsForest.Core
             {
                 case "random": return new RandomBot(seed);
                 case "pass": return new PassBot();
+                case "worst": return new GreedyBot(seed, settings, worst: true);
                 default: return new GreedyBot(seed, settings);
             }
         }

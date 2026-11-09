@@ -16,6 +16,8 @@ namespace FarmVsForest.Core
         MatchEnded,
         /// <summary>A card effect put a brand new card into a player's hand (not drawn from the deck).</summary>
         CardAddedToHand,
+        CardComposted,
+        CardGrew,
     }
 
     /// <summary>

@@ -36,6 +36,8 @@ namespace FarmVsForest.Core
         /// to your hand". The new card still costs its normal price to play. If your hand is full the card is lost.
         /// </summary>
         AddCardToHand = 4,
+        /// <summary>Gain <c>amount</c> of <c>resource</c> for each empty square touching this card.</summary>
+        GainPerEmptyTouching = 5,
         /// <summary>Looks up <see cref="EffectDefinition.customEffectId"/> in the EffectRegistry.</summary>
         Custom = 100,
     }

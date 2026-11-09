@@ -296,3 +296,41 @@ Still open:
 * Card flags that are the model's fault, not the card's: per-touching cards (Cow, Chicken Coop, Blossom Hive,
   Wrapping Station) are priced at 1.2 touching cards, but each team's layout gets more. Their goals are tuned with
   them in, so leave them unless playtests disagree.
+
+## 10. Does skill matter? (2026-11-09)
+
+`--skill` plays each team with three bots: **good** (the greedy bot), **random** (any legal card on any legal square),
+and **worst** (the greedy bot's scoring turned upside down: it always picks what it thinks is the weakest play).
+It reports each one's solo finish round, then plays mirror matches (same team on both sides) to see how often the good
+player beats the others with identical cards. [Report](balance-reports/2026-11-09-skill.md), 400 games each.
+
+| Team | Good | Random | Worst | Good beats random | Good beats worst |
+| --- | --- | --- | --- | --- | --- |
+| Farm | round 22 | round 40 | never | 97% | 99% |
+| Forest | round 23 | round 24 | round 28 | 71% | 82% |
+| Factory | round 21 | round 41.5 | round 49 | 99% | 100% |
+| Dark Forest | round 22 | round 28 | round 34 | 86% | 97% |
+
+The random bot takes every extra play it can afford, the same as the good bot. (Until 2026-11-09 it played one card
+a turn, so Forest's random bot skipped its Acorn extra plays and looked far worse than the worst bot: round 45.)
+
+Decisions matter a lot for Farm, Factory and Dark Forest: playing well is worth 6 to 20+ rounds, and the better
+player wins 86 to 100% of mirror matches. **Forest barely rewards skill**: random play finishes only 1 round behind
+good play and loses just 71% of mirror matches. Almost every Forest card is a tree, and every card has to touch your
+own cards, so random placements still build one connected forest. Dark Forest is next most forgiving (random play
+loses 6 rounds). Forest's "worst" bot isn't truly worst either: the cards the model rates lowest are free Saplings,
+which still build the forest.
+
+**Update (2026-11-09, Forest thread):** Forest's goal changed to growing **16 Old Trees** (see
+[teams/FOREST.md](teams/FOREST.md)). Forest is now good round 22, random round 25, worst round 54; good beats random
+86% and worst 99% in mirror matches. [Report](balance-reports/2026-11-09-forest-growth.md). Compost fixes Forest's lock-out.
+
+### Lock-outs
+
+About 1% of solo games never finish, and a person would be stuck in them too:
+
+* **Forest (1.3%)**: the opening hand's free card is a Sapling, which makes nothing. Every other card in hand costs
+  Acorns, nothing makes Acorns, and once the hand is full new draws are lost.
+* **Farm (0.8%)**: either the same hand lock, or Milk never starts. Cows come from the deck or from the Big Red Barn,
+  and the Big Red Barn costs Milk.
+

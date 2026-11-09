@@ -32,10 +32,23 @@ namespace FarmVsForest.Core
         /// The extra cost to play <paramref name="card"/> after the player has used their normal plays this turn, or
         /// null if they can't. Forest: any Tree card, for <see cref="MatchConfig.forestExtraTreeAcorns"/> Acorns.
         /// </summary>
-        public static List<ResourceAmount> ExtraPlayCost(Team team, CardDefinition card, MatchConfig config)
+        /// <param name="extrasSoFar">Extra plays already made this turn.</param>
+        public static List<ResourceAmount> ExtraPlayCost(Team team, CardDefinition card, MatchConfig config, int extrasSoFar = 0)
         {
             if (team == Team.Forest && config.forestExtraTreeAcorns > 0 && card.HasTag(Tags.Tree))
-                return new List<ResourceAmount> { new ResourceAmount(ResourceType.Acorns, config.forestExtraTreeAcorns) };
+                return new List<ResourceAmount>
+                {
+                    new ResourceAmount(ResourceType.Acorns,
+                        config.forestExtraTreeAcorns + config.forestExtraTreeStep * System.Math.Max(0, extrasSoFar)),
+                };
+            return null;
+        }
+
+        /// <summary>What a team gets for composting (discarding) a card, or null if it can't. Forest: Acorns.</summary>
+        public static List<ResourceAmount> CompostGain(Team team, MatchConfig config)
+        {
+            if (team == Team.Forest && config.forestCompostAcorns > 0)
+                return new List<ResourceAmount> { new ResourceAmount(ResourceType.Acorns, config.forestCompostAcorns) };
             return null;
         }
 
@@ -47,7 +60,9 @@ namespace FarmVsForest.Core
                 case Team.Farm:
                     return new HaveResourcesGoal(config.farmGoalEach, ResourceType.Wheat, ResourceType.Milk, ResourceType.Eggs);
                 case Team.Forest:
-                    return new ConnectedTaggedCardsGoal(Tags.Tree, config.forestGoalTrees, "Trees");
+                    return config.forestGoalOldTrees > 0
+                        ? new ConnectedTaggedCardsGoal(Tags.Tree, config.forestGoalOldTrees, "Old Trees", Tags.Old)
+                        : new ConnectedTaggedCardsGoal(Tags.Tree, config.forestGoalTrees, "Trees");
                 case Team.Factory:
                     return new GainInOneRoundGoal(ResourceType.Toys, config.factoryGoalToys);
                 default:
@@ -81,11 +96,15 @@ namespace FarmVsForest.Core
         public int Amount { get; }
         public string Label { get; }
 
-        public ConnectedTaggedCardsGoal(string tag, int amount, string label)
+        /// <summary>If set, only cards with this tag count towards the amount (e.g. Old Trees in a forest of any trees).</summary>
+        public string CountTag { get; }
+
+        public ConnectedTaggedCardsGoal(string tag, int amount, string label, string countTag = null)
         {
             Tag = tag;
             Amount = amount;
             Label = label;
+            CountTag = countTag;
         }
 
         public bool IsMet(Match match, PlayerState player) => LargestGroup(match, player) >= Amount;
@@ -108,7 +127,7 @@ namespace FarmVsForest.Core
                 while (stack.Count > 0)
                 {
                     var c = stack.Pop();
-                    size++;
+                    if (CountTag == null || board.Get(c).Definition.HasTag(CountTag)) size++;
                     foreach (var n in board.Neighbours(c))
                     {
                         if (seen.Contains(n) || !Counts(board.Get(n), player)) continue;

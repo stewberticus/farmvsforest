@@ -28,6 +28,8 @@ namespace FarmVsForest.Core
         public CardInstance StartingCard { get; internal set; }
 
         public int CardsPlayedThisTurn { get; internal set; }
+        /// <summary>Forest's Compost rule: used once a turn.</summary>
+        public bool CompostedThisTurn { get; internal set; }
 
         /// <summary>Dark Forest: Ghouls that eat for free this morning (Picnic Blanket). Reset after Ghouls eat.</summary>
         public int FreeMeals { get; internal set; }
