@@ -1,0 +1,19 @@
+{
+    "name": "FarmVsForest.Editor",
+    "rootNamespace": "FarmVsForest.Editor",
+    "references": [
+        "FarmVsForest.Core",
+        "FarmVsForest.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
