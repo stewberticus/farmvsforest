@@ -79,6 +79,51 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
+        public void OpeningHand_AlwaysHasAFreeCard([Values(1, 2, 3, 4, 5, 6, 7, 8)] int seed)
+        {
+            var config = PlaceholderCards.DefaultConfig(GameMode.OneVsOne, seed, Team.DarkForest, Team.Factory);
+            var m = new Match(config);
+            m.Start();
+            Assert.IsTrue(m.Players.All(p => p.Hand.Any(c => c.Definition.IsFree)));
+        }
+
+        [Test]
+        public void MadeCard_IsPricedFromTheCardItMakes()
+        {
+            var cow = Card(Team.Farm, Cost(ResourceType.Wheat, 2),
+                new EffectDefinition(EffectTrigger.Day, EffectKind.GainResource, 1, ResourceType.Milk));
+            cow.id = "test.cow";
+            var barn = Card(Team.Farm, Cost(ResourceType.Wheat, 3),
+                new EffectDefinition(EffectTrigger.Day, EffectKind.AddCardToHand, 1, interval: 2) { cardId = "test.cow" });
+            barn.id = "test.barn";
+            var scores = CardValuation.EvaluateAll(new[] { cow, barn });
+            var s = new BalanceSettings();
+            var barnScore = scores.First(c => c.Card.id == "test.barn");
+            Assert.IsEmpty(barnScore.Warnings);
+            // 5 Cows over the horizon, each worth madeCardValue plus how far the Cow is above its own par.
+            double cowExtra = 20 - s.Par(2);
+            Assert.AreEqual(5 * (s.madeCardValue + cowExtra), barnScore.Value, 1e-9);
+        }
+
+        [Test]
+        public void SkipIfInHand_DoesNotStackCopies()
+        {
+            var cow = Card(Team.Farm, null);
+            cow.id = "test.cow";
+            var barn = Card(Team.Farm, null,
+                new EffectDefinition(EffectTrigger.Day, EffectKind.AddCardToHand, 1) { cardId = "test.cow", skipIfInHand = true });
+            barn.id = "test.barn";
+            var config = PlaceholderCards.DefaultConfig(GameMode.OneVsOne, 4, Team.Farm, Team.Forest);
+            config.cardCatalog.Add(cow);
+            var m = new Match(config);
+            m.Start();
+            var farm = m.Players[0];
+            m.Summon(barn, farm, new Coord(1, 0));
+            for (int i = 0; i < 8 && !m.IsOver; i++) m.EndTurn(m.CurrentPlayer.Id);
+            Assert.AreEqual(1, farm.Hand.Count(c => c.Definition.id == "test.cow"));
+        }
+
+        [Test]
         public void Simulator_IsDeterministicForASeed()
         {
             var sim = new BalanceSimulator();

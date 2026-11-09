@@ -92,6 +92,7 @@ namespace FarmVsForest.Core
                 foreach (var def in setup.deck ?? new List<CardDefinition>())
                     player.Deck.Add(CreateInstance(def, player));
                 Random.Shuffle(player.Deck);
+                if (Config.openingHandHasFreeCard) PutFreeCardInOpeningHand(player);
 
                 player.Resources.Add(Config.startingResources);
 
@@ -129,6 +130,20 @@ namespace FarmVsForest.Core
                 Index(setup.startingCard);
                 foreach (var def in setup.deck ?? new List<CardDefinition>()) Index(def);
             }
+        }
+
+        /// <summary>The top of the deck is the end of the list; make sure a free card is among the cards drawn first.</summary>
+        private void PutFreeCardInOpeningHand(PlayerState player)
+        {
+            var deck = player.Deck;
+            int handSize = Math.Min(Config.startingHandSize, deck.Count);
+            if (handSize == 0) return;
+            for (int i = deck.Count - handSize; i < deck.Count; i++)
+                if (deck[i].Definition.IsFree) return;
+            int free = deck.FindIndex(c => c.Definition.IsFree);
+            if (free < 0) return;
+            int top = deck.Count - 1;
+            (deck[free], deck[top]) = (deck[top], deck[free]);
         }
 
         public CardInstance CreateInstance(CardDefinition def, PlayerState owner) =>

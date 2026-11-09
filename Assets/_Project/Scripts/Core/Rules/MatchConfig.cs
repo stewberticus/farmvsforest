@@ -53,6 +53,12 @@ namespace FarmVsForest.Core
         /// <summary>The very first turn of the match skips its draw, to soften first-player advantage.</summary>
         public bool firstPlayerSkipsDraw = true;
 
+        /// <summary>
+        /// Starting cards make nothing, so a hand with no free card can't play at all. If true, the opening hand
+        /// always has at least one free card (one is swapped in from the deck). Proposed rule, to confirm.
+        /// </summary>
+        public bool openingHandHasFreeCard = true;
+
         public List<ResourceAmount> startingResources = new List<ResourceAmount>();
 
         // ---- Team goals (starting numbers, to tune)

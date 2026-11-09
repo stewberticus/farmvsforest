@@ -104,6 +104,7 @@ namespace FarmVsForest.Core
             };
 
             match.Start();
+            if (Settings.cardLookup == null) Settings.cardLookup = match.FindCard;
             var bots = new[] { Bots.Create(firstBot, seed * 7 + 1, Settings), Bots.Create(secondBot, seed * 7 + 2, Settings) };
 
             int safety = 0;
@@ -302,7 +303,7 @@ namespace FarmVsForest.Core
                 sb.AppendLine("| " + c.Card.displayName + " | " + c.Card.team + " | " + Num(c.Cost) + " | " + Num(c.Value) + " | " +
                               Num(c.Par) + " | " + (c.Delta >= 0 ? "+" : "") + Pct(c.Delta) + " | " + c.Verdict + " | " +
                               Num(perGame) + " | " + Pct(winWhen) + " |");
-                if (c.Verdict != "on curve") flags.Add(c.Card.displayName + " (" + c.Card.team + ") is " + c.Verdict + ": " + string.Join("; ", c.Breakdown));
+                if (c.Verdict != "on curve" && c.Verdict != "starting card") flags.Add(c.Card.displayName + " (" + c.Card.team + ") is " + c.Verdict + ": " + string.Join("; ", c.Breakdown));
             }
             return sb.ToString();
         }

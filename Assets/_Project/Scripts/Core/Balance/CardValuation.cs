@@ -27,8 +27,15 @@ namespace FarmVsForest.Core
         /// <summary>A card within this fraction of par is "on curve".</summary>
         public double tolerance = 0.15;
 
-        /// <summary>One extra card in hand. Low, because you can only play one card a turn anyway.</summary>
+        /// <summary>One extra random card in hand. Low, because you can only play one card a turn anyway.</summary>
         public double drawValue = 2;
+        /// <summary>
+        /// A specific card made straight into your hand ("every 2 days, add a Cow card") is worth this, plus however
+        /// far that card is above its own par. More than a random draw because you know what you're getting.
+        /// </summary>
+        public double madeCardValue = 3;
+        /// <summary>Finds a card by id, for pricing AddCardToHand. Set by EvaluateAll from the cards it's given.</summary>
+        [NonSerialized] public Func<string, CardDefinition> cardLookup;
         /// <summary>A once-only delayed effect loses this fraction of its value for every round you wait.</summary>
         public double delayDiscountPerRound = 0.05;
         /// <summary>Delayed effects never drop below this fraction of their face value.</summary>
@@ -91,7 +98,9 @@ namespace FarmVsForest.Core
     /// </summary>
     public static class CardValuation
     {
-        public static CardScore Evaluate(CardDefinition card, BalanceSettings s = null)
+        public static CardScore Evaluate(CardDefinition card, BalanceSettings s = null) => Evaluate(card, s, 0);
+
+        private static CardScore Evaluate(CardDefinition card, BalanceSettings s, int depth)
         {
             s = s ?? new BalanceSettings();
             var score = new CardScore { Card = card };
@@ -101,7 +110,7 @@ namespace FarmVsForest.Core
 
             foreach (var e in card.effects ?? new List<EffectDefinition>())
             {
-                double v = EffectValue(e, s, out string why, out string warning);
+                double v = EffectValue(e, s, depth, out string why, out string warning);
                 score.Value += v;
                 score.Breakdown.Add(why + " = " + v.ToString("0.#"));
                 if (warning != null) score.Warnings.Add(warning);
@@ -116,7 +125,8 @@ namespace FarmVsForest.Core
 
             score.Par = s.Par(score.Cost);
             score.Delta = score.Par > 0 ? (score.Value - score.Par) / score.Par : 0;
-            score.Verdict = score.Warnings.Count > 0 ? "price by hand"
+            score.Verdict = card.HasTag(Tags.Start) ? "starting card"
+                : score.Warnings.Count > 0 ? "price by hand"
                 : score.Delta > s.tolerance ? "strong"
                 : score.Delta < -s.tolerance ? "weak"
                 : "on curve";
@@ -132,7 +142,7 @@ namespace FarmVsForest.Core
             return every <= s.horizon ? Math.Max(s.delayFloor, 1 - s.delayDiscountPerRound * every) : 0;
         }
 
-        private static double EffectValue(EffectDefinition e, BalanceSettings s, out string why, out string warning)
+        private static double EffectValue(EffectDefinition e, BalanceSettings s, int depth, out string why, out string warning)
         {
             warning = null;
             double fires = Fires(e, s);
@@ -147,6 +157,14 @@ namespace FarmVsForest.Core
                 case EffectKind.DrawCard:
                     each = e.amount * s.drawValue;
                     why = when + ": draw " + e.amount;
+                    break;
+                case EffectKind.AddCardToHand:
+                    var made = s.cardLookup?.Invoke(e.cardId);
+                    double extra = 0;
+                    if (made == null) warning = "Can't find card '" + e.cardId + "' to price AddCardToHand.";
+                    else if (depth < 2) extra = Math.Max(0, Evaluate(made, s, depth + 1).Value - s.Par(Evaluate(made, s, depth + 1).Cost));
+                    each = e.amount * (s.madeCardValue + extra);
+                    why = when + ": add " + e.amount + " " + (made?.displayName ?? e.cardId) + " card to hand";
                     break;
                 case EffectKind.ConvertResource:
                     each = (e.amount * s.ValueOf(e.resource) - e.fromAmount * s.ValueOf(e.fromResource)) * s.converterEfficiency;
@@ -185,7 +203,16 @@ namespace FarmVsForest.Core
         }
 
         /// <summary>Scores every card and sorts them, most out-of-line first.</summary>
-        public static List<CardScore> EvaluateAll(IEnumerable<CardDefinition> cards, BalanceSettings s = null) =>
-            cards.GroupBy(c => c.id).Select(g => Evaluate(g.First(), s)).OrderByDescending(c => Math.Abs(c.Delta)).ToList();
+        public static List<CardScore> EvaluateAll(IEnumerable<CardDefinition> cards, BalanceSettings s = null)
+        {
+            s = s ?? new BalanceSettings();
+            var unique = cards.Where(c => c != null).GroupBy(c => c.id).Select(g => g.First()).ToList();
+            if (s.cardLookup == null)
+            {
+                var byId = unique.Where(c => c.id != null).ToDictionary(c => c.id);
+                s.cardLookup = id => id != null && byId.TryGetValue(id, out var c) ? c : null;
+            }
+            return unique.Select(c => Evaluate(c, s)).OrderByDescending(c => Math.Abs(c.Delta)).ToList();
+        }
     }
 }
