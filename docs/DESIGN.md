@@ -16,6 +16,17 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | Modes | Balanced around **1v1**. 2v2 and 1v1v1v1 are fun extra modes. |
 | Win | Each team has its **own goal** (below). If the board fills first, whoever owns the most squares wins. |
 
+## Day and night
+
+Each round is one **day** followed by one **night**.
+
+* Farm, Forest and Factory take their turns during the **day**.
+* Dark Forest takes its turn at **night**.
+* Card effects can trigger:
+  * every day, or every night,
+  * every X days or every X nights (repeating),
+  * once, after X days or X nights (a delayed effect).
+
 ## Teams
 
 | Team | Starting card | Resources |
@@ -32,7 +43,7 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | Farm | Have 20 Wheat, 20 Milk and 20 Eggs. |
 | Forest | Own over 50% of the board (25% in 1v1v1v1). |
 | Factory | Make X Goods in a single turn. |
-| Dark Forest | **Ghoul Party**: have 13 Ghouls at once. Ghouls only appear at night (every other round), made by combining a Bat and a Spider. |
+| Dark Forest | **Ghoul Party**: have 13 Ghouls at once. Ghouls are made at night by combining a Bat and a Spider. |
 
 ## Open questions
 
