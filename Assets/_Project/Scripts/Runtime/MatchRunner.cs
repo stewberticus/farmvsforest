@@ -42,12 +42,38 @@ namespace FarmVsForest.Runtime
         public bool useStartingCards = true;
         public bool randomSeed = true;
 
+        [Tooltip("Start a match as soon as the scene plays. Turn off when a menu (like DemoGame) starts it.")]
+        public bool startOnPlay = true;
+
         public Match Match { get; private set; }
 
         /// <summary>Raised after a new match has been created and started.</summary>
         public event Action<Match> MatchStarted;
 
-        private void Start() => StartNewMatch();
+        private void Start()
+        {
+            if (startOnPlay) StartNewMatch();
+        }
+
+        /// <summary>Sets the mode and each seat's team, then starts a new match. Used by the demo's setup screen.</summary>
+        public void StartNewMatch(GameMode mode, IList<Team> teams, IList<string> names = null)
+        {
+            rules.mode = mode;
+            for (int i = 0; i < teams.Count; i++)
+            {
+                if (i >= seats.Count) seats.Add(new SeatSetup());
+                var s = seats[i];
+                if (s.team != teams[i])
+                {
+                    // A deck or starting card set in the inspector belongs to the old team.
+                    s.deck = null;
+                    s.startingCard = null;
+                }
+                s.team = teams[i];
+                s.name = names != null && i < names.Count ? names[i] : teams[i].ToString();
+            }
+            StartNewMatch();
+        }
 
         public void StartNewMatch()
         {
