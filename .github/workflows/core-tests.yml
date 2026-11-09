@@ -15,3 +15,5 @@ jobs:
           dotnet-version: 8.0.x
       - name: Run rules engine tests (no Unity needed)
         run: dotnet test Tools/CoreTests
+      - name: Balance simulator smoke run
+        run: dotnet run -c Release --project Tools/BalanceSim -- --games 10
