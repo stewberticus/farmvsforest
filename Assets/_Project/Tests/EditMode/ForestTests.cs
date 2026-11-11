@@ -182,5 +182,35 @@ namespace FarmVsForest.Tests
             int after = p.Hand.Count(c => c.Definition.id == ForestCards.SaplingId);
             Assert.Greater(after, before + 1, "the normal draw plus the Willow's Sapling");
         }
+
+        [Test]
+        public void Pollinate_SpendsHoneyToGrowATreeOneStep_EvenInShade()
+        {
+            var m = ForestFirst(ForestCards.Sapling);
+            var p = m.CurrentPlayer;
+            var s = Put(m, p.Id, ForestCards.Sapling, 2, 2);
+            var rock = Card("rock");
+            Put(m, p.Id, rock, 1, 2); Put(m, p.Id, rock, 3, 2); Put(m, p.Id, rock, 2, 1); Put(m, p.Id, rock, 2, 3);
+            Assert.IsFalse(m.Pollinate(p.Id, s), "no Honey yet");
+            m.GainResource(p, ResourceType.Honey, 4);
+            Assert.IsTrue(m.Pollinate(p.Id, s));
+            Assert.IsTrue(m.Pollinate(p.Id, s));
+            Assert.AreEqual(0, p.Resources.Get(ResourceType.Honey));
+            Assert.AreEqual(ForestCards.YoungTree.id, s.Definition.id, "2 steps turn a Sapling into a Young Tree");
+        }
+
+        [Test]
+        public void Pollinate_OnlyYourOwnGrowingTrees()
+        {
+            var m = ForestFirst(ForestCards.Sapling);
+            var p = m.CurrentPlayer;
+            m.GainResource(p, ResourceType.Honey, 10);
+            var old = Put(m, p.Id, ForestCards.OldTree, 2, 2);
+            var squirrel = Put(m, p.Id, ForestCards.SquirrelDrey, 3, 3);
+            var theirs = Put(m, 1, ForestCards.Sapling, 4, 4);
+            Assert.IsFalse(m.Pollinate(p.Id, old), "already old");
+            Assert.IsFalse(m.Pollinate(p.Id, squirrel), "not a tree");
+            Assert.IsFalse(m.Pollinate(p.Id, theirs), "not yours");
+        }
     }
 }

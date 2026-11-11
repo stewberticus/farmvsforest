@@ -1,7 +1,7 @@
 # Forest
 
 The Forest is about **growth and life**. You plant Saplings, give them sunlight, and grow them into Old Trees.
-**Goal: 16 Old Trees in one connected forest.**
+**Goal: 20 Old Trees in one connected forest.**
 
 Status: second pass (2026-11-09). Alexander chose the growth goal so that good decisions matter more. The numbers come
 from the balance sim and still need playtesting.
@@ -32,13 +32,18 @@ outward and leaving room for trees to grow up. Random play smothers its own tree
   the first extra, 3 for the next, and so on (`forestExtraTreeAcorns`, `forestExtraTreeStep`).
 * **Compost.** Once a turn, discard a card from your hand to gain 1 Acorn (`forestCompostAcorns`). This also stops
   the rare game where Forest had no way to make Acorns.
+* **Pollinate.** On your turn, spend **2 Honey** to make one of your growing trees grow one step right away, even if
+  it's in shade (`forestPollinateHoney`). As often as you can pay. Bees carry pollen from flower to tree. In the demo,
+  click a growing tree.
+  *Why:* Honey had almost nothing to buy, so it piled up. Now it speeds up growth directly. You choose which
+  tree to help: one that's nearly grown, one that joins your forest, or one your trees have shaded in.
 
 ## Resources
 
 | Resource | Made by | Spent on |
 | --- | --- | --- |
 | Acorns | Squirrel Drey, Oak, Dormouse Den, Compost | Extra trees, Oak, Pine, Blossom Hive, Weeping Willow |
-| Honey | Wildflower Meadow, Blossom Hive | Dormouse Den, Blue Jay's Nest, Weeping Willow |
+| Honey | Wildflower Meadow, Blossom Hive | **Pollinate** (2 Honey: a tree grows a step), Dormouse Den, Blue Jay's Nest, Weeping Willow |
 
 ## Cards
 
@@ -80,12 +85,18 @@ Report: [balance-reports/2026-11-09-forest-growth.md](../balance-reports/2026-11
 | | Good | Random | Worst | Good beats random | Good beats worst |
 | --- | --- | --- | --- | --- | --- |
 | Old goal (33 trees) | round 23 | round 24 | round 28 | 71% | 82% |
-| **Growth goal (16 Old Trees)** | **round 22** | **round 25** | **round 54** | **86%** | **99%** |
+| **Growth goal (16 Old Trees, before Pollinate)** | **round 22** | **round 25** | **round 54** | **86%** | **99%** |
 
 * 1v1: Forest wins 51% overall (Farm 52%, Factory 50%, Dark Forest 51%). Games average 20+ rounds.
 * Slower growth (more sunny mornings needed) widens the skill gap. 2 + 4 mornings was the best mix of skill and pace.
 * The value model flags Squirrel Drey, Wildflower Meadow, Pine, Oak, Willow and Blossom Hive as strong. Its
   "per touching" and growth guesses don't capture the light trade-off; the sim's win rates are the better check.
+
+### Pollinate update (2026-11-09)
+
+Report: [balance-reports/2026-11-09-forest-pollinate.md](../balance-reports/2026-11-09-forest-pollinate.md).
+With Pollinate the goal is **20 Old Trees**: good round 22, random 28, worst 57.5; good beats random **93%** in mirror
+matches. 1v1: Forest 49% overall, and every Forest matchup is 49 to 51%.
 
 ## Open
 

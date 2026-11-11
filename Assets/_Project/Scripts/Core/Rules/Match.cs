@@ -331,6 +331,32 @@ namespace FarmVsForest.Core
             CheckGoals();
         }
 
+        /// <summary>Whether the current player can pollinate this card now (Forest: one of their growing trees, for Honey).</summary>
+        public bool CanPollinate(int playerId, CardInstance card)
+        {
+            if (!IsStarted || IsOver || CurrentPlayer == null || CurrentPlayer.Id != playerId) return false;
+            var player = CurrentPlayer;
+            int cost = Config.forestPollinateHoney;
+            return player.Team == Team.Forest && cost > 0 && card != null && card.IsOnBoard && card.Owner == player &&
+                   ForestCards.GrowthOf(card.Definition) != null && player.Resources.Get(ResourceType.Honey) >= cost;
+        }
+
+        /// <summary>
+        /// Forest's Pollinate: spend Honey so one of your growing trees grows one step now, sun or no sun.
+        /// Doesn't use up a play. Returns false if not allowed.
+        /// </summary>
+        public bool Pollinate(int playerId, CardInstance card)
+        {
+            if (!CanPollinate(playerId, card)) return false;
+            var player = CurrentPlayer;
+            SpendResource(player, ResourceType.Honey, Config.forestPollinateHoney, card);
+            Raise(new GameEvent { Type = GameEventType.CardPollinated, Player = player, Card = card,
+                Message = player + " pollinated " + card.Definition + " at " + card.Position });
+            ForestCards.GrowOneStep(this, card);
+            CheckGoals();
+            return true;
+        }
+
         /// <summary>Whether the current player can compost a card now (Forest: once a turn, any card in hand).</summary>
         public bool CanCompost(int playerId, CardInstance card)
         {

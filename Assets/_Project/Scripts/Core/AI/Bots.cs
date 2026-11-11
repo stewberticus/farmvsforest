@@ -43,6 +43,13 @@ namespace FarmVsForest.Core
             var me = match.CurrentPlayer;
             if (!match.IsOver && me.Hand.Count > 0 && _rng.Range(0, 3) == 0)
                 match.Compost(me.Id, me.Hand[_rng.Range(0, me.Hand.Count)]);
+            // Pollinate random growing trees with some of its Honey.
+            for (int i = 0; i < 10 && !match.IsOver && _rng.Range(0, 2) == 0; i++)
+            {
+                var trees = match.Board.AllCards().Where(c => match.CanPollinate(me.Id, c)).ToList();
+                if (trees.Count == 0) break;
+                match.Pollinate(me.Id, trees[_rng.Range(0, trees.Count)]);
+            }
         }
     }
 
@@ -82,6 +89,26 @@ namespace FarmVsForest.Core
             for (int i = 0; i < 10 && !match.IsOver; i++)
                 if (!PlayBest(match)) break;
             if (!match.IsOver) MaybeCompost(match);
+            if (!match.IsOver) Pollinate(match);
+        }
+
+        /// <summary>
+        /// Forest's Pollinate: spend Honey on the growing tree closest to becoming an Old Tree, keeping enough Honey
+        /// for a Honey card in hand. The worst bot picks the tree furthest from it.
+        /// </summary>
+        private void Pollinate(Match match)
+        {
+            var p = match.CurrentPlayer;
+            int reserve = p.Hand.Max(c => (int?)(c.Definition.cost ?? new List<ResourceAmount>())
+                .Where(r => r.type == ResourceType.Honey).Sum(r => r.amount)) ?? 0;
+            for (int i = 0; i < 20 && !match.IsOver; i++)
+            {
+                if (p.Resources.Get(ResourceType.Honey) - match.Config.forestPollinateHoney < (Worst ? 0 : reserve)) break;
+                var trees = match.Board.AllCards().Where(c => match.CanPollinate(p.Id, c))
+                    .OrderBy(c => ForestCards.StepsToOld(c)).ToList();
+                if (trees.Count == 0) return;
+                if (!match.Pollinate(p.Id, Worst ? trees.Last() : trees.First())) return;
+            }
         }
 
         /// <summary>
