@@ -1,13 +1,13 @@
 # Farm
 
-> **Cross-team pass (2026-11-09):** the goal is now **66 of each** (2026-11-11, on the 9x9 board with scout cards) so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
+> **Upgrades (2026-11-11, plan phase 6):** the goal is now **27 of each**. Animals make Milk and Eggs every 2 days, and
+> Big Red Barn and Nesting Box are upgrades played onto your own Cows and Chicken Coops. See [Upgrades](#upgrades-2026-11-11-plan-phase-6).
 
-The Farm is a tidy homestead. It wins by having **40 Wheat, 40 Milk and 40 Eggs** at the same time, and it gets
-there by laying out fields and animals well.
+The Farm is a tidy homestead. It wins by having **27 Wheat, 27 Milk and 27 Eggs** at the same time, and it gets
+there by laying out fields and animals well, then upgrading the best-placed animals.
 
-Status: first pass (2026-11-09). The cards and direction are agreed with Alexander. The numbers are starting values
-from the balance sim and still need playtesting. The goal number (40) is the sim's suggestion and is waiting on
-Alexander's OK.
+Status: the cards and direction are agreed with Alexander. The numbers come from the balance sim and still need
+playtesting.
 
 ## Identity
 
@@ -40,18 +40,18 @@ the real race is Milk and Eggs.
 | Farm (start) | - | | Every day: gain 1 Wheat. | Home sweet home, with a little vegetable patch out back. | Starting card |
 | Wheat Field | free | crop | Every day: gain 1 Wheat. | The heart of the farm. | Sprout |
 | Scarecrow | 1 Wheat | | Every day: gain 1 Wheat for each touching crop. | Shoos the crows away. | Neighbour |
-| Cow | 3 Wheat | animal | Every day: gain 1 Milk for each touching crop. | She's happiest grazing by the fields. | Neighbour |
-| Chicken Coop | 3 Wheat | animal | Every night: gain 1 Egg for each touching crop. | Hens peck spilled grain and leave eggs by morning. | Neighbour |
+| Cow | 3 Wheat | animal | Every 2 days: gain 1 Milk for each touching crop. | She's happiest grazing by the fields. | Neighbour |
+| Chicken Coop | 3 Wheat | animal | Every 2 nights: gain 1 Egg for each touching crop. | Hens peck spilled grain and leave eggs by morning. | Neighbour |
 | Barn Cat | 1 Milk | animal | Every night: gain 1 Wheat for each touching crop. | A saucer of milk, and she keeps the mice out of the fields. | Neighbour |
-| Big Red Barn | 3 Milk | building | Every 2 days: add a Cow to your hand. | Calves are born in the barn. | Generator |
-| Nesting Box | 3 Eggs | building | Every 2 days: add a Chicken Coop to your hand. | Eggs hatch into chicks, and chicks need a coop. | Generator |
+| Big Red Barn | 3 Milk | upgrade | Upgrade: play onto one of your Cows. Every 2 days: gain 1 more Milk for each crop touching her. | A warm barn and fresh straw make for happy cows. | Upgrade |
+| Nesting Box | 3 Eggs | upgrade | Upgrade: play onto one of your Chicken Coops. Every 2 nights: gain 1 more Egg for each crop touching it. | Soft hay in every box, and the hens lay twice as well. | Upgrade |
 | Farmhand's Cottage | 1 Milk + 1 Egg | building | Every 2 days: add a Wheat Field to your hand. | Feed a farmhand a good breakfast and they'll plant a new field. | Generator |
 
 The generators skip their turn if you already hold a copy of the card they make (`skipIfInHand`), so they never
 clog your hand.
 
 Starter deck (30): Wheat Field ×10, Cow ×4, Chicken Coop ×4, Scarecrow ×3, Barn Cat ×3, Big Red Barn ×2,
-Nesting Box ×2, Farmhand's Cottage ×2.
+Nesting Box ×2, Weathervane ×2.
 
 Data: `Assets/_Project/Scripts/Core/Content/FarmCards.cs`. In Unity, **Farm vs Forest > Generate Placeholder Card
 Assets** turns these into editable card assets and a Farm Starter deck.
@@ -83,9 +83,8 @@ Full report: [balance-reports/2026-11-09-farm-v1.md](../balance-reports/2026-11-
 
 | Card | Delta from par | Why it stays |
 | --- | --- | --- |
-| Cow, Chicken Coop | +66% | The model assumes 1.2 touching crops; a good farm averages more. That's the team's hook, and the goal number is tuned around it. |
-| Big Red Barn, Nesting Box | +229% | Priced as "a Cow (or Coop) every 2 days", and those cards are above par themselves. In play they're used about once a game, and the goal is tuned with them in. |
-| Farm | -100% | Starting cards do nothing (decided). |
+| Cow, Chicken Coop | -17% | Every 2 days now, so the model's 1.2 touching crops prices them low. A good farm gets 2 or 3 crops around each animal. |
+| Big Red Barn, Nesting Box | -37% | Priced like the animal they go on, at twice the cost. Their real value is the square they don't need: a well-placed animal gets doubled. Played about once a game each. |
 
 ### Known issues
 
@@ -95,8 +94,7 @@ Full report: [balance-reports/2026-11-09-farm-v1.md](../balance-reports/2026-11-
 
 ## Open questions
 
-* Goal: 40 of each (recommended), or keep 20 and slow the animals down?
-* Playtest whether people find the Milk and Egg buildings worth their cost.
+* Playtest whether people find the upgrades worth 3 Milk or 3 Eggs, which also count towards the goal.
 
 ## Scout card (2026-11-11, plan phase 4)
 
@@ -105,3 +103,15 @@ Full report: [balance-reports/2026-11-09-farm-v1.md](../balance-reports/2026-11-
 | Weathervane | 2 | 1 Wheat | When played: look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Every 2 days: gain 1 Wheat. |
 
 It replaced Farmhand's Cottage in the deck (played 0.3 times a game). The Cottage is still defined, with 0 copies.
+
+## Upgrades (2026-11-11, plan phase 6)
+
+An **upgrade** is played onto one of your own cards instead of an empty square. The card underneath keeps its square,
+tags and timers, and gains the upgrade's effect. Each card takes one upgrade, and an upgrade takes no new square. The
+rule has a switch (`MatchConfig.allowUpgrades`) and the card data says what it goes onto (`CardDefinition.upgradeFor`).
+
+* **Big Red Barn** (3 Milk) goes onto a Cow and **Nesting Box** (3 Eggs) onto a Chicken Coop. Each doubles what that
+  animal makes, so the best spot is the animal with the most crops around it.
+* Animals now make Milk and Eggs every 2 days (`FarmCards.AnimalDays`). That's what lets the goal drop from 66 to 27
+  of each without the Farm finishing sooner.
+* With upgrades switched off the same goal gives Farm 39% against Forest (52% with them), so they matter.

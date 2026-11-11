@@ -97,12 +97,19 @@ namespace FarmVsForest.Core
         /// </summary>
         public int mulligans = 1;
 
+        /// <summary>
+        /// Upgrades (phase 6, 2026-11-11): cards with <see cref="CardDefinition.upgradeFor"/> are played onto one of your
+        /// own cards instead of an empty square. The card underneath keeps its square, tags and timers and gains the
+        /// upgrade's effects. One upgrade per card. Off makes upgrade cards unplayable.
+        /// </summary>
+        public bool allowUpgrades = true;
+
         public List<ResourceAmount> startingResources = new List<ResourceAmount>();
 
         // ---- Team goals (starting numbers, to tune)
 
         /// <summary>Farm wins with this many Wheat, Milk and Eggs at once.</summary>
-        public int farmGoalEach = 66;
+        public int farmGoalEach = 27;
         /// <summary>Forest wins with this many Tree cards in one touching group.</summary>
         public int forestGoalTrees = 33;
         /// <summary>

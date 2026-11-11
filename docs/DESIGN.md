@@ -60,7 +60,7 @@ Each round is one **day** followed by one **night**.
 
 | Team | Goal |
 | --- | --- |
-| Farm | Have 66 Wheat, 66 Milk and 66 Eggs. |
+| Farm | Have 27 Wheat, 27 Milk and 27 Eggs. Upgrades (Big Red Barn, Nesting Box) go onto your own animals and double what they make. |
 | Forest | **Grow 22 Old Trees in one connected forest.** Trees grow Sapling > Young Tree > Old Tree on sunny mornings (when they touch an empty square or a Sunny Glade). |
 | Factory | Make 17 Toys in a single round (a day and its night). A Big Order counts down 3 days, then runs every Assembler twice more on its payoff day. |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once (decided; Dark Forest is paced by its cards). |

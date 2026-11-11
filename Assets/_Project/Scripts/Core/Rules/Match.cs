@@ -252,8 +252,17 @@ namespace FarmVsForest.Core
 
         // ------------------------------------------------------------------ playing cards
 
-        public bool CanPlaceOn(PlayerState player, CardDefinition card, Coord square) =>
-            Board.InBounds(square) && _placement.CanPlace(this, player, card, square);
+        public bool CanPlaceOn(PlayerState player, CardDefinition card, Coord square)
+        {
+            if (!Board.InBounds(square)) return false;
+            if (card != null && card.IsUpgrade)
+            {
+                var target = Board.Get(square);
+                return Config.allowUpgrades && target != null && target.Owner == player && target.UpgradedWith == null &&
+                       card.CanUpgrade(target.Definition);
+            }
+            return _placement.CanPlace(this, player, card, square);
+        }
 
         /// <summary>All squares this card could go on right now, ignoring cost and turn.</summary>
         public IEnumerable<Coord> LegalSquares(PlayerState player, CardDefinition card)
@@ -295,6 +304,21 @@ namespace FarmVsForest.Core
                     Message = player + " paid " + string.Join(", ", cost) });
 
             player.Hand.Remove(card);
+            if (card.Definition.IsUpgrade)
+            {
+                // The upgrade sits on top of the card underneath, which keeps its square, tags and timers.
+                var target = Board.Get(square);
+                card.Position = square;
+                player.CardsPlayedThisTurn++;
+                Raise(new GameEvent { Type = GameEventType.CardPlayed, Player = player, Card = card,
+                    Message = player + " played " + card.Definition + " onto " + target.Definition + " at " + square });
+                target.UpgradedWith = card.Definition;
+                target.Definition = CardDefinition.Upgraded(target.Definition, card.Definition);
+                Raise(new GameEvent { Type = GameEventType.CardUpgraded, Player = player, Card = target,
+                    Message = target.Definition + " at " + square });
+                CheckGoals();
+                return PlayResult.Ok;
+            }
             PutOnBoard(card, square);
             player.CardsPlayedThisTurn++;
             Raise(new GameEvent { Type = GameEventType.CardPlayed, Player = player, Card = card,
@@ -329,6 +353,7 @@ namespace FarmVsForest.Core
         {
             if (card == null || into == null || !card.IsOnBoard) return;
             var from = card.Definition;
+            if (card.UpgradedWith != null) into = CardDefinition.Upgraded(into, card.UpgradedWith);
             card.Definition = into;
             card.DaysSeen = 0;
             card.NightsSeen = 0;

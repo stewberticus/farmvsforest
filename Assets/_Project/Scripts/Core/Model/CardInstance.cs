@@ -20,6 +20,9 @@ namespace FarmVsForest.Core
         /// <summary>The round this card last got its Sunny Glade bonus (once a round). 0 means never.</summary>
         public int GladeBonusRound { get; internal set; }
 
+        /// <summary>The upgrade played onto this card, or null. Its effects are already part of <see cref="Definition"/>.</summary>
+        public CardDefinition UpgradedWith { get; internal set; }
+
         /// <summary>Growth steps saved up towards the next stage (Forest trees grow on sunny days).</summary>
         public int GrowthProgress { get; internal set; }
 

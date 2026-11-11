@@ -182,7 +182,8 @@ namespace FarmVsForest.Core
                 double cardScore = ScoreCard(match, p, card.Definition);
                 foreach (var square in match.LegalSquares(p, card.Definition))
                 {
-                    double total = cardScore + ScoreSquare(match, p, card.Definition, square) +
+                    // An upgrade takes no new square: only what its effects make on that card counts.
+                    double total = cardScore + (card.Definition.IsUpgrade ? 0 : ScoreSquare(match, p, card.Definition, square)) +
                                    TouchingValue(match, p, card.Definition, square);
                     if (Worst) total = -total;
                     total += _rng.Range(0, 1000) / 1000.0 * Noise;
