@@ -9,7 +9,7 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | --- | --- |
 | Tone | Cozy, cute, child/family friendly. Dark Forest is cute-spooky, never scary. |
 | Combat | None. Teams mostly ignore each other; the main interaction is competing for space. |
-| Board | 9x9 for 1v1 (2026-11-11; was 10x10, where teams hardly met). 16x16 for 4 players, to tune. |
+| Board | 9x9 for 1v1 (decided by Alexander 2026-11-11; was 10x10, where teams hardly met, and 8x8 let Forest win by filling the board). 16x16 for 4 players, to tune. |
 | Sunny Glades | 4 shared squares near the middle of the 1v1 board (decided 2026-11-11). Nobody can build on them. A card touching one makes 1 extra of what it makes, once a round, and they count as sunlight for Forest trees. |
 | Start | Each player begins with one starting card in their corner. It makes 1 basic resource every day (Evil Tree: every night), decided 2026-11-11. |
 | Movement | Cards never move once played. |

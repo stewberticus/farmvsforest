@@ -6,7 +6,7 @@ the smaller board sped Dark Forest up so much that its tuning only made sense on
 ## What changed
 
 * **Board 9x9 for 1v1** (`boardSize`). The plan said 8x8; Alexander suggested 9x9, and it tunes much better (below).
-  This is waiting on his pick.
+  He picked 9x9 on 2026-11-11.
 * **4 Sunny Glades** (`sunnyGladeBonus`, `sunnyGladeSquares`): (3,3), (5,5), (2,6) and (6,2) on 9x9, symmetric for both
   seats. Nobody can build on them; a card touching one makes 1 extra of what it makes, once a round. They count as
   sunlight for Forest trees but not as empty squares for Wildflower Meadow. Four-player boards have none for now.
