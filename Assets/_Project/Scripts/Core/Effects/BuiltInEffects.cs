@@ -101,6 +101,27 @@ namespace FarmVsForest.Core
 
 namespace FarmVsForest.Core
 {
+    /// <summary>
+    /// Custom effect "start_income": a starting card's daily income. Gains <c>amount</c> x
+    /// <see cref="MatchConfig.startingCardIncome"/> of <c>resource</c>, so the sim can switch it off with
+    /// --set startingCardIncome=0.
+    /// </summary>
+    public class StartingIncomeEffect : IEffect
+    {
+        public const string Id = "start_income";
+
+        public void Apply(EffectContext ctx)
+        {
+            int amount = ctx.Effect.amount * ctx.Match.Config.startingCardIncome;
+            foreach (var p in ctx.TargetPlayers)
+                ctx.Match.GainResource(p, ctx.Effect.resource, amount, ctx.Source);
+        }
+
+        /// <summary>The effect line for a starting card: "every day (or night): gain 1 resource".</summary>
+        public static EffectDefinition Every(EffectTrigger trigger, ResourceType resource) =>
+            new EffectDefinition(trigger, EffectKind.Custom, 1, resource) { customEffectId = Id };
+    }
+
     /// <summary>Gain resources for each empty square touching this card, e.g. a Wildflower Meadow that wants open space.</summary>
     public class GainPerEmptyTouchingEffect : IEffect
     {

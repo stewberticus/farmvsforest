@@ -26,9 +26,13 @@ namespace FarmVsForest.Core
 
         // ---------------------------------------------------------------- trees and their grown-up forms
 
-        /// <summary>Starting corner card. Already an Old Tree; does nothing else.</summary>
+        /// <summary>
+        /// Starting corner card. Already an Old Tree, makes 1 Acorn a day, and carries the Compost rule's text (the rule
+        /// itself lives in <see cref="TeamRules.CompostGain"/>).
+        /// </summary>
         public static readonly CardDefinition HugeTree = Card(HugeTreeId, "Huge Tree",
-            "Your forest's first Old Tree. Does nothing else.", Free(), new[] { Tags.Start, Tags.Tree, Tags.Old });
+            "Every day: gain 1 Acorn. Once a turn: discard a card to gain 1 Acorn (Compost). Your forest's first Old Tree.",
+            Free(), new[] { Tags.Start, Tags.Tree, Tags.Old }, StartingIncomeEffect.Every(EffectTrigger.Day, ResourceType.Acorns));
 
         public static readonly CardDefinition OldTree = Card("forest.old_tree", "Old Tree",
             "A fully grown tree.", Free(), new[] { Tags.Tree, Tags.Old });

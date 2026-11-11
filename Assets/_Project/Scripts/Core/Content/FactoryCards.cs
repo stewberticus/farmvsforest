@@ -26,9 +26,10 @@ namespace FarmVsForest.Core
         public const string ChargingDockId = "factory.charging_dock";
         public const string BigWhistleId = "factory.big_whistle";
 
-        /// <summary>The corner card. It does nothing: it's just where the workshop starts.</summary>
+        /// <summary>The corner card: where the workshop starts. Makes 1 Part a day so you can always get going.</summary>
         public static CardDefinition Headquarters() =>
-            Card(HeadquartersId, "Headquarters", "Where the workshop begins.", Free(), new[] { Tags.Start });
+            Card(HeadquartersId, "Headquarters", "Every day: gain 1 Part. Where the workshop begins, and the junk drawer is never empty.",
+                Free(), new[] { Tags.Start }, StartingIncomeEffect.Every(EffectTrigger.Day, Parts));
 
         /// <summary>One of each Factory deck card.</summary>
         public static List<CardDefinition> All() => new List<CardDefinition>

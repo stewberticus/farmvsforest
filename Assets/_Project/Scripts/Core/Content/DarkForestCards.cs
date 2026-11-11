@@ -18,9 +18,10 @@ namespace FarmVsForest.Core
         /// <summary>Custom effect id: this many Ghouls eat for free this morning.</summary>
         public const string FreeMealsEffect = "dark.free_meals";
 
-        /// <summary>The starting corner card. It only marks your corner and does nothing.</summary>
+        /// <summary>The starting corner card. Makes 1 Bat a night so you can always get going.</summary>
         public static CardDefinition EvilTree => Card("dark.evil_tree", "Evil Tree",
-            "Your home in the dark woods. It doesn't do anything, it just looks spooky.", Cost(), new[] { Tags.Start });
+            "Every night: gain 1 Bat. Your home in the dark woods. It looks spooky, but the bats think it's cosy.",
+            Cost(), new[] { Tags.Start }, StartingIncomeEffect.Every(EffectTrigger.Night, ResourceType.Bats));
 
         public static CardDefinition BatRoost => Card("dark.bat_roost", "Bat Roost",
             "Every night: gain 1 Bat.", Cost(), new string[0],

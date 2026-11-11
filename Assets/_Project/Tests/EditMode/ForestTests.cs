@@ -159,12 +159,13 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void StarterDeck_Is30Cards_AndHugeTreeDoesNothing()
+        public void StarterDeck_Is30Cards_AndHugeTreeMakesAnAcorn()
         {
             var deck = ForestCards.Deck();
             Assert.AreEqual(30, deck.Count);
             Assert.IsTrue(deck.All(c => c.team == Team.Forest));
-            Assert.IsEmpty(ForestCards.HugeTree.effects);
+            Assert.AreEqual(ResourceType.Acorns, ForestCards.HugeTree.effects.Single().resource);
+            StringAssert.Contains("Compost", ForestCards.HugeTree.rulesText);
             Assert.IsTrue(ForestCards.HugeTree.HasTag(Tags.Tree));
         }
 

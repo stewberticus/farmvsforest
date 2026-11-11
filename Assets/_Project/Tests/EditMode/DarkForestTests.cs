@@ -112,9 +112,11 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void EvilTree_DoesNothing_AndDeckIs30Cards()
+        public void EvilTree_MakesABatEachNight_AndDeckIs30Cards()
         {
-            Assert.IsEmpty(DarkForestCards.EvilTree.effects);
+            var e = DarkForestCards.EvilTree.effects.Single();
+            Assert.AreEqual(EffectTrigger.Night, e.trigger);
+            Assert.AreEqual(ResourceType.Bats, e.resource);
             Assert.AreEqual(30, DarkForestCards.StarterDeck().Count);
             Assert.IsTrue(DarkForestCards.All().All(c => c.team == Team.DarkForest));
         }
