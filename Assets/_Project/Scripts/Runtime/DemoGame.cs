@@ -420,6 +420,14 @@ namespace FarmVsForest.Runtime
                 GUI.Label(new Rect(inset.x, inset.y, inset.width, inset.height - 9),
                     (sunny ? "sun " : "shade ") + card.GrowthProgress + "/" + grow.amount, growStyle);
             }
+            int orderDays = FactoryCards.OrderDaysLeft(card);
+            if (orderDays > 0)
+            {
+                var orderStyle = new GUIStyle(_cellText) { alignment = TextAnchor.LowerCenter, fontSize = Mathf.Max(9, _cellText.fontSize - 2) };
+                orderStyle.normal.textColor = orderDays == 1 ? Accent : Ink;
+                GUI.Label(new Rect(inset.x, inset.y, inset.width, inset.height - 9),
+                    orderDays == 1 ? "due tomorrow!" : "due in " + orderDays + " days", orderStyle);
+            }
             if (card == _lastPlayed) Outline(inset, Accent, 3);
             var style = new GUIStyle(_cellText);
             style.normal.textColor = card.Owner.Team == Team.Forest || card.Owner.Team == Team.DarkForest ? Paper : Ink;
@@ -525,7 +533,17 @@ namespace FarmVsForest.Runtime
                 Fill(bar, new Color(0.85f, 0.82f, 0.76f));
                 if (frac >= 0) Fill(new Rect(bar.x, bar.y, bar.width * Mathf.Clamp01(frac), bar.height), TeamColor(pl.Team));
                 Outline(bar, Ink, 1);
-                GUI.Label(new Rect(bar.xMax + 12, gy - 2, r.width - 360, 30), "Goal: " + goal.Progress(m, pl), _label);
+                string goalText = "Goal: " + goal.Progress(m, pl);
+                // Factory: what this round should end on, and the next payday from a Big Order.
+                if (pl.Team == Team.Factory && goal is GainInOneRoundGoal)
+                {
+                    goalText += "  (on track for " + FactoryCards.ProjectedToysThisRound(m, pl) + ")";
+                    int due = m.Board.AllCards().Where(c => c.Owner == pl).Select(FactoryCards.OrderDaysLeft)
+                        .Where(d => d > 0).DefaultIfEmpty(-1).Min();
+                    if (due > 0) goalText += "  Big Order in " + due + (due == 1 ? " day: about " : " days: about ") +
+                                             FactoryCards.ForecastToys(m, pl, due);
+                }
+                GUI.Label(new Rect(bar.xMax + 12, gy - 2, r.width - 360, 30), goalText, _label);
             }
         }
 

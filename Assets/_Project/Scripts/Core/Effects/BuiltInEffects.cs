@@ -80,8 +80,9 @@ namespace FarmVsForest.Core
 namespace FarmVsForest.Core
 {
     /// <summary>
-    /// Custom effect "run_tagged": every card you own with <c>tag</c> runs its day and night effects once, right now.
-    /// Factory's Big Whistle uses it with tag "assembler". Use kind Custom with customEffectId "run_tagged".
+    /// Custom effect "run_tagged": every card you own with <c>tag</c> runs its day and night effects <c>amount</c> times
+    /// (at least once), right now. Factory's Big Order uses it with tag "assembler", amount 2, 3 days after it's played.
+    /// Use kind Custom with customEffectId "run_tagged".
     /// </summary>
     public class RunTaggedCardsEffect : IEffect
     {
@@ -95,7 +96,8 @@ namespace FarmVsForest.Core
                             (string.IsNullOrEmpty(tag) || c.Definition.HasTag(tag)))
                 .OrderBy(c => c.InstanceId)
                 .ToList();
-            foreach (var card in cards) ctx.Match.RunCardNow(card);
+            for (int i = 0; i < System.Math.Max(1, ctx.Effect.amount); i++)
+                foreach (var card in cards) ctx.Match.RunCardNow(card);
         }
     }
 }

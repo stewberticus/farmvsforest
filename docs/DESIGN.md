@@ -62,7 +62,7 @@ Each round is one **day** followed by one **night**.
 | --- | --- |
 | Farm | Have 66 Wheat, 66 Milk and 66 Eggs. |
 | Forest | **Grow 22 Old Trees in one connected forest.** Trees grow Sapling > Young Tree > Old Tree on sunny mornings (when they touch an empty square or a Sunny Glade). |
-| Factory | Make 16 Toys in a single round (a day and its night). |
+| Factory | Make 17 Toys in a single round (a day and its night). A Big Order counts down 3 days, then runs every Assembler twice more on its payoff day. |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once (decided; Dark Forest is paced by its cards). |
 
 Goal numbers come from the cross-team balance pass (2026-11-09). Alexander's targets: games last 20+ rounds on

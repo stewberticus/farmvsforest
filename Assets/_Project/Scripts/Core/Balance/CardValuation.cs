@@ -81,7 +81,7 @@ namespace FarmVsForest.Core
         /// <summary>Hand-set values for Custom effects, by customEffectId. Unknown ones are flagged.</summary>
         public Dictionary<string, double> customEffectValue = new Dictionary<string, double>
         {
-            // Factory's Big Whistle: about 4 Assemblers each making 1 Toy (3 V) when it's played.
+            // Factory's Big Whistle / Big Order: about 4 Assemblers each making 1 Toy (3 V) per run.
             { RunTaggedCardsEffect.Id, 12 },
             // Picnic Blanket: 2 free Ghoul meals a day, but only once you have Ghouls (about 60% of its life).
             { DarkForestCards.FreeMealsEffect, 1.2 },
