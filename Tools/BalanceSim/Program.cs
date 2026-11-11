@@ -120,6 +120,20 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
                     table.AppendLine("| " + t + " | " + Solo(t, bot) + " | " + Solo(t, "random") + " | " + Solo(t, "worst") + " | " +
                                      Beats(t, bot, "random") + " | " + Beats(t, bot, "sloppy") + " | " + Beats(t, bot, "worst") + " | " +
                                      sim.ShuffleCorrelation(t, games, bot, seed).ToString("0.00") + " |");
+                if (teams.Contains(Team.DarkForest))
+                {
+                    table.AppendLine();
+                    table.AppendLine("Dark Forest Ghouls per solo game (summoned / went home hungry):");
+                    table.AppendLine();
+                    table.AppendLine("| Bot | Summoned | Went home hungry |");
+                    table.AppendLine("| --- | --- | --- |");
+                    foreach (var b in new[] { bot, "sloppy", "random", "worst" })
+                    {
+                        var seats = sim.Goldfish(Team.DarkForest, games, b, seed).Select(r => r.Seats[0]).ToList();
+                        table.AppendLine("| " + b + " | " + seats.Average(s => s.GhoulsSummoned).ToString("0.0") + " | " +
+                                         seats.Average(s => s.GhoulsLostToHunger).ToString("0.00") + " |");
+                    }
+                }
                 Console.WriteLine(table);
                 if (outFile != null) File.WriteAllText(outFile, table.ToString());
                 return 0;

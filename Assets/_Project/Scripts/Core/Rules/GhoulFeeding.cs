@@ -39,6 +39,8 @@ namespace FarmVsForest.Core
             {
                 int lost = Math.Min(ghouls, match.Config.ghoulsLostWhenHungry);
                 match.SpendResource(p, ResourceType.Ghouls, lost);
+                match.RaiseEvent(new GameEvent { Type = GameEventType.GhoulsWentHome, Player = p, Resource = ResourceType.Ghouls,
+                    Amount = lost, Message = p + " couldn't feed every Ghoul, so " + lost + " went home hungry" });
             }
         }
     }

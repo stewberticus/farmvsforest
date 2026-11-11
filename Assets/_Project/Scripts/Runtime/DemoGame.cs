@@ -620,6 +620,20 @@ namespace FarmVsForest.Runtime
                 _message = "Composted " + composted.Definition.displayName + ".";
             }
 
+            if (p.Team == Team.DarkForest)
+            {
+                var ghoulCost = M.GhoulCost(p);
+                bool canSummon = M.CanSummonGhoul(p.Id);
+                GUI.enabled = canSummon;
+                if (ghoulCost != null && GUI.Button(new Rect(handArea.xMax - 230, handArea.yMax - 60, 230, 28),
+                        "Summon Ghoul (" + string.Join(", ", ghoulCost) + ")", _button))
+                {
+                    M.SummonGhoul(p.Id);
+                    _message = "A Ghoul joined the party!";
+                }
+                GUI.enabled = true;
+            }
+
             if (!string.IsNullOrEmpty(_message))
                 GUI.Label(new Rect(handArea.x, handArea.yMax - 24, handArea.width, 26), _message,
                     new GUIStyle(_label) { normal = { textColor = new Color(1f, 0.85f, 0.6f) } });

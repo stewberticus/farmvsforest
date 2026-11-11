@@ -37,10 +37,11 @@ namespace FarmVsForest.Core
         public GameMode mode = GameMode.OneVsOne;
 
         /// <summary>
-        /// Board size for 2-player games (square). Decided 2026-11-11: 8x8, so the two teams meet by mid-game
-        /// (on 10x10 they played the same as on a board where they never touch).
+        /// Board size for 2-player games (square). 2026-11-11: down from 10x10, where the teams played the same as on a
+        /// board where they never touch. 8x8 was the plan; 9x9 (Alexander's idea) tunes better because on 8x8 Forest fills
+        /// the board and wins on most squares. See balance-reports/2026-11-11-phase2-3-board-and-ghouls.md.
         /// </summary>
-        public int boardSize = 8;
+        public int boardSize = 9;
 
         /// <summary>
         /// Sunny Glades (decided 2026-11-11): shared squares near the middle that nobody can build on. A card touching
@@ -95,7 +96,7 @@ namespace FarmVsForest.Core
         // ---- Team goals (starting numbers, to tune)
 
         /// <summary>Farm wins with this many Wheat, Milk and Eggs at once.</summary>
-        public int farmGoalEach = 64;
+        public int farmGoalEach = 62;
         /// <summary>Forest wins with this many Tree cards in one touching group.</summary>
         public int forestGoalTrees = 33;
         /// <summary>
@@ -107,7 +108,7 @@ namespace FarmVsForest.Core
         /// Forest's growth goal: this many Old Trees in one connected forest. 0 uses the older goal of
         /// <see cref="forestGoalTrees"/> trees instead.
         /// </summary>
-        public int forestGoalOldTrees = 24;
+        public int forestGoalOldTrees = 23;
         /// <summary>Each further extra tree in the same turn costs this many more Acorns (2, then 3, then 4...).</summary>
         public int forestExtraTreeStep = 1;
         /// <summary>
@@ -122,9 +123,32 @@ namespace FarmVsForest.Core
         public int forestPollinateHoney = 2;
 
         /// <summary>Factory wins by making this many Toys in one round (day + night).</summary>
-        public int factoryGoalToys = 15;
+        public int factoryGoalToys = 16;
         /// <summary>Dark Forest wins with this many Ghouls at once.</summary>
         public int darkForestGoalGhouls = 13;
+        /// <summary>
+        /// Dark Forest's Summon rule (decided 2026-11-11): on your turn, combine this many Bats and
+        /// <see cref="darkForestGhoulSpiders"/> Spiders into 1 Ghoul, as often as you can pay. Haunts make it cheaper.
+        /// Both 0 turns the rule off. The plan started at 3 and 3; the sim needed 6 and 6 plus
+        /// <see cref="darkForestGhoulsPerPriceStep"/> to keep games 20+ rounds (see balance-reports, phase 3).
+        /// </summary>
+        public int darkForestGhoulBats = 6;
+        public int darkForestGhoulSpiders = 6;
+        /// <summary>Each further Ghoul in the same turn costs this many more Bats and Spiders. Off: the party price below does the job.</summary>
+        public int darkForestGhoulStep = 0;
+        /// <summary>
+        /// At most this many Ghouls summoned per turn (0 means no limit). Without it, saving up and summoning the whole
+        /// party on the last turn is the best play, and the Ghouls never have to be fed.
+        /// </summary>
+        public int darkForestGhoulsPerTurn = 0;
+        /// <summary>
+        /// A bigger party is harder to impress: for every this many Ghouls you already have, the next one costs 1 more
+        /// Bat and 1 more Spider. 0 turns it off.
+        /// </summary>
+        public int darkForestGhoulsPerPriceStep = 1;
+        /// <summary>Haunts can't bring the Bats or the Spiders part of the price below this.</summary>
+        public int darkForestGhoulMinEach = 2;
+
         /// <summary>Decided: every morning each Ghoul eats this many Bats or Spiders.</summary>
         public int ghoulFoodEach = 1;
         /// <summary>Decided: a morning when you can't feed all your Ghouls, this many wander home.</summary>

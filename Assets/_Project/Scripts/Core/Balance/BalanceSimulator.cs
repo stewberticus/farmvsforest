@@ -27,6 +27,9 @@ namespace FarmVsForest.Core
         /// <summary>0..1 progress towards the team goal when the match ended.</summary>
         public double GoalProgress;
         public List<string> CardsPlayed = new List<string>();
+        /// <summary>Dark Forest: Ghouls summoned from Bats and Spiders, and Ghouls that went home hungry.</summary>
+        public int GhoulsSummoned;
+        public int GhoulsLostToHunger;
     }
 
     /// <summary>One simulated match.</summary>
@@ -107,6 +110,8 @@ namespace FarmVsForest.Core
 
             match.EventRaised += e =>
             {
+                if (e.Type == GameEventType.GhoulSummoned) record.Seats[e.Player.Id].GhoulsSummoned++;
+                if (e.Type == GameEventType.GhoulsWentHome) record.Seats[e.Player.Id].GhoulsLostToHunger += e.Amount;
                 if (e.Type != GameEventType.CardPlayed || e.Card == null) return;
                 record.Seats[e.Player.Id].CardsPlayed.Add(e.Card.Definition.id);
                 if (record.FirstContactRound == 0 && match.Board.Neighbours(e.Card.Position)

@@ -8,7 +8,7 @@ Factory wins with one big round of toymaking. Code: `Assets/_Project/Scripts/Cor
 Agreed with Alexander on 2026-11-09:
 
 * Theme: toy workshop. The goal resource is **Toys** (renamed from Goods); Parts stay.
-* Goal: make Toys in one round (a day and its night). Started at 10; now **15** after the cross-team pass (see [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09)). Toys from day cards, night cards and cards played that
+* Goal: make Toys in one round (a day and its night). Started at 10; 15 after the cross-team pass; now **16** on the 9x9 board with Sunny Glades (2026-11-11) (see [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09)). Toys from day cards, night cards and cards played that
   round all count; Toys saved up from earlier rounds don't.
 * Headquarters, the starting corner card, makes 1 Part every day (2026-11-11, phase 1).
 * No "draw a card" cards. Cards that make more cards add a specific card to your hand instead.

@@ -19,6 +19,10 @@ namespace FarmVsForest.Core
         CardComposted,
         CardGrew,
         CardPollinated,
+        /// <summary>Dark Forest combined Bats and Spiders into a Ghoul.</summary>
+        GhoulSummoned,
+        /// <summary>Dark Forest couldn't feed every Ghoul this morning, and one went home.</summary>
+        GhoulsWentHome,
     }
 
     /// <summary>

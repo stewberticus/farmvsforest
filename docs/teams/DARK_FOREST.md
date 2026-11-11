@@ -2,8 +2,15 @@
 
 > **Cross-team pass (2026-11-09):** the goal is now **13 Ghouls (kept; the cards set the pace)** so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
 
-Cute-spooky. Bats and Spiders come out at night, and Ghouls drop by for a party. Dark Forest plays at night and wins
-by throwing a **Ghoul Party: 13 Ghouls at once**.
+Cute-spooky. Bats and Spiders come out at night, and you combine them into Ghouls for a party. Dark Forest plays at
+night and wins by throwing a **Ghoul Party: 13 Ghouls at once**.
+
+> **Summoning (2026-11-11, plan phase 3):** Ghouls are no longer made by Haunts. On your turn you **summon** a Ghoul by
+> spending Bats and Spiders, as often as you can pay: 6 Bats and 6 Spiders, plus 1 of each for every Ghoul already at
+> the party. Each Haunt that is switched on (a Graveyard touching another Haunt, a Lantern touching Glow Mushrooms)
+> takes 1 Bat and 1 Spider off the price, never below 2 of each. The Full Moon Shrine still brings a free Ghoul every
+> 3 nights. Food and Ghouls now come out of the same pile. Numbers: `darkForestGhoulBats`, `darkForestGhoulSpiders`,
+> `darkForestGhoulsPerPriceStep`, `darkForestGhoulMinEach` in `MatchConfig`.
 
 Agreed with Alexander on 2026-11-09. Card numbers are tuned with the balance sim ([BALANCE.md](../BALANCE.md)) and
 will keep moving in playtests. Code: `Core/Content/DarkForestCards.cs` and `Core/Rules/GhoulFeeding.cs`.
@@ -13,10 +20,10 @@ will keep moving in playtests. Code: `Core/Content/DarkForestCards.cs` and `Core
 * Every morning, after day effects fire, **each Ghoul eats 1 Bat or 1 Spider**. They eat whatever you have
   (the game takes from your bigger pile first).
 * If you can't feed them all, they eat what there is and **exactly one Ghoul goes home** that morning.
-* Ghouls are never combined from other resources and are never spent on cards. They come only from Haunt cards.
-  (The "no combining" rule was lifted on 2026-11-11, so this can change; see DESIGN.md.)
+* Ghouls are summoned from Bats and Spiders (above) and are never spent on cards.
 
-So the Ghoul Party needs two things: Haunts to invite Ghouls, and enough Bats and Spiders to keep them fed.
+So the Ghoul Party needs two things: enough Bats and Spiders to summon Ghouls, and enough left over to keep them fed.
+Haunts make the first part cheaper.
 
 ## Resources
 
@@ -24,7 +31,7 @@ So the Ghoul Party needs two things: Haunts to invite Ghouls, and enough Bats an
 | --- | --- | --- |
 | Bats | 1 | Night food and the main cost of Haunts. Quick, come in bursts. |
 | Spiders | 1 | Steady food; some webs spin during the day. |
-| Ghouls | 3 (goal) | The goal. Made only by Haunts; eat every morning. |
+| Ghouls | 3 (goal) | The goal. Summoned from Bats and Spiders; eat every morning. |
 
 ## Cards
 
@@ -33,17 +40,20 @@ The Evil Tree starts in your corner. The starter deck is 30 cards.
 | Card | Copies | Cost | Text | Template | Value / par |
 | --- | --- | --- | --- | --- | --- |
 | Evil Tree | start | - | Every night: gain 1 Bat. Your home in the dark woods; the bats think it's cosy. | Start | - |
-| Bat Roost | 7 | free | Every night: gain 1 Bat. | Sprout | 10 / 10 |
-| Cobweb Corner | 7 | free | Every night: gain 1 Spider. | Sprout | 10 / 10 |
+| Bat Roost | 6 | free | Every night: gain 1 Bat. | Sprout | 10 / 10 |
+| Cobweb Corner | 6 | free | Every night: gain 1 Spider. | Sprout | 10 / 10 |
 | Glow Mushrooms | 5 | free | Every night: gain 1 Bat for each touching Glow Mushrooms. | Neighbour | 12 / 10 |
 | Sleepy Web | 3 | 3 Bats | Every day: gain 2 Spiders (spun just before breakfast). | Day/night swing | 20 / 14.5 |
 | Bat Belfry | 2 | 5 Spiders | Every night: gain 1 Bat for each of your cards touching it. | Neighbour | 20 / 17.5 |
 | Picnic Blanket | 1 | 2 Bats | Every day: 2 of your Ghouls eat for free. | Helper | 12 / 13 |
-| Giggling Graveyard (Haunt) | 2 | 2 Bats, 2 Spiders | Every 2 nights: gain 1 Ghoul for each touching Haunt. Ghouls love a crowd. | Neighbour | 6 / 16 |
-| Haunted Lantern (Haunt) | 1 | 4 Bats, 3 Spiders | Every 2 nights: gain 1 Ghoul for each touching Glow Mushrooms. Ghouls follow the glow. | Neighbour | 18 / 20.5 |
-| Full Moon Shrine | 2 | 4 Spiders | Every 3 nights: gain 1 Ghoul for each touching Graveyard or Lantern. | Neighbour | 12 / 16 |
+| Giggling Graveyard (Haunt) | 3 | 2 Bats, 2 Spiders | While this touches another Haunt: Ghouls cost 1 less to summon. Ghouls love a crowd. | Booster | 12 / 16 |
+| Haunted Lantern (Haunt) | 2 | 3 Bats, 2 Spiders | While this touches Glow Mushrooms: Ghouls cost 1 less to summon. Ghouls follow the glow. | Booster | 12 / 17.5 |
+| Full Moon Shrine | 2 | 4 Spiders | Every 3 nights: if this touches a Graveyard or Lantern, a Ghoul drops by for free. | Neighbour | 9 / 16 |
 
 ### Off-curve cards and why
+
+(The notes below were written when Haunts made Ghouls; since phase 3 they make Ghouls cheaper instead. The deck went
+from 2 Graveyards and 1 Lantern to 3 and 2, with one fewer Bat Roost and Cobweb Corner, so the boosters show up.)
 
 * **All the Ghoul makers price as weak.** That is on purpose. Alexander wants the goal kept at 13 Ghouls and games
   lasting 20 rounds or more, so Dark Forest is slowed through its Haunts, not its goal. Plays limit Dark Forest more
@@ -87,6 +97,18 @@ Skill test (`--skill`, 300 games each, two seeds), on the 10x10 board with a fre
 * **The feeding rule rarely bites in the sim**: about 0.03 Ghouls go home per game, because Bats and Spiders pile up
   (one play a turn leaves little to spend them on). Eating 2 or 3 each makes it bite more (1.6 or 3 Ghouls lost per
   game) without changing the pace much. To decide with Alexander.
+
+## Sim results after summoning (2026-11-11, 9x9 board)
+
+[Report](../balance-reports/2026-11-11-phase2-3-board-and-ghouls.md). Solo median round 21; 1v1 45 to 55%; shuffle
+luck 0.76 (was 0.93); good beats sloppy 58%; a bot that goes for the Sunny Glades beats one that ignores them 68%.
+The careful bot only summons Ghouls it can feed tomorrow and loses none to hunger; the random bot loses 0.1 a game and
+the worst bot (summons whatever it can) 0.8. The plan hoped the random bot would lose 2 or more: the feeding rule
+still rarely bites, because the rising price, not food, is what stops you summoning.
+
+The plan started the recipe at 3 Bats and 3 Spiders. At that price (with or without a per-turn rise) Dark Forest
+finished around round 15 to 17, because its Bats and Spiders pile up fast. The price that rises with the party size is
+what brings it to round 21.
 
 ## Open
 

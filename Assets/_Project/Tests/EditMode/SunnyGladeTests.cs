@@ -21,20 +21,23 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void DefaultLayout_On8x8_IsFourSymmetricSquaresNearTheMiddle()
+        public void DefaultLayout_IsFourSymmetricSquaresNearTheMiddle()
         {
             var glades = MatchConfig.DefaultGlades(8);
             CollectionAssert.AreEquivalent(new[] { new Coord(3, 3), new Coord(4, 4), new Coord(2, 5), new Coord(5, 2) }, glades);
             foreach (var g in glades) CollectionAssert.Contains(glades, new Coord(7 - g.x, 7 - g.y));
+            var nine = MatchConfig.DefaultGlades(9);
+            CollectionAssert.AreEquivalent(new[] { new Coord(3, 3), new Coord(5, 5), new Coord(2, 6), new Coord(6, 2) }, nine);
+            foreach (var g in nine) CollectionAssert.Contains(nine, new Coord(8 - g.x, 8 - g.y));
         }
 
         [Test]
-        public void DefaultMatch_Is8x8_WithFourGlades()
+        public void DefaultMatch_Is9x9_WithFourGlades()
         {
             var m = Started(PlaceholderCards.DefaultConfig(GameMode.OneVsOne));
-            Assert.AreEqual(8, m.Board.Width);
+            Assert.AreEqual(9, m.Board.Width);
             Assert.AreEqual(4, m.Board.Glades.Count);
-            Assert.AreEqual(60, m.Board.BuildableCount);
+            Assert.AreEqual(77, m.Board.BuildableCount);
         }
 
         [Test]

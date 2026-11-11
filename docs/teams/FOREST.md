@@ -1,7 +1,7 @@
 # Forest
 
 The Forest is about **growth and life**. You plant Saplings, give them sunlight, and grow them into Old Trees.
-**Goal: 24 Old Trees in one connected forest** (20 before the Huge Tree started making Acorns, 2026-11-11).
+**Goal: 23 Old Trees in one connected forest** (2026-11-11, on the 9x9 board; was 20 on 10x10). A Sunny Glade counts as sunlight.
 
 Status: second pass (2026-11-09). Alexander chose the growth goal so that good decisions matter more. The numbers come
 from the balance sim and still need playtesting.

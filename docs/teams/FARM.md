@@ -1,6 +1,6 @@
 # Farm
 
-> **Cross-team pass (2026-11-09):** the goal is now **64 of each** (62 before phase 1 of the 2026-11-11 plan) so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
+> **Cross-team pass (2026-11-09):** the goal is now **62 of each** (2026-11-11, on the 9x9 board) so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
 
 The Farm is a tidy homestead. It wins by having **40 Wheat, 40 Milk and 40 Eggs** at the same time, and it gets
 there by laying out fields and animals well.
