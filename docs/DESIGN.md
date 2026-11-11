@@ -16,6 +16,7 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | Placement | A new card must touch one of your own cards, edge to edge (no diagonals). |
 | Ownership | A square with your card on it is yours. |
 | Turn | Draw from your deck; play one card per turn if you can pay its cost. |
+| Mulligan | Once, at the start of your first turn, you may shuffle your opening hand away and draw a new one (2026-11-11). |
 | Modes | Balanced around **1v1**. 2v2 and 1v1v1v1 are fun extra modes. |
 | Win | Each team has its **own goal** (below). If the board fills first, whoever owns the most squares wins. |
 
@@ -31,7 +32,7 @@ Alexander removed four earlier card rules as too strict. New cards may now do an
 No damage, no destroying and no moving cards still stand. The lifted rules are being put to use in the phases of the
 [implementation plan](https://claude.ai/artifact/HiebN1HdedieXB72aDCvpq) (see [BALANCE.md](BALANCE.md#12-implementation-plan-2026-11-11)).
 So far: starting cards make a resource (phase 1), a smaller board with Sunny Glades (phase 2), and Dark Forest
-combines Bats and Spiders into Ghouls (phase 3).
+combines Bats and Spiders into Ghouls (phase 3), a mulligan and "look at the top 3, keep 1" scout cards (phase 4).
 
 ## Day and night
 
@@ -59,8 +60,8 @@ Each round is one **day** followed by one **night**.
 
 | Team | Goal |
 | --- | --- |
-| Farm | Have 62 Wheat, 62 Milk and 62 Eggs. |
-| Forest | **Grow 23 Old Trees in one connected forest.** Trees grow Sapling > Young Tree > Old Tree on sunny mornings (when they touch an empty square or a Sunny Glade). |
+| Farm | Have 66 Wheat, 66 Milk and 66 Eggs. |
+| Forest | **Grow 22 Old Trees in one connected forest.** Trees grow Sapling > Young Tree > Old Tree on sunny mornings (when they touch an empty square or a Sunny Glade). |
 | Factory | Make 16 Toys in a single round (a day and its night). |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once (decided; Dark Forest is paced by its cards). |
 

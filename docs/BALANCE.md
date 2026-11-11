@@ -372,3 +372,4 @@ choices; 1 means the shuffle decides everything), and `--compare-board A,B` (doe
 | 1 | Starting cards make 1 basic resource a day; free-card opening rule off; Forest 24 Old Trees, Farm 64 each | `startingCardIncome`, `openingHandHasFreeCard` |
 | 2 | 9x9 board for 1v1 (8x8 in the plan) and 4 Sunny Glades | `boardSize`, `sunnyGladeBonus`, `sunnyGladeSquares` |
 | 3 | Dark Forest summons Ghouls from Bats and Spiders; Haunts make it cheaper. Goals: Farm 62, Forest 23, Factory 16 | `darkForestGhoulBats`, `darkForestGhoulSpiders`, `darkForestGhoulsPerPriceStep`, `darkForestGhoulMinEach`, `darkForestGhoulStep`, `darkForestGhoulsPerTurn` |
+| 4 | One mulligan; 2 scout cards per team (look at the top 3, keep 1). Farm 66 each, Forest 22 Old Trees | `mulligans`, `EffectKind.Scout`, `BalanceSettings.scoutValue` |

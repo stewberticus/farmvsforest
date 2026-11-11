@@ -216,6 +216,7 @@ namespace FarmVsForest.Core
             player.CardsPlayedThisTurn = 0;
             player.CompostedThisTurn = false;
             player.GhoulsSummonedThisTurn = 0;
+            player.TurnsTaken++;
             Raise(new GameEvent
             {
                 Type = GameEventType.TurnStarted, Player = player,
@@ -232,6 +233,9 @@ namespace FarmVsForest.Core
             if (!IsStarted || IsOver || CurrentPlayer == null || CurrentPlayer.Id != playerId) return false;
 
             var player = CurrentPlayer;
+            // A scout choice left open: keep the first card shown.
+            if (PendingScout != null) ChooseScouted(playerId, 0);
+            if (IsOver) return true;
             Raise(new GameEvent { Type = GameEventType.TurnEnded, Player = player, Message = player + " ended their turn" });
 
             _queuePos++;
@@ -268,6 +272,7 @@ namespace FarmVsForest.Core
             if (!IsStarted || IsOver) return PlayResult.GameOver;
             var player = CurrentPlayer;
             if (player == null || player.Id != playerId) return PlayResult.NotYourTurn;
+            if (PendingScout != null) return PlayResult.ChoicePending;
             if (card == null || !player.Hand.Contains(card)) return PlayResult.CardNotInHand;
             var cost = TotalCost(player, card.Definition);
             if (cost == null) return PlayResult.NoPlaysLeft;
@@ -405,6 +410,82 @@ namespace FarmVsForest.Core
                 Message = player + " combined " + string.Join(" and ", cost) + " into a Ghoul" });
             GainResource(player, ResourceType.Ghouls, 1);
             CheckGoals();
+            return true;
+        }
+
+        // ------------------------------------------------------------------ steering draws: mulligan and scout
+
+        /// <summary>Whether the current player may mulligan now: first turn, nothing done yet, mulligans left.</summary>
+        public bool CanMulligan(int playerId)
+        {
+            if (!IsStarted || IsOver || CurrentPlayer == null || CurrentPlayer.Id != playerId) return false;
+            var p = CurrentPlayer;
+            return p.MulligansUsed < Config.mulligans && p.TurnsTaken == 1 && p.CardsPlayedThisTurn == 0 &&
+                   !p.CompostedThisTurn && p.GhoulsSummonedThisTurn == 0 && PendingScout == null;
+        }
+
+        /// <summary>Shuffles the current player's hand into their deck and draws the same number. Returns false if not allowed.</summary>
+        public bool Mulligan(int playerId)
+        {
+            if (!CanMulligan(playerId)) return false;
+            var p = CurrentPlayer;
+            int count = p.Hand.Count;
+            p.Deck.AddRange(p.Hand);
+            p.Hand.Clear();
+            Random.Shuffle(p.Deck);
+            p.MulligansUsed++;
+            Raise(new GameEvent { Type = GameEventType.Mulligan, Player = p, Amount = count,
+                Message = p + " shuffled their hand away and drew " + count + " new cards" });
+            DrawCards(p, count);
+            return true;
+        }
+
+        /// <summary>A scout effect waiting for its owner to pick a card, or null.</summary>
+        public ScoutChoice PendingScout { get; private set; }
+
+        /// <summary>Takes the top <paramref name="count"/> cards of the player's deck aside for them to pick from.</summary>
+        internal void StartScout(PlayerState player, int count, CardInstance source)
+        {
+            if (PendingScout != null) ChooseScouted(PendingScout.Player.Id, 0, force: true);
+            var shown = new List<CardInstance>();
+            for (int i = 0; i < count && player.Deck.Count > 0; i++)
+            {
+                shown.Add(player.Deck[player.Deck.Count - 1]);
+                player.Deck.RemoveAt(player.Deck.Count - 1);
+            }
+            if (shown.Count == 0) return;
+            PendingScout = new ScoutChoice(player, shown, source);
+            Raise(new GameEvent { Type = GameEventType.ScoutStarted, Player = player, Source = source, Amount = shown.Count,
+                Message = player + " looks at the top " + shown.Count + " cards of their deck" });
+        }
+
+        /// <summary>
+        /// Keeps the scouted card at <paramref name="index"/> (into the hand; lost if the hand is full) and puts the
+        /// others on the bottom of the deck. Returns false if there's no choice to make.
+        /// </summary>
+        public bool ChooseScouted(int playerId, int index, bool force = false)
+        {
+            var pending = PendingScout;
+            if (pending == null || pending.Player.Id != playerId) return false;
+            if (!force && CurrentPlayer != pending.Player) return false;
+            if (index < 0 || index >= pending.Cards.Count) index = 0;
+            PendingScout = null;
+            var p = pending.Player;
+            var kept = pending.Cards[index];
+            for (int i = 0; i < pending.Cards.Count; i++)
+                if (i != index) p.Deck.Insert(0, pending.Cards[i]);
+            if (p.Hand.Count >= Config.maxHandSize)
+            {
+                p.Discard.Add(kept);
+                Raise(new GameEvent { Type = GameEventType.CardBurned, Player = p, Card = kept,
+                    Message = p + " had a full hand and lost the scouted " + kept.Definition });
+            }
+            else
+            {
+                p.Hand.Add(kept);
+                Raise(new GameEvent { Type = GameEventType.CardDrawn, Player = p, Card = kept, Source = pending.Source,
+                    Message = p + " kept " + kept.Definition + " and put " + (pending.Cards.Count - 1) + " on the bottom" });
+            }
             return true;
         }
 

@@ -19,6 +19,9 @@ namespace FarmVsForest.Core
         CardComposted,
         CardGrew,
         CardPollinated,
+        Mulligan,
+        /// <summary>A scout effect showed cards; the player picks one with Match.ChooseScouted.</summary>
+        ScoutStarted,
         /// <summary>Dark Forest combined Bats and Spiders into a Ghoul.</summary>
         GhoulSummoned,
         /// <summary>Dark Forest couldn't feed every Ghoul this morning, and one went home.</summary>

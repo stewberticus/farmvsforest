@@ -38,7 +38,7 @@ namespace FarmVsForest.Core
 
         /// <summary>
         /// Board size for 2-player games (square). 2026-11-11: down from 10x10, where the teams played the same as on a
-        /// board where they never touch. 8x8 was the plan; 9x9 (Alexander's idea) tunes better because on 8x8 Forest fills
+        /// board where they never touch. Decided 9x9 (Alexander). 8x8 was the plan; 9x9 tunes better because on 8x8 Forest fills
         /// the board and wins on most squares. See balance-reports/2026-11-11-phase2-3-board-and-ghouls.md.
         /// </summary>
         public int boardSize = 9;
@@ -91,12 +91,18 @@ namespace FarmVsForest.Core
         /// </summary>
         public int startingCardIncome = 1;
 
+        /// <summary>
+        /// Mulligan (decided 2026-11-11): this many times, at the start of your first turn before you do anything, you may
+        /// shuffle your opening hand into your deck and draw the same number. 0 turns it off.
+        /// </summary>
+        public int mulligans = 1;
+
         public List<ResourceAmount> startingResources = new List<ResourceAmount>();
 
         // ---- Team goals (starting numbers, to tune)
 
         /// <summary>Farm wins with this many Wheat, Milk and Eggs at once.</summary>
-        public int farmGoalEach = 62;
+        public int farmGoalEach = 66;
         /// <summary>Forest wins with this many Tree cards in one touching group.</summary>
         public int forestGoalTrees = 33;
         /// <summary>
@@ -108,7 +114,7 @@ namespace FarmVsForest.Core
         /// Forest's growth goal: this many Old Trees in one connected forest. 0 uses the older goal of
         /// <see cref="forestGoalTrees"/> trees instead.
         /// </summary>
-        public int forestGoalOldTrees = 23;
+        public int forestGoalOldTrees = 22;
         /// <summary>Each further extra tree in the same turn costs this many more Acorns (2, then 3, then 4...).</summary>
         public int forestExtraTreeStep = 1;
         /// <summary>

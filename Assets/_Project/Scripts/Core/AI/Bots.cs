@@ -38,6 +38,7 @@ namespace FarmVsForest.Core
                 if (options.Count == 0) break;
                 var (card, square) = options[_rng.Range(0, options.Count)];
                 if (match.PlayCard(p.Id, card, square) != PlayResult.Ok) break;
+                if (match.PendingScout != null && !match.IsOver) match.ChooseScouted(p.Id, _rng.Range(0, match.PendingScout.Cards.Count));
             }
             // Summon Ghouls whenever it can, fed or not (Dark Forest only).
             if (match.IsOver) return;
@@ -98,8 +99,13 @@ namespace FarmVsForest.Core
         /// <summary>Plays the best card, then keeps going while extra plays are possible (Forest's Acorn trees).</summary>
         public void PlayTurn(Match match)
         {
+            if (!Worst && match.CanMulligan(match.CurrentPlayer.Id) && Bots.ShouldMulligan(match, match.CurrentPlayer))
+                match.Mulligan(match.CurrentPlayer.Id);
             for (int i = 0; i < 10 && !match.IsOver; i++)
+            {
                 if (!PlayBest(match)) break;
+                if (match.PendingScout != null && !match.IsOver) PickScouted(match);
+            }
             if (!match.IsOver) MaybeCompost(match);
             if (!match.IsOver) Pollinate(match);
             // Dark Forest: summon only Ghouls it can still feed tomorrow. The worst bot summons whatever it can.
@@ -141,6 +147,26 @@ namespace FarmVsForest.Core
                 .OrderBy(c => ScoreCard(match, p, c.Definition)).ToList();
             if (ranked.Count == 0) return;
             match.Compost(p.Id, Worst ? ranked.Last() : ranked.First());
+        }
+
+        /// <summary>Scout: keep the card that scores best right now (the worst bot keeps the worst).</summary>
+        private void PickScouted(Match match)
+        {
+            var p = match.CurrentPlayer;
+            var cards = match.PendingScout.Cards;
+            int best = 0;
+            double bestScore = double.NegativeInfinity;
+            for (int i = 0; i < cards.Count; i++)
+            {
+                double s = ScoreCard(match, p, cards[i].Definition);
+                // Something you can afford soon beats something great you can't.
+                var cost = match.TotalCost(p, cards[i].Definition) ?? cards[i].Definition.cost;
+                if (cost != null && !p.Resources.CanAfford(cost)) s -= 3;
+                if (Worst) s = -s;
+                s += _rng.Range(0, 1000) / 1000.0 * Noise;
+                if (s > bestScore) { bestScore = s; best = i; }
+            }
+            match.ChooseScouted(p.Id, best);
         }
 
         private bool PlayBest(Match match)
@@ -341,6 +367,19 @@ namespace FarmVsForest.Core
                 var cost = match.TotalCost(p, c.Definition);
                 return cost != null && p.Resources.CanAfford(cost);
             }).ToList();
+
+        /// <summary>
+        /// Mulligan when nothing in the opening hand can be played in the first two turns: no card costs at most what
+        /// the player has plus two days of starting-card income.
+        /// </summary>
+        public static bool ShouldMulligan(Match match, PlayerState p)
+        {
+            var soon = new ResourcePool();
+            foreach (var t in TeamRules.Resources(p.Team)) soon.Add(t, p.Resources.Get(t));
+            var start = p.StartingCard?.Definition.effects?.FirstOrDefault(e => e.customEffectId == StartingIncomeEffect.Id);
+            if (start != null) soon.Add(start.resource, 2 * start.amount * match.Config.startingCardIncome);
+            return !p.Hand.Any(c => soon.CanAfford(c.Definition.cost ?? new List<ResourceAmount>()));
+        }
 
         /// <summary>
         /// Dark Forest's Summon: combine Bats and Spiders into Ghouls. Careful: only while every Ghoul can still be fed

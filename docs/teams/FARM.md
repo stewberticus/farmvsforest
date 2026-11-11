@@ -1,6 +1,6 @@
 # Farm
 
-> **Cross-team pass (2026-11-09):** the goal is now **62 of each** (2026-11-11, on the 9x9 board) so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
+> **Cross-team pass (2026-11-09):** the goal is now **66 of each** (2026-11-11, on the 9x9 board with scout cards) so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
 
 The Farm is a tidy homestead. It wins by having **40 Wheat, 40 Milk and 40 Eggs** at the same time, and it gets
 there by laying out fields and animals well.
@@ -97,3 +97,11 @@ Full report: [balance-reports/2026-11-09-farm-v1.md](../balance-reports/2026-11-
 
 * Goal: 40 of each (recommended), or keep 20 and slow the animals down?
 * Playtest whether people find the Milk and Egg buildings worth their cost.
+
+## Scout card (2026-11-11, plan phase 4)
+
+| Card | Copies | Cost | Text |
+| --- | --- | --- | --- |
+| Weathervane | 2 | 1 Wheat | When played: look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Every 2 days: gain 1 Wheat. |
+
+It replaced Farmhand's Cottage in the deck (played 0.3 times a game). The Cottage is still defined, with 0 copies.

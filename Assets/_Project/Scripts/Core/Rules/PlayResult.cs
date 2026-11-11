@@ -10,5 +10,7 @@ namespace FarmVsForest.Core
         NoPlaysLeft,
         CannotAfford,
         InvalidSquare,
+        /// <summary>A scout effect is waiting for the player to pick a card (<see cref="Match.ChooseScouted"/>).</summary>
+        ChoicePending,
     }
 }

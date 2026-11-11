@@ -92,6 +92,12 @@ namespace FarmVsForest.Core
             "Every night: gain 2 Acorns.", Cost(ResourceType.Honey, 3), new[] { "animal" },
             Gain(EffectTrigger.Night, ResourceType.Acorns, 2));
 
+        public static readonly CardDefinition OwlsHollow = Card("forest.owls_hollow", "Owl's Hollow",
+            "When played: look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Every 2 nights: gain 1 Honey. The wise old owl sees what's coming.",
+            Cost(ResourceType.Acorns, 1), new[] { "animal" },
+            new EffectDefinition(EffectTrigger.OnPlay, EffectKind.Scout, 3),
+            new EffectDefinition(EffectTrigger.Night, EffectKind.GainResource, 1, ResourceType.Honey, interval: 2));
+
         public static readonly CardDefinition BlueJaysNest = Card("forest.blue_jays_nest", "Blue Jay's Nest",
             "Every 2 days: add a Sapling to your hand.", Cost(ResourceType.Honey, 2), new[] { "animal" },
             AddSapling(EffectTrigger.Day, 2));
@@ -100,7 +106,7 @@ namespace FarmVsForest.Core
         public static readonly Dictionary<string, CardDefinition> ById = new[]
         {
             HugeTree, OldTree, YoungTree, Sapling, GreatOak, Oak, TallPine, Pine, GrandWillow, WeepingWillow,
-            SquirrelDrey, WildflowerMeadow, BlossomHive, DormouseDen, BlueJaysNest,
+            SquirrelDrey, WildflowerMeadow, BlossomHive, DormouseDen, BlueJaysNest, OwlsHollow,
         }.ToDictionary(c => c.id);
 
         /// <summary>Registers the growth effect.</summary>
@@ -171,7 +177,8 @@ namespace FarmVsForest.Core
             (BlossomHive, 2),
             (DormouseDen, 2),
             (Pine, 3),
-            (BlueJaysNest, 2),
+            // Blue Jay's Nest (0.2 plays a game) made room for Owl's Hollow on 2026-11-11.
+            (OwlsHollow, 2),
             (WeepingWillow, 1),
         };
 

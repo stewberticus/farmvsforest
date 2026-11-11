@@ -25,6 +25,7 @@ namespace FarmVsForest.Core
         public const string BlueprintDeskId = "factory.blueprint_desk";
         public const string ChargingDockId = "factory.charging_dock";
         public const string BigWhistleId = "factory.big_whistle";
+        public const string CatalogueId = "factory.catalogue";
 
         /// <summary>The corner card: where the workshop starts. Makes 1 Part a day so you can always get going.</summary>
         public static CardDefinition Headquarters() =>
@@ -59,6 +60,10 @@ namespace FarmVsForest.Core
                 new string[0], Gain(EffectTrigger.OnPlay, Parts, 2),
                 new EffectDefinition(EffectTrigger.Day, EffectKind.GainResource, 1, Parts, interval: 3)),
 
+            Card(CatalogueId, "Mail-Order Catalogue", "When played: gain 1 Part, then look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Circle the good bits!",
+                Free(), new string[0], Gain(EffectTrigger.OnPlay, Parts, 1),
+                new EffectDefinition(EffectTrigger.OnPlay, EffectKind.Scout, 3)),
+
             Card(BlueprintDeskId, "Blueprint Desk", "Every 2 days: add a Toy Assembler to your hand.", Cost(2),
                 new string[0], AddToHand(EffectTrigger.Day, ToyAssemblerId)),
 
@@ -80,7 +85,9 @@ namespace FarmVsForest.Core
             { ToyAssemblerId, 3 },
             { NightShiftAssemblerId, 3 },
             { WrappingStationId, 4 },
-            { SparePartsBinId, 3 },
+            // Spare Parts Bin (0.4 plays a game) made room for the Mail-Order Catalogue on 2026-11-11.
+            { SparePartsBinId, 0 },
+            { CatalogueId, 3 },
             { BlueprintDeskId, 1 },
             { ChargingDockId, 1 },
             { BigWhistleId, 1 },

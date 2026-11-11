@@ -40,6 +40,11 @@ namespace FarmVsForest.Core
         AddCardToHand = 4,
         /// <summary>Gain <c>amount</c> of <c>resource</c> for each empty square touching this card.</summary>
         GainPerEmptyTouching = 5,
+        /// <summary>
+        /// Scout: look at the top <c>amount</c> cards of your deck, put one into your hand and the rest on the bottom.
+        /// The player picks (<see cref="Match.ChooseScouted"/>). Use it on OnPlay effects, so the owner is the one playing.
+        /// </summary>
+        Scout = 6,
         /// <summary>Looks up <see cref="EffectDefinition.customEffectId"/> in the EffectRegistry.</summary>
         Custom = 100,
     }

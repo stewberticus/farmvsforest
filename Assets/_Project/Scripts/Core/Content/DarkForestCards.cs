@@ -99,18 +99,24 @@ namespace FarmVsForest.Core
             new EffectDefinition(EffectTrigger.Night, EffectKind.GainPerTouching, 1, ResourceType.Ghouls)
                 { tag = Haunt, interval = 3, maxCount = 1 });
 
+        public static CardDefinition FortuneToad => Card("dark.fortune_toad", "Fortune-Telling Toad",
+            "When played: look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Every night: gain 1 Spider. It croaks your fortune for a fly.",
+            Cost(ResourceType.Bats, 1), new string[0],
+            new EffectDefinition(EffectTrigger.OnPlay, EffectKind.Scout, 3),
+            Every(EffectTrigger.Night, ResourceType.Spiders, 1));
+
         /// <summary>One of each deck card (not the Evil Tree).</summary>
         public static List<CardDefinition> All() => new List<CardDefinition>
         {
             BatRoost, CobwebCorner, GlowMushrooms, SleepyWeb, BatBelfry, PicnicBlanket, GigglingGraveyard,
-            HauntedLantern, FullMoonShrine,
+            HauntedLantern, FullMoonShrine, FortuneToad,
         };
 
         /// <summary>How many copies of each card go in the 30-card starter deck.</summary>
         public static readonly Dictionary<string, int> Copies = new Dictionary<string, int>
         {
-            { "dark.bat_roost", 6 }, { "dark.cobweb_corner", 6 }, { "dark.glow_mushrooms", 5 }, { "dark.sleepy_web", 3 },
-            { "dark.bat_belfry", 2 }, { "dark.picnic_blanket", 1 }, { "dark.giggling_graveyard", 3 },
+            { "dark.bat_roost", 6 }, { "dark.cobweb_corner", 6 }, { "dark.glow_mushrooms", 4 }, { "dark.sleepy_web", 3 },
+            { "dark.bat_belfry", 2 }, { "dark.picnic_blanket", 0 }, { "dark.fortune_toad", 2 }, { "dark.giggling_graveyard", 3 },
             { "dark.haunted_lantern", 2 }, { "dark.full_moon_shrine", 2 },
         };
 
