@@ -5,9 +5,9 @@ Evil Tree 1 Bat a night (`startingCardIncome`, 0 turns it off). The free-card op
 (`openingHandHasFreeCard`). The Huge Tree's text now carries the Compost rule.
 
 Retune: Forest got about 2 rounds faster solo (median 19 at the old goal of 20), so its goal went up. A sweep put the
-solo median at 21 for 22 to 24 Old Trees, but in matchups Forest still won 57 to 58% at 23. At 24 Old Trees Forest vs
-Farm tipped towards Forest's side less than it tipped towards Farm at 25, and raising Farm from 62 to 64 each evened
-Farm out. Chosen: **Forest 24 Old Trees, Farm 64 each**.
+solo median at 21 for 22 to 24 Old Trees, but in matchups Forest still won 57 to 58% at 23. At 25 Farm beat Forest
+57%, so 24 is the middle. Farm went from 62 to 64 each to keep Farm vs Forest even. Chosen: **Forest 24 Old Trees,
+Farm 64 each**.
 
 Factory's "always leaves you 3 Parts" and the Spare Parts Bin were left alone: Headquarters makes it hard to get stuck
 now, but they're part of how Factory paces, and phase 5 changes Factory anyway.
