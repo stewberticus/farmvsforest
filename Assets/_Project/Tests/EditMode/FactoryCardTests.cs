@@ -19,12 +19,6 @@ namespace FarmVsForest.Tests
             return Started(config);
         }
 
-        private static PlayResult Whistle(Match m, int x, int y)
-        {
-            var card = m.AddToHand(m.Players[0], F(FactoryCards.BigWhistleId));
-            return m.PlayCard(0, card, new Coord(x, y));
-        }
-
         private static int Get(Match m, ResourceType r) => m.Players[0].Resources.Get(r);
 
         [Test]
@@ -68,31 +62,56 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void BigWhistle_RunsEveryAssemblerOnce_RightNow()
+        public void BigOrder_CountsDownThreeDays_ThenRunsEveryAssemblerTwiceMore_Once()
         {
             var m = FactoryMatch();
             Put(m, 0, F(FactoryCards.ToyAssemblerId), 0, 0);
-            Put(m, 0, F(FactoryCards.NightShiftAssemblerId), 1, 0);
+            Put(m, 0, F(FactoryCards.ToyAssemblerId), 1, 0);
             Put(m, 0, F(FactoryCards.ScrapPileId), 0, 1);
-            m.GainResource(m.Players[0], ResourceType.Parts, 12);
+            m.GainResource(m.Players[0], ResourceType.Parts, 60);
+            var order = m.AddToHand(m.Players[0], F(FactoryCards.BigOrderId));
+            Assert.AreEqual(PlayResult.Ok, m.PlayCard(0, order, new Coord(2, 0)));
+            Assert.AreEqual(FactoryCards.BigOrderDays, FactoryCards.OrderDaysLeft(order));
 
-            Assert.AreEqual(PlayResult.Ok, Whistle(m, 0, 2));
-            Assert.AreEqual(2, Get(m, ResourceType.Toys));
-            Assert.AreEqual(3, Get(m, ResourceType.Parts), "12 - 5 for the Whistle - 2 x 2 run, leaving 3; the Scrap Pile isn't an Assembler, so it doesn't run");
+            var toysPerRound = new System.Collections.Generic.List<int>();
+            var daysLeft = new System.Collections.Generic.List<int>();
+            for (int r = 0; r < 5; r++)
+            {
+                PassRound(m);
+                daysLeft.Add(FactoryCards.OrderDaysLeft(order));
+                toysPerRound.Add(m.Players[0].GainedThisRound.Get(ResourceType.Toys));
+            }
+            // Each round 2 Assemblers make 1 Toy each; on the payoff day each runs twice more (+4). The Scrap Pile doesn't run.
+            CollectionAssert.AreEqual(new[] { 2, 2, 6, 2, 2 }, toysPerRound);
+            CollectionAssert.AreEqual(new[] { 2, 1, -1, -1, -1 }, daysLeft);
         }
 
         [Test]
-        public void ToysMadeByTheWhistle_CountTowardsTheRoundGoal()
+        public void ToysFromTheBigOrder_CountTowardsTheRoundGoal()
         {
-            var m = FactoryMatch(goal: 3);
+            var m = FactoryMatch(goal: 6);
             Put(m, 0, F(FactoryCards.ToyAssemblerId), 0, 0);
             Put(m, 0, F(FactoryCards.ToyAssemblerId), 1, 0);
-            m.GainResource(m.Players[0], ResourceType.Parts, 20);
-            PassRound(m);
-            Assert.IsFalse(m.IsOver);
-            Assert.AreEqual(PlayResult.Ok, Whistle(m, 2, 0));
-            PassRound(m);
+            m.GainResource(m.Players[0], ResourceType.Parts, 40);
+            Assert.AreEqual(PlayResult.Ok, m.PlayCard(0, m.AddToHand(m.Players[0], F(FactoryCards.BigOrderId)), new Coord(2, 0)));
+            for (int r = 0; r < 4 && !m.IsOver; r++) PassRound(m);
             Assert.IsTrue(m.IsOver);
+        }
+
+        [Test]
+        public void Forecast_SeesTheOrderPayOff_AndTheBotHoldsItUntilThen()
+        {
+            var m = FactoryMatch(goal: 6);
+            var p = m.Players[0];
+            Put(m, 0, F(FactoryCards.ToyAssemblerId), 0, 0);
+            Put(m, 0, F(FactoryCards.ToyAssemblerId), 1, 0);
+            var def = F(FactoryCards.BigOrderId);
+            Assert.AreEqual(0, FactoryCards.ForecastToys(m, p, 3, extraOrders: 1), "no Parts and no Parts income: nothing to build with");
+            Assert.IsFalse(Bots.OrderIsReady(m, p, def));
+            m.GainResource(p, ResourceType.Parts, 40);
+            Assert.AreEqual(2, FactoryCards.ForecastToys(m, p, 3));
+            Assert.AreEqual(6, FactoryCards.ForecastToys(m, p, 3, extraOrders: 1));
+            Assert.IsTrue(Bots.OrderIsReady(m, p, def));
         }
 
         [Test]

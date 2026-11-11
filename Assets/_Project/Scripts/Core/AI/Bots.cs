@@ -178,6 +178,7 @@ namespace FarmVsForest.Core
 
             foreach (var card in Bots.Playable(match, p))
             {
+                if (!Worst && !Bots.OrderIsReady(match, p, card.Definition)) continue;
                 double cardScore = ScoreCard(match, p, card.Definition);
                 foreach (var square in match.LegalSquares(p, card.Definition))
                 {
@@ -220,8 +221,14 @@ namespace FarmVsForest.Core
                     value += 3 * shortfall;
                 }
             }
-            else if (goal is GainInOneRoundGoal burst &&
-                     (def.effects ?? new List<EffectDefinition>()).Any(e => e.resource == burst.Type))
+            else if (goal is GainInOneRoundGoal burst && def.id == FactoryCards.BigOrderId)
+            {
+                // Big Order pays off in 3 days: play it only when that day's forecast reaches the goal, otherwise hold it.
+                int forecast = FactoryCards.ForecastToys(match, p, FactoryCards.BigOrderDays, extraOrders: 1);
+                value += forecast >= burst.Amount ? 40 : -10;
+            }
+            else if (goal is GainInOneRoundGoal burst2 &&
+                     (def.effects ?? new List<EffectDefinition>()).Any(e => e.resource == burst2.Type))
             {
                 value += 6;
             }
@@ -352,6 +359,16 @@ namespace FarmVsForest.Core
 
     public static class Bots
     {
+        /// <summary>
+        /// False for Factory's Big Order when its payoff day's Toy forecast falls short of the goal: a careful player
+        /// holds it until the machines are ready. True for every other card.
+        /// </summary>
+        public static bool OrderIsReady(Match match, PlayerState p, CardDefinition def)
+        {
+            if (def.id != FactoryCards.BigOrderId || !(match.GoalOf(p) is GainInOneRoundGoal goal)) return true;
+            return FactoryCards.ForecastToys(match, p, FactoryCards.BigOrderDays, extraOrders: 1) >= goal.Amount;
+        }
+
         /// <summary>Noise of the "sloppy" bot (greedy uses 1). At 6 it often picks the second or third best play.</summary>
         public static double SloppyNoise = 6;
 

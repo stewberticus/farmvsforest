@@ -8,7 +8,7 @@ Factory wins with one big round of toymaking. Code: `Assets/_Project/Scripts/Cor
 Agreed with Alexander on 2026-11-09:
 
 * Theme: toy workshop. The goal resource is **Toys** (renamed from Goods); Parts stay.
-* Goal: make Toys in one round (a day and its night). Started at 10; 15 after the cross-team pass; now **16** on the 9x9 board with Sunny Glades (2026-11-11) (see [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09)). Toys from day cards, night cards and cards played that
+* Goal: make Toys in one round (a day and its night). Started at 10; 15 after the cross-team pass; 16 on the 9x9 board with Sunny Glades, and **17** with the Big Order (2026-11-11) (see [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09)). Toys from day cards, night cards and cards played that
   round all count; Toys saved up from earlier rounds don't.
 * Headquarters, the starting corner card, makes 1 Part every day (2026-11-11, phase 1).
 * No "draw a card" cards. Cards that make more cards add a specific card to your hand instead.
@@ -33,10 +33,10 @@ Agreed with Alexander on 2026-11-09:
 | Moonlight Robot | 2 Parts | Every night: gain 2 Parts. | Day/night swing | 2 |
 | Toy Assembler | 3 Parts | Every day: turn 2 spare Parts into 1 Toy (always leaves you 3 Parts). | Converter | 3 |
 | Night Shift Assembler | 3 Parts | Every night: turn 2 spare Parts into 1 Toy (always leaves you 3 Parts). | Converter | 3 |
-| Wrapping Station | 3 Parts | Every night: gain 1 Toy for each Assembler it touches. | Neighbour | 4 |
+| Wrapping Station | 3 Parts | Every night: gain 1 Toy for each Assembler it touches. | Neighbour | 3 |
 | Blueprint Desk | 2 Parts | Every 2 days: add a Toy Assembler to your hand (not if you already hold one). | Helper | 1 |
 | Robot Charging Dock | 3 Parts | Every 2 nights: add a Moonlight Robot to your hand (not if you already hold one). | Helper | 1 |
-| Big Whistle | 5 Parts | When played: every Assembler you own runs once right now. | Finisher | 1 |
+| Big Order | 4 Parts | In 3 days: every Assembler you own runs twice that day. | Countdown finisher | 2 |
 
 30 cards in the deck.
 
@@ -44,7 +44,9 @@ Agreed with Alexander on 2026-11-09:
 
 * **Early (rounds 1 to 6):** free Scrap Piles and Spare Parts Bins, then Tinker Sheds next to Scrap Piles.
 * **Middle:** Moonlight Robots for night Parts, Assemblers, and Wrapping Stations tucked between Assemblers.
-* **Finish:** save Parts for a round, then the Big Whistle runs every Assembler an extra time to tip past 15 Toys.
+* **Finish:** play a Big Order when the machines and the Parts pile will be ready in 3 days. On that day every
+  Assembler runs three times, which is what tips the round past 17 Toys. The demo shows the countdown on the card and
+  the forecast for that day next to the goal, so you can plan for it (and so can the other player).
 
 **Day and night:** Parts come mostly by day (Scrap Pile, Tinker Shed) and Toys mostly at night (Night Shift
 Assembler, Wrapping Station). Moonlight Robot only works at night.
@@ -79,13 +81,15 @@ The value model prices cards one at a time, but the Factory's cards work in pair
 on purpose:
 
 * **Assemblers (−45%)** look weak alone because they spend Parts. Their real value is enabling Wrapping Stations and
-  the Big Whistle, and Toys only matter as a rate within one round.
+  the Big Order, and Toys only matter as a rate within one round.
 * **Wrapping Station (+148%)** looks strong because the model assumes 1.2 touching Assemblers every night. It does
   nothing without Assemblers.
 * **Tinker Shed and Moonlight Robot (+54 to +69%)** feed the Parts that the Assemblers need.
 * **Spare Parts Bin (−47%)** is a free play and a small trickle of Parts so the Factory never gets stuck.
-* **Big Whistle (−31%)** is priced by hand at 12 V (about 4 Assemblers making a Toy each). The bot rarely plays it
-  because it doesn't plan a big round; it's a finisher for people.
+* **Big Order (−36%)** replaced the Big Whistle (2026-11-11, phase 5). The Whistle ran each Assembler once, the bot
+  almost never played it, and nobody could see it coming. The Order is a visible 3-day countdown: the good bot holds it
+  until the forecast for the payoff day reaches the goal, then plays it. It's played in 60 to 67% of the good bot's
+  games, and about two thirds of Factory wins land on an Order's payoff day.
 
 ### Still open
 
