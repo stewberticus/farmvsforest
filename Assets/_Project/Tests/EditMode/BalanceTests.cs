@@ -79,9 +79,10 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void OpeningHand_AlwaysHasAFreeCard([Values(1, 2, 3, 4, 5, 6, 7, 8)] int seed)
+        public void OpeningHand_AlwaysHasAFreeCard_WhenTheOldRuleIsOn([Values(1, 2, 3, 4, 5, 6, 7, 8)] int seed)
         {
             var config = PlaceholderCards.DefaultConfig(GameMode.OneVsOne, seed, Team.DarkForest, Team.Factory);
+            config.openingHandHasFreeCard = true;
             var m = new Match(config);
             m.Start();
             Assert.IsTrue(m.Players.All(p => p.Hand.Any(c => c.Definition.IsFree)));

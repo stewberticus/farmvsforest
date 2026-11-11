@@ -35,9 +35,11 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void Headquarters_DoesNothing()
+        public void Headquarters_MakesAPartEachDay()
         {
-            Assert.IsEmpty(FactoryCards.Headquarters().effects);
+            var e = FactoryCards.Headquarters().effects.Single();
+            Assert.AreEqual(EffectTrigger.Day, e.trigger);
+            Assert.AreEqual(ResourceType.Parts, e.resource);
             Assert.IsTrue(FactoryCards.Headquarters().IsFree);
         }
 

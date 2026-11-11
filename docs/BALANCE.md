@@ -36,15 +36,13 @@ Two consequences are worth calling out:
 
 ### What the starting position means
 
-* **Starting cards may have an effect** (the "starting cards do nothing" rule was lifted on 2026-11-11). Today's
-  starting cards still do nothing, so all income comes from cards you play. In the sim, a starting card that makes 1
-  basic resource a day removes every lock-out without the free-card rule below, and only Forest gets faster (3 rounds).
+* **Starting cards make 1 basic resource a day** (phase 1 of the 2026-11-11 plan, `startingCardIncome`). This removes
+  the lock-outs without the free-card rule below.
 * **The corner has only 2 neighbours.** Your first few cards fight over a tiny frontier: turn 1 has 2 legal squares,
   turn 2 about 3. Cards that need neighbours (per-touching, "plant a sapling next to this") are weak early and should
   be priced and timed for mid-game. Never design a card whose effect needs empty squares around the start.
-* **Every opening hand needs a free card**, or a team with nothing on the board can't play at all. The engine now
-  guarantees one (`MatchConfig.openingHandHasFreeCard`, proposed rule). Decks should still be about a third free
-  cards so later hands don't stall.
+* **The free-card opening rule is off** (`openingHandHasFreeCard`, now false by default) because starting cards make
+  income. Decks should still be about a third free cards so later hands don't stall.
 
 ## 2. The value model
 
@@ -356,3 +354,19 @@ Options tried (1,000 games per matchup, seeds 3001 and 4001):
 `everyoneSkipsFirstDraw` (on by default): your opening hand is your first draw, so nobody draws on their own first
 turn. Every player has the same number of cards by their Nth turn. Dark Forest also skips one draw, which costs it
 little, so its matchups stay where they were.
+
+## 12. Implementation plan (2026-11-11)
+
+The [design review](https://claude.ai/artifact/1DT3H42vFZdnQWkQpEjbMV) found two problems: the game plays like
+solitaire (a 16x16 board where teams never touch gives the same results as 10x10), and the shuffle decides more than
+the player. The [implementation plan](https://claude.ai/artifact/HiebN1HdedieXB72aDCvpq) fixes them in phases. Every
+new rule has a `MatchConfig` switch. Each phase has a report in `balance-reports/2026-11-11-phase*.md`.
+
+New sim numbers (phase 0): **good beats sloppy** (a mirror against the greedy bot with noise 6, a realistic careless
+player), **shuffle luck** (correlation of the solo finish round when the same deck orders are replayed with different
+choices; 1 means the shuffle decides everything), and `--compare-board A,B` (does the opponent matter?).
+
+| Phase | Change | Switch |
+| --- | --- | --- |
+| 0 | Sim tools above | - |
+| 1 | Starting cards make 1 basic resource a day; free-card opening rule off; Forest 24 Old Trees, Farm 64 each | `startingCardIncome`, `openingHandHasFreeCard` |

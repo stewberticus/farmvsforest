@@ -32,7 +32,7 @@ The Evil Tree starts in your corner. The starter deck is 30 cards.
 
 | Card | Copies | Cost | Text | Template | Value / par |
 | --- | --- | --- | --- | --- | --- |
-| Evil Tree | start | - | Does nothing. Your home in the dark woods. | Start | - |
+| Evil Tree | start | - | Every night: gain 1 Bat. Your home in the dark woods; the bats think it's cosy. | Start | - |
 | Bat Roost | 7 | free | Every night: gain 1 Bat. | Sprout | 10 / 10 |
 | Cobweb Corner | 7 | free | Every night: gain 1 Spider. | Sprout | 10 / 10 |
 | Glow Mushrooms | 5 | free | Every night: gain 1 Bat for each touching Glow Mushrooms. | Neighbour | 12 / 10 |

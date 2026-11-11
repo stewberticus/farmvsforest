@@ -24,9 +24,10 @@ namespace FarmVsForest.Core
         public const string NestingBoxId = "farm.nesting_box";
         public const string FarmhandsCottageId = "farm.farmhands_cottage";
 
-        /// <summary>The corner card. It does nothing: it's just where the farm grows from.</summary>
+        /// <summary>The corner card: where the farm grows from. Makes 1 Wheat a day so you can always get going.</summary>
         public static CardDefinition Starting() =>
-            Card(FarmId, "Farm", "Home sweet home. (Does nothing.)", Cost(), new[] { Tags.Start });
+            Card(FarmId, "Farm", "Every day: gain 1 Wheat. Home sweet home, with a little vegetable patch out back.",
+                Cost(), new[] { Tags.Start }, StartingIncomeEffect.Every(EffectTrigger.Day, ResourceType.Wheat));
 
         /// <summary>One of each Farm deck card.</summary>
         public static List<CardDefinition> All() => new List<CardDefinition>

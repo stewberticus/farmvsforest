@@ -21,6 +21,7 @@ namespace FarmVsForest.Core
             DarkForestCards.RegisterEffects(r);
             ForestCards.RegisterEffects(r);
             r.Register(RunTaggedCardsEffect.Id, new RunTaggedCardsEffect());
+            r.Register(StartingIncomeEffect.Id, new StartingIncomeEffect());
             return r;
         }
 

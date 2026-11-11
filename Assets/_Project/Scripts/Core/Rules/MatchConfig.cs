@@ -63,17 +63,25 @@ namespace FarmVsForest.Core
         public bool everyoneSkipsFirstDraw = true;
 
         /// <summary>
-        /// Starting cards make nothing, so a hand with no free card can't play at all. If true, the opening hand
-        /// always has at least one free card (one is swapped in from the deck). Proposed rule, to confirm.
+        /// Old safety net from when starting cards made nothing: if true, the opening hand always has at least one free
+        /// card (one is swapped in from the deck). Off since starting cards make a resource every day
+        /// (<see cref="startingCardIncome"/>), which already means nobody gets stuck.
         /// </summary>
-        public bool openingHandHasFreeCard = true;
+        public bool openingHandHasFreeCard = false;
+
+        /// <summary>
+        /// Starting cards work (2026-11-11): each team's corner card makes this many of its basic resource every day
+        /// (Dark Forest's Evil Tree every night). Farm 1 Wheat, Huge Tree 1 Acorn, Headquarters 1 Part, Evil Tree 1 Bat.
+        /// 0 turns it off.
+        /// </summary>
+        public int startingCardIncome = 1;
 
         public List<ResourceAmount> startingResources = new List<ResourceAmount>();
 
         // ---- Team goals (starting numbers, to tune)
 
         /// <summary>Farm wins with this many Wheat, Milk and Eggs at once.</summary>
-        public int farmGoalEach = 62;
+        public int farmGoalEach = 64;
         /// <summary>Forest wins with this many Tree cards in one touching group.</summary>
         public int forestGoalTrees = 33;
         /// <summary>
@@ -85,7 +93,7 @@ namespace FarmVsForest.Core
         /// Forest's growth goal: this many Old Trees in one connected forest. 0 uses the older goal of
         /// <see cref="forestGoalTrees"/> trees instead.
         /// </summary>
-        public int forestGoalOldTrees = 20;
+        public int forestGoalOldTrees = 24;
         /// <summary>Each further extra tree in the same turn costs this many more Acorns (2, then 3, then 4...).</summary>
         public int forestExtraTreeStep = 1;
         /// <summary>

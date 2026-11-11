@@ -10,7 +10,7 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | Tone | Cozy, cute, child/family friendly. Dark Forest is cute-spooky, never scary. |
 | Combat | None. Teams mostly ignore each other; the main interaction is competing for space. |
 | Board | 10x10 for 1v1 (decided 2026-11-09: teams still meet). 16x16 for 4 players, to tune. |
-| Start | Each player begins with one starting card in their corner. |
+| Start | Each player begins with one starting card in their corner. It makes 1 basic resource every day (Evil Tree: every night), decided 2026-11-11. |
 | Movement | Cards never move once played. |
 | Placement | A new card must touch one of your own cards, edge to edge (no diagonals). |
 | Ownership | A square with your card on it is yours. |
@@ -27,8 +27,9 @@ Alexander removed four earlier card rules as too strict. New cards may now do an
 * **Pay off later, once** (delayed one-shot effects).
 * **Starting cards can have an effect.**
 
-The cards in the game today were designed under the old rules, so none of them use these yet. No damage, no
-destroying and no moving cards still stand.
+No damage, no destroying and no moving cards still stand. The lifted rules are being put to use in the phases of the
+[implementation plan](https://claude.ai/artifact/HiebN1HdedieXB72aDCvpq) (see [BALANCE.md](BALANCE.md#12-implementation-plan-2026-11-11)).
+So far: starting cards make a resource (phase 1).
 
 ## Day and night
 
@@ -47,23 +48,23 @@ Each round is one **day** followed by one **night**.
 
 | Team | Starting card | Resources |
 | --- | --- | --- |
-| Farm | Farm | Wheat, Milk, Eggs |
-| Forest | Huge Tree | Acorns, Honey |
-| Factory | Headquarters | Parts, Toys |
-| Dark Forest | Evil Tree | Bats, Spiders, Ghouls |
+| Farm | Farm (every day: 1 Wheat) | Wheat, Milk, Eggs |
+| Forest | Huge Tree (every day: 1 Acorn; holds the Compost rule) | Acorns, Honey |
+| Factory | Headquarters (every day: 1 Part) | Parts, Toys |
+| Dark Forest | Evil Tree (every night: 1 Bat) | Bats, Spiders, Ghouls |
 
 ## Team goals
 
 | Team | Goal |
 | --- | --- |
-| Farm | Have 62 Wheat, 62 Milk and 62 Eggs. |
-| Forest | **Grow 20 Old Trees in one connected forest.** Trees grow Sapling > Young Tree > Old Tree on sunny mornings (when they touch an empty square). |
+| Farm | Have 64 Wheat, 64 Milk and 64 Eggs. |
+| Forest | **Grow 24 Old Trees in one connected forest.** Trees grow Sapling > Young Tree > Old Tree on sunny mornings (when they touch an empty square). |
 | Factory | Make 15 Toys in a single round (a day and its night). |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once (decided; Dark Forest is paced by its cards). |
 
 Goal numbers come from the cross-team balance pass (2026-11-09). Alexander's targets: games last 20+ rounds on
 average and no team wins more than 55% of any 1v1 matchup in the bot sim. Except the 13 Ghouls, the goal numbers
-are tuned, not designed, so change them freely as cards change. They're tuned numbers, not design: change them freely as cards change. See
+are tuned, not designed, so change them freely as cards change. See
 [BALANCE.md](BALANCE.md#9-cross-team-pass-2026-11-09).
 
 ## Team designs

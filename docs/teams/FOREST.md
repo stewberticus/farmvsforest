@@ -1,7 +1,7 @@
 # Forest
 
 The Forest is about **growth and life**. You plant Saplings, give them sunlight, and grow them into Old Trees.
-**Goal: 20 Old Trees in one connected forest.**
+**Goal: 24 Old Trees in one connected forest** (20 before the Huge Tree started making Acorns, 2026-11-11).
 
 Status: second pass (2026-11-09). Alexander chose the growth goal so that good decisions matter more. The numbers come
 from the balance sim and still need playtesting.
@@ -49,7 +49,7 @@ outward and leaving room for trees to grow up. Random play smothers its own tree
 
 | Card | Cost | Tree | Text | Flavor |
 | --- | --- | --- | --- | --- |
-| Huge Tree (start) | - | old | Does nothing. | Your forest's first Old Tree. |
+| Huge Tree (start) | - | old | Every day: gain 1 Acorn. Once a turn: discard a card to gain 1 Acorn (Compost). | Your forest's first Old Tree. |
 | Sapling | free | yes | Grows into a Young Tree (2 sunny mornings). | A little tree reaching for the sun. |
 | Young Tree | (grown) | yes | Grows into an Old Tree (4 sunny mornings). | |
 | Oak | 2 Acorns | yes | Every day: gain 1 Acorn. Grows into a Great Oak. | Oaks drop acorns. |

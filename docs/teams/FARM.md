@@ -1,6 +1,6 @@
 # Farm
 
-> **Cross-team pass (2026-11-09):** the goal is now **62 of each** so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
+> **Cross-team pass (2026-11-09):** the goal is now **64 of each** (62 before phase 1 of the 2026-11-11 plan) so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
 
 The Farm is a tidy homestead. It wins by having **40 Wheat, 40 Milk and 40 Eggs** at the same time, and it gets
 there by laying out fields and animals well.
@@ -17,7 +17,7 @@ Alexander's OK.
   grows into a neat patchwork. Where you put a card matters more than which card you play.
 * **No draws, no converters, no delayed payoffs.** Farm never turns one resource into another and never "pays now
   for a big payoff later". Instead, buildings put a **specific card** into your hand every few days.
-* **The Farm card does nothing.** It's just the corner your farm grows from.
+* **The Farm card makes 1 Wheat every day** (2026-11-11, phase 1). It's the corner your farm grows from.
 * The rules against draws, delayed payoffs and working starting cards were lifted on 2026-11-11 (see DESIGN.md).
   These cards were designed under them; new Farm cards don't have to follow them. "No converters" is still Farm's
   own identity.
@@ -37,7 +37,7 @@ the real race is Milk and Eggs.
 
 | Card | Cost | Tags | Text | Flavor | Template |
 | --- | --- | --- | --- | --- | --- |
-| Farm (start) | - | | Does nothing. | Home sweet home. | Starting card |
+| Farm (start) | - | | Every day: gain 1 Wheat. | Home sweet home, with a little vegetable patch out back. | Starting card |
 | Wheat Field | free | crop | Every day: gain 1 Wheat. | The heart of the farm. | Sprout |
 | Scarecrow | 1 Wheat | | Every day: gain 1 Wheat for each touching crop. | Shoos the crows away. | Neighbour |
 | Cow | 3 Wheat | animal | Every day: gain 1 Milk for each touching crop. | She's happiest grazing by the fields. | Neighbour |
