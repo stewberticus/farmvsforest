@@ -14,6 +14,7 @@ will keep moving in playtests. Code: `Core/Content/DarkForestCards.cs` and `Core
   (the game takes from your bigger pile first).
 * If you can't feed them all, they eat what there is and **exactly one Ghoul goes home** that morning.
 * Ghouls are never combined from other resources and are never spent on cards. They come only from Haunt cards.
+  (The "no combining" rule was lifted on 2026-11-11, so this can change; see DESIGN.md.)
 
 So the Ghoul Party needs two things: Haunts to invite Ghouls, and enough Bats and Spiders to keep them fed.
 

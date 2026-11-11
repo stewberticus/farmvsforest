@@ -18,6 +18,9 @@ Alexander's OK.
 * **No draws, no converters, no delayed payoffs.** Farm never turns one resource into another and never "pays now
   for a big payoff later". Instead, buildings put a **specific card** into your hand every few days.
 * **The Farm card does nothing.** It's just the corner your farm grows from.
+* The rules against draws, delayed payoffs and working starting cards were lifted on 2026-11-11 (see DESIGN.md).
+  These cards were designed under them; new Farm cards don't have to follow them. "No converters" is still Farm's
+  own identity.
 
 ## Resources
 
