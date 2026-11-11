@@ -8,7 +8,7 @@ namespace FarmVsForest.Tests
 {
     public class MatchSetupTests
     {
-        [TestCase(GameMode.OneVsOne, 2, 2, 10)]
+        [TestCase(GameMode.OneVsOne, 2, 2, 8)]
         [TestCase(GameMode.TwoVsTwo, 4, 2, 16)]
         [TestCase(GameMode.FreeForAll, 4, 4, 16)]
         public void Modes_HaveExpectedPlayersAlliancesAndBoardSize(GameMode mode, int players, int alliances, int size)

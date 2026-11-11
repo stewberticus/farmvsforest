@@ -28,6 +28,8 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
   --skill            Does skill matter? Each team alone with the good, random and worst bot, mirror
                      matches (same team both sides) good vs random, good vs sloppy and good vs worst, and
                      the shuffle-luck number (same deck orders replayed with different bot choices).
+  --versus A,B       Mirror matches per team (same team both sides), bot A against bot B, e.g.
+                     --versus greedy,noglades. Prints how often A wins.
   --compare-board A,B
                      Does the opponent matter? Plays every matchup at board size A and at size B and
                      prints the win rate and length differences. Same numbers on both means the teams
@@ -44,6 +46,7 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
             string sweep = null;
             bool skill = false;
             string compareBoard = null;
+            string versus = null;
             var teams = BalanceReport.AllTeams.ToList();
             var overrides = new List<(string key, string value)>();
 
@@ -61,6 +64,7 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
                     case "--sweep": sweep = Next(); break;
                     case "--skill": skill = true; break;
                     case "--compare-board": compareBoard = Next(); break;
+                    case "--versus": versus = Next(); break;
                     case "--seed": seed = int.Parse(Next()); break;
                     case "--out": outFile = Next(); break;
                     case "--set":
@@ -116,6 +120,23 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
                     table.AppendLine("| " + t + " | " + Solo(t, bot) + " | " + Solo(t, "random") + " | " + Solo(t, "worst") + " | " +
                                      Beats(t, bot, "random") + " | " + Beats(t, bot, "sloppy") + " | " + Beats(t, bot, "worst") + " | " +
                                      sim.ShuffleCorrelation(t, games, bot, seed).ToString("0.00") + " |");
+                Console.WriteLine(table);
+                if (outFile != null) File.WriteAllText(outFile, table.ToString());
+                return 0;
+            }
+
+            if (versus != null)
+            {
+                var pair = versus.Split(',').Select(v => v.Trim()).ToArray();
+                var table = new StringBuilder();
+                table.AppendLine("| Team | " + pair[0] + " beats " + pair[1] + " (mirror) | Mean rounds |");
+                table.AppendLine("| --- | --- | --- |");
+                foreach (var t in teams)
+                {
+                    var runs = sim.SkillMirror(t, pair[0], pair[1], games, seed);
+                    int won = runs.Count(r => r.WinnerSeat >= 0 && r.Seats[r.WinnerSeat].Bot == pair[0]);
+                    table.AppendLine("| " + t + " | " + (won * 100 / runs.Count) + "% | " + runs.Average(r => r.Rounds).ToString("0.0") + " |");
+                }
                 Console.WriteLine(table);
                 if (outFile != null) File.WriteAllText(outFile, table.ToString());
                 return 0;

@@ -36,8 +36,22 @@ namespace FarmVsForest.Core
     {
         public GameMode mode = GameMode.OneVsOne;
 
-        /// <summary>Board size for 2-player games (square). Starting point, to tune.</summary>
-        public int boardSize = 10;
+        /// <summary>
+        /// Board size for 2-player games (square). Decided 2026-11-11: 8x8, so the two teams meet by mid-game
+        /// (on 10x10 they played the same as on a board where they never touch).
+        /// </summary>
+        public int boardSize = 8;
+
+        /// <summary>
+        /// Sunny Glades (decided 2026-11-11): shared squares near the middle that nobody can build on. A card touching
+        /// one makes this many extra of whatever it makes, once a round. 0 means no glades at all.
+        /// </summary>
+        public int sunnyGladeBonus = 1;
+        /// <summary>
+        /// Where the glades go. Null uses the default layout for 2-player boards (<see cref="DefaultGlades"/>); an empty
+        /// list means no glades. 4-player boards get none unless listed here.
+        /// </summary>
+        [NonSerialized] public List<Coord> sunnyGladeSquares;
         /// <summary>Board size for 4-player games (square). Starting point, to tune.</summary>
         public int fourPlayerBoardSize = 16;
         /// <summary>Decided: cards must touch edge to edge, no diagonals.</summary>
@@ -137,5 +151,29 @@ namespace FarmVsForest.Core
         [NonSerialized] public List<PlayerSetup> players = new List<PlayerSetup>();
 
         public int BoardSizeFor(int playerCount) => playerCount > 2 ? fourPlayerBoardSize : boardSize;
+
+        /// <summary>The glade squares for this match, or an empty list.</summary>
+        public List<Coord> GladesFor(int playerCount, int size)
+        {
+            if (sunnyGladeBonus <= 0) return new List<Coord>();
+            if (sunnyGladeSquares != null) return new List<Coord>(sunnyGladeSquares);
+            return playerCount > 2 ? new List<Coord>() : DefaultGlades(size);
+        }
+
+        /// <summary>
+        /// Four glades near the middle of a 1v1 board (players in opposite corners, bottom-left and top-right). Two sit on
+        /// the line between the players, one a step closer to each, and two sit level with both players, on the other
+        /// diagonal. On 8x8: (3,3), (4,4), (2,5) and (5,2). Symmetric, so neither seat is favoured.
+        /// </summary>
+        public static List<Coord> DefaultGlades(int size)
+        {
+            if (size < 6) return new List<Coord>();
+            int c = size / 2;
+            return new List<Coord>
+            {
+                new Coord(c - 1, c - 1), new Coord(size - c, size - c),
+                new Coord(c - 2, size - c + 1), new Coord(size - c + 1, c - 2),
+            };
+        }
     }
 }

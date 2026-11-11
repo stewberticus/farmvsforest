@@ -79,6 +79,7 @@ namespace FarmVsForest.Core
 
             int size = Config.BoardSizeFor(expected);
             Board = new Board(size, size, Config.adjacency);
+            foreach (var glade in Config.GladesFor(expected, size)) Board.AddGlade(glade);
             var seats = GameModes.Seats(Config.mode);
 
             for (int i = 0; i < expected; i++)
@@ -463,6 +464,24 @@ namespace FarmVsForest.Core
             Raise(new GameEvent { Type = GameEventType.ResourcesGained, Player = player, Source = source,
                 Resource = type, Amount = amount,
                 Message = player + " gained " + amount + " " + type + (source != null ? " from " + source.Definition : "") });
+            GladeBonus(player, type, source);
+        }
+
+        /// <summary>
+        /// Sunny Glades: the first time each round that a card touching a glade makes something for its owner, it makes
+        /// <see cref="MatchConfig.sunnyGladeBonus"/> more of it.
+        /// </summary>
+        private void GladeBonus(PlayerState player, ResourceType type, CardInstance source)
+        {
+            int bonus = Config.sunnyGladeBonus;
+            if (bonus <= 0 || source == null || !source.IsOnBoard || source.Owner != player) return;
+            if (source.GladeBonusRound == Round || !Board.TouchesGlade(source.Position)) return;
+            source.GladeBonusRound = Round;
+            player.Resources.Add(type, bonus);
+            player.GainedThisRound.Add(type, bonus);
+            Raise(new GameEvent { Type = GameEventType.ResourcesGained, Player = player, Source = source,
+                Resource = type, Amount = bonus,
+                Message = player + " gained " + bonus + " more " + type + " from the Sunny Glade by " + source.Definition });
         }
 
         public void SpendResource(PlayerState player, ResourceType type, int amount, CardInstance source = null)

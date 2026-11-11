@@ -68,6 +68,7 @@ namespace FarmVsForest.Runtime
         private static readonly Color Grass = new Color(0.62f, 0.78f, 0.47f);
         private static readonly Color GrassAlt = new Color(0.58f, 0.74f, 0.44f);
         private static readonly Color Legal = new Color(1f, 0.93f, 0.45f);
+        private static readonly Color Glade = new Color(0.98f, 0.88f, 0.42f);
         private static readonly Color Accent = new Color(0.93f, 0.48f, 0.33f);
 
         public static Color TeamColor(Team team)
@@ -358,6 +359,13 @@ namespace FarmVsForest.Runtime
                 bool legal = _legal.Contains(c);
 
                 Fill(inner, (x + y) % 2 == 0 ? Grass : GrassAlt);
+                if (board.IsGlade(c))
+                {
+                    Fill(inner, Glade);
+                    var gladeStyle = new GUIStyle(_cellText) { alignment = TextAnchor.MiddleCenter };
+                    gladeStyle.normal.textColor = Ink;
+                    GUI.Label(inner, "Sunny\nGlade", gladeStyle);
+                }
                 if (legal)
                 {
                     float pulse = 0.55f + 0.25f * Mathf.Sin(Time.time * 5f);
@@ -384,6 +392,9 @@ namespace FarmVsForest.Runtime
             DrawFloaters();
 
             if (hovered != null) DrawCardTooltip(hovered.Definition, hovered.Owner, mouse);
+            else if (hoveredSquare.HasValue && board.IsGlade(hoveredSquare.Value))
+                DrawTooltipText("Sunny Glade: nobody can build here. A card touching it makes " + m.Config.sunnyGladeBonus +
+                                " extra of what it makes, once a round. It also lets the sun in for Forest trees.", mouse);
             else if (hoveredSquare.HasValue && _selected != null && !_legal.Contains(hoveredSquare.Value))
                 DrawTooltipText("Must be an empty square touching one of your cards.", mouse);
         }
@@ -403,7 +414,7 @@ namespace FarmVsForest.Runtime
             var grow = ForestCards.GrowthOf(card.Definition);
             if (grow != null)
             {
-                bool sunny = m.Board.Neighbours(card.Position).Any(m.Board.IsEmpty);
+                bool sunny = m.Board.Neighbours(card.Position).Any(m.Board.IsOpen);
                 var growStyle = new GUIStyle(_cellText) { alignment = TextAnchor.LowerCenter, fontSize = Mathf.Max(9, _cellText.fontSize - 2) };
                 growStyle.normal.textColor = sunny ? new Color(1f, 0.92f, 0.4f) : new Color(0.75f, 0.75f, 0.8f);
                 GUI.Label(new Rect(inset.x, inset.y, inset.width, inset.height - 9),

@@ -17,6 +17,9 @@ namespace FarmVsForest.Core
         /// <summary>How many nights have started since this card was placed. Drives "every X nights" effects.</summary>
         public int NightsSeen { get; internal set; }
 
+        /// <summary>The round this card last got its Sunny Glade bonus (once a round). 0 means never.</summary>
+        public int GladeBonusRound { get; internal set; }
+
         /// <summary>Growth steps saved up towards the next stage (Forest trees grow on sunny days).</summary>
         public int GrowthProgress { get; internal set; }
 
