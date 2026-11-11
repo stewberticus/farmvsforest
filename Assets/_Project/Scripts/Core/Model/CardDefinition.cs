@@ -27,6 +27,35 @@ namespace FarmVsForest.Core
 
         public List<EffectDefinition> effects = new List<EffectDefinition>();
 
+        /// <summary>
+        /// Set for upgrade cards: the id or tag of the cards it can be played onto (one of your own, not yet upgraded).
+        /// Empty for normal cards. See <see cref="MatchConfig.allowUpgrades"/>.
+        /// </summary>
+        public string upgradeFor;
+
+        public bool IsUpgrade => !string.IsNullOrEmpty(upgradeFor);
+
+        /// <summary>Can this upgrade go onto a card with definition <paramref name="target"/>?</summary>
+        public bool CanUpgrade(CardDefinition target) =>
+            IsUpgrade && target != null && (target.id == upgradeFor || target.HasTag(upgradeFor));
+
+        /// <summary>
+        /// The card an upgraded card becomes: the base card's id, tags and effects plus the upgrade's effects, named
+        /// after the upgrade (a Cow with a Big Red Barn reads "Cow + Big Red Barn").
+        /// </summary>
+        public static CardDefinition Upgraded(CardDefinition baseCard, CardDefinition upgrade)
+        {
+            var tags = new List<string>(baseCard.tags ?? new List<string>());
+            var effects = new List<EffectDefinition>(baseCard.effects ?? new List<EffectDefinition>());
+            effects.AddRange(upgrade.effects ?? new List<EffectDefinition>());
+            return new CardDefinition
+            {
+                id = baseCard.id, displayName = baseCard.displayName + " + " + upgrade.displayName, team = baseCard.team,
+                rulesText = baseCard.rulesText + " Upgraded with " + upgrade.displayName + ": " + upgrade.rulesText,
+                cost = baseCard.cost, tags = tags, effects = effects,
+            };
+        }
+
         public bool IsFree => cost == null || cost.TrueForAll(c => c.amount <= 0);
 
         public bool HasTag(string tag) => tags != null && tags.Contains(tag);

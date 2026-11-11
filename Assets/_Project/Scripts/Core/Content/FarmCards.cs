@@ -13,6 +13,13 @@ namespace FarmVsForest.Core
         public const string Crop = "crop";
         public const string Animal = "animal";
         public const string Building = "building";
+        /// <summary>Upgrade cards, played onto one of your own cards (see <see cref="CardDefinition.upgradeFor"/>).</summary>
+        public const string Upgrade = "upgrade";
+        /// <summary>
+        /// Animals (and their upgrades) make Milk or Eggs every this many days or nights. 2 since phase 6 (2026-11-11),
+        /// which brought the goal down from 66 to a countable number.
+        /// </summary>
+        public const int AnimalDays = 2;
 
         public const string FarmId = "farm.farm";
         public const string WheatFieldId = "farm.wheat_field";
@@ -40,25 +47,27 @@ namespace FarmVsForest.Core
                 Cost(ResourceType.Wheat, 1), new string[0],
                 PerTouching(EffectTrigger.Day, ResourceType.Wheat, 1, Crop)),
 
-            Card(CowId, "Cow", "Every day: gain 1 Milk for each touching crop. She's happiest grazing by the fields.",
+            Card(CowId, "Cow", "Every 2 days: gain 1 Milk for each touching crop. She's happiest grazing by the fields.",
                 Cost(ResourceType.Wheat, 3), new[] { Animal },
-                PerTouching(EffectTrigger.Day, ResourceType.Milk, 1, Crop)),
+                PerTouching(EffectTrigger.Day, ResourceType.Milk, 1, Crop, interval: AnimalDays)),
 
-            Card(ChickenCoopId, "Chicken Coop", "Every night: gain 1 Egg for each touching crop. The hens peck spilled grain and leave eggs by morning.",
+            Card(ChickenCoopId, "Chicken Coop", "Every 2 nights: gain 1 Egg for each touching crop. The hens peck spilled grain and leave eggs by morning.",
                 Cost(ResourceType.Wheat, 3), new[] { Animal },
-                PerTouching(EffectTrigger.Night, ResourceType.Eggs, 1, Crop)),
+                PerTouching(EffectTrigger.Night, ResourceType.Eggs, 1, Crop, interval: AnimalDays)),
 
             Card(BarnCatId, "Barn Cat", "Every night: gain 1 Wheat for each touching crop. A saucer of milk, and she keeps the mice out of the fields.",
                 Cost(ResourceType.Milk, 1), new[] { Animal },
                 PerTouching(EffectTrigger.Night, ResourceType.Wheat, 1, Crop)),
 
-            Card(BigRedBarnId, "Big Red Barn", "Every 2 days: add a Cow to your hand. Calves are born in the barn.",
-                Cost(ResourceType.Milk, 3), new[] { Building },
-                AddToHand(EffectTrigger.Day, CowId, 2)),
+            UpgradeCard(BigRedBarnId, "Big Red Barn", CowId,
+                "Upgrade: play onto one of your Cows. Every 2 days: gain 1 more Milk for each crop touching her. A warm barn and fresh straw make for happy cows.",
+                Cost(ResourceType.Milk, 3),
+                PerTouching(EffectTrigger.Day, ResourceType.Milk, 1, Crop, interval: AnimalDays)),
 
-            Card(NestingBoxId, "Nesting Box", "Every 2 days: add a Chicken Coop to your hand. Eggs hatch into chicks, and chicks need a coop.",
-                Cost(ResourceType.Eggs, 3), new[] { Building },
-                AddToHand(EffectTrigger.Day, ChickenCoopId, 2)),
+            UpgradeCard(NestingBoxId, "Nesting Box", ChickenCoopId,
+                "Upgrade: play onto one of your Chicken Coops. Every 2 nights: gain 1 more Egg for each crop touching it. Soft hay in every box, and the hens lay twice as well.",
+                Cost(ResourceType.Eggs, 3),
+                PerTouching(EffectTrigger.Night, ResourceType.Eggs, 1, Crop, interval: AnimalDays)),
 
             Card(WeathervaneId, "Weathervane", "When played: look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Every 2 days: gain 1 Wheat. The rooster on top always knows which way the wind blows.",
                 Cost(ResourceType.Wheat, 1), new string[0],
@@ -104,6 +113,14 @@ namespace FarmVsForest.Core
                 tags = tags.ToList(), effects = effects.ToList(),
             };
 
+        private static CardDefinition UpgradeCard(string id, string name, string onto, string text, List<ResourceAmount> cost,
+            params EffectDefinition[] effects)
+        {
+            var card = Card(id, name, text, cost, new[] { Upgrade }, effects);
+            card.upgradeFor = onto;
+            return card;
+        }
+
         private static List<ResourceAmount> Cost(params object[] pairs)
         {
             var list = new List<ResourceAmount>();
@@ -114,8 +131,9 @@ namespace FarmVsForest.Core
         private static EffectDefinition Gain(EffectTrigger trigger, ResourceType resource, int amount) =>
             new EffectDefinition(trigger, EffectKind.GainResource, amount, resource);
 
-        private static EffectDefinition PerTouching(EffectTrigger trigger, ResourceType resource, int amount, string tag) =>
-            new EffectDefinition(trigger, EffectKind.GainPerTouching, amount, resource) { tag = tag };
+        private static EffectDefinition PerTouching(EffectTrigger trigger, ResourceType resource, int amount, string tag,
+            int interval = 1, int maxCount = 0) =>
+            new EffectDefinition(trigger, EffectKind.GainPerTouching, amount, resource, interval: interval) { tag = tag, maxCount = maxCount };
 
         private static EffectDefinition AddToHand(EffectTrigger trigger, string cardId, int interval) =>
             new EffectDefinition(trigger, EffectKind.AddCardToHand, 1, interval: interval) { cardId = cardId, skipIfInHand = true };

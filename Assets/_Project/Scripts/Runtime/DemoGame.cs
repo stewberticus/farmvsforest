@@ -373,6 +373,8 @@ namespace FarmVsForest.Runtime
                 }
 
                 if (card != null) DrawBoardCard(card, inner, m);
+                // Upgrades go onto a card, which covers the glow: ring it instead.
+                if (card != null && legal) Outline(inner, Legal, 4);
 
                 if (inner.Contains(mouse))
                 {
@@ -396,7 +398,9 @@ namespace FarmVsForest.Runtime
                 DrawTooltipText("Sunny Glade: nobody can build here. A card touching it makes " + m.Config.sunnyGladeBonus +
                                 " extra of what it makes, once a round. It also lets the sun in for Forest trees.", mouse);
             else if (hoveredSquare.HasValue && _selected != null && !_legal.Contains(hoveredSquare.Value))
-                DrawTooltipText("Must be an empty square touching one of your cards.", mouse);
+                DrawTooltipText(_selected.Definition.IsUpgrade
+                    ? "Upgrades go onto one of your own cards that hasn't been upgraded yet."
+                    : "Must be an empty square touching one of your cards.", mouse);
         }
 
         private Rect CellRect(Coord c) =>
@@ -411,6 +415,10 @@ namespace FarmVsForest.Runtime
             // A darker band shows the owner when two players share a team.
             Fill(new Rect(inset.x, inset.yMax - 8, inset.width, 8), Color.Lerp(col, Ink, 0.35f + 0.15f * card.Owner.Id));
             if (card.Definition.HasTag(Tags.Start)) Outline(inset, Ink, 3);
+            // Upgraded cards get a small gold star in the corner.
+            if (card.UpgradedWith != null)
+                GUI.Label(new Rect(inset.xMax - 22, inset.y, 22, 22), "\u2605",
+                    new GUIStyle(_cellText) { alignment = TextAnchor.UpperRight, normal = { textColor = new Color(1f, 0.85f, 0.25f) } });
             var grow = ForestCards.GrowthOf(card.Definition);
             if (grow != null)
             {
@@ -686,7 +694,10 @@ namespace FarmVsForest.Runtime
                     new GUIStyle(_label) { normal = { textColor = new Color(1f, 0.85f, 0.6f) } });
             else if (_selected != null)
                 GUI.Label(new Rect(handArea.x, handArea.yMax - 24, handArea.width, 26),
-                    "Click a glowing square to play " + _selected.Definition.displayName + ". Click the card again to put it back.",
+                    (_selected.Definition.IsUpgrade
+                        ? "Click one of your glowing cards to upgrade it with " + _selected.Definition.displayName + "."
+                        : "Click a glowing square to play " + _selected.Definition.displayName + ".") +
+                    " Click the card again to put it back.",
                     new GUIStyle(_label) { normal = { textColor = Paper } });
             else
                 GUI.Label(new Rect(handArea.x, handArea.yMax - 24, handArea.width, 26),

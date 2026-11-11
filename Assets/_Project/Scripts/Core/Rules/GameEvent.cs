@@ -18,6 +18,8 @@ namespace FarmVsForest.Core
         CardAddedToHand,
         CardComposted,
         CardGrew,
+        /// <summary>An upgrade was played onto a card (Card is the card underneath).</summary>
+        CardUpgraded,
         CardPollinated,
         Mulligan,
         /// <summary>A scout effect showed cards; the player picks one with Match.ChooseScouted.</summary>

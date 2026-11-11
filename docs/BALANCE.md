@@ -374,3 +374,4 @@ choices; 1 means the shuffle decides everything), and `--compare-board A,B` (doe
 | 3 | Dark Forest summons Ghouls from Bats and Spiders; Haunts make it cheaper. Goals: Farm 62, Forest 23, Factory 16 | `darkForestGhoulBats`, `darkForestGhoulSpiders`, `darkForestGhoulsPerPriceStep`, `darkForestGhoulMinEach`, `darkForestGhoulStep`, `darkForestGhoulsPerTurn` |
 | 4 | One mulligan; 2 scout cards per team (look at the top 3, keep 1). Farm 66 each, Forest 22 Old Trees | `mulligans`, `EffectKind.Scout`, `BalanceSettings.scoutValue` |
 | 5 | Factory's Big Order (3-day countdown, every Assembler runs twice more) replaces Big Whistle; Toy forecast in the demo. Factory 17 Toys | `factoryGoalToys`, deck counts in `FactoryCards.DeckCounts` |
+| 6 | Upgrades: cards played onto your own cards. Big Red Barn and Nesting Box upgrade Cows and Coops; animals make Milk and Eggs every 2 days. Farm 27 each | `allowUpgrades`, `CardDefinition.upgradeFor`, `FarmCards.AnimalDays` |
