@@ -18,6 +18,18 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | Modes | Balanced around **1v1**. 2v2 and 1v1v1v1 are fun extra modes. |
 | Win | Each team has its **own goal** (below). If the board fills first, whoever owns the most squares wins. |
 
+## Rules lifted (2026-11-11)
+
+Alexander removed four earlier card rules as too strict. New cards may now do any of these:
+
+* **Combine** cards or resources (for example Bats and Spiders into a Ghoul, or one card played onto another).
+* **Draw cards** as a card effect.
+* **Pay off later, once** (delayed one-shot effects).
+* **Starting cards can have an effect.**
+
+The cards in the game today were designed under the old rules, so none of them use these yet. No damage, no
+destroying and no moving cards still stand.
+
 ## Day and night
 
 Each round is one **day** followed by one **night**.

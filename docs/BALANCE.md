@@ -36,7 +36,9 @@ Two consequences are worth calling out:
 
 ### What the starting position means
 
-* **Starting cards do nothing** (decided). They only mark your corner. All income comes from cards you play.
+* **Starting cards may have an effect** (the "starting cards do nothing" rule was lifted on 2026-11-11). Today's
+  starting cards still do nothing, so all income comes from cards you play. In the sim, a starting card that makes 1
+  basic resource a day removes every lock-out without the free-card rule below, and only Forest gets faster (3 rounds).
 * **The corner has only 2 neighbours.** Your first few cards fight over a tiny frontier: turn 1 has 2 legal squares,
   turn 2 about 3. Cards that need neighbours (per-touching, "plant a sapling next to this") are weak early and should
   be priced and timed for mid-game. Never design a card whose effect needs empty squares around the start.
@@ -76,9 +78,9 @@ A card's **value** is what it gives you over its time on the board:
 | When played: X | X |
 | Every day: X, or every night: X | X × H |
 | Every N days (or nights): X | X × H / N |
-| Once, after N days (or nights): X | X × (1 − 5% per round waited), never below 50%. Avoid: see below. |
+| Once, after N days (or nights): X | X × (1 − 5% per round waited), never below 50%. |
 | Put a specific card in your hand ("every 2 days: a Cow card") | 3 V per card, plus however far that card is above its own par |
-| Draw a random card | 2 V per card. Avoid: see below. |
+| Draw a random card | 2 V per card. See "Card flow" below. |
 | Convert A into B | (B − A) per fire × 80%, because you can't always pay |
 | X per touching card (with a tag) | X × expected touching cards (2 for any card, 1.2 for a tag) per fire |
 | Counts towards your own goal (Forest "tree") | +3 V |
@@ -86,22 +88,24 @@ A card's **value** is what it gives you over its time on the board:
 
 **H, the horizon**, is how many rounds a typical card works before the game ends: about T / 2. At T = 20, H = 10.
 
-### Card flow: make cards, don't draw them
+### Card flow: drawing and making cards
 
-You only play one card a turn, so an extra random card rarely matters. Instead, cards **make specific cards**:
-a Barn puts a Cow card in your hand every 2 days (decided). Rules of thumb:
+Card-draw effects are allowed (the "no card-draw effects" rule was lifted on 2026-11-11). Cards can also **make
+specific cards**: a Barn puts a Cow card in your hand every 2 days. What the sim says about both:
 
-* Your hand gets one card a turn from your deck and you play one a turn. Every made card is extra, so hands grow.
-  A full hand (8) loses new cards, including the draws you needed. In the sim, two "make a Workshop every 2 days"
-  cards filled the Factory's hand with Workshops and it never drew the cards it needed to win.
-* So: give makers `skipIfInHand` ("if you don't already have one"), keep each team to about one card made every
+* You play one card a turn, so extra cards only help if they give you a better choice. Drawing more without playing
+  more fills the hand: with 2 draws a turn and nothing else changed, Factory finished only 78% of solo games and
+  Dark Forest passed on 23% of turns. A full hand (8) loses new cards, including the draws you needed.
+* So prefer draw effects that **choose** over ones that pile up: "look at the top 3, keep 1", "discard a card, then
+  draw", or a draw on a card that also lets you play again.
+* Give makers `skipIfInHand` ("if you don't already have one"), keep each team to about one card made every
   2 to 3 turns, and make the made card cheap enough to play straight away.
 
-### Avoid delayed one-shot payoffs
+### Delayed one-shot payoffs
 
-"Once, after 3 days: gain 4 Goods" feels bad: you wait, nothing happens, then it's a dead card on the board. Prefer
-repeating effects ("every 3 days: gain 2 Goods"). The engine still supports one-shots; save them for rare, special
-cards.
+Delayed one-shots are allowed (the rule against them was lifted on 2026-11-11). The old worry still applies to weak
+ones: "Once, after 3 days: gain 4 Goods" makes you wait and then leaves a dead card on the board. They work best when
+the wait is visible to both players and the payoff is big enough to plan around.
 
 **Par** is what a card *should* be worth for its cost:
 
@@ -152,7 +156,7 @@ Start every card from one of these. Numbers are at T = 20 (H = 10). "Share" is a
 
 Content rules that keep the model honest:
 
-* No damage, no destroying, no moving cards, no combining cards (DESIGN.md).
+* No damage, no destroying, no moving cards (DESIGN.md). Combining cards is allowed (rule lifted 2026-11-11).
 * Interaction comes from **space**: blocking, claiming the middle, cards that care about empty or edge squares.
   Cards that "ignore" an opponent are fine; cards that hurt them are not.
 * Prefer one effect per card for readability (family game). Two effects at most.

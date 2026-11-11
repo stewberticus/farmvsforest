@@ -12,6 +12,8 @@ Agreed with Alexander on 2026-11-09:
   round all count; Toys saved up from earlier rounds don't.
 * Headquarters, the starting corner card, does nothing.
 * No "draw a card" cards. Cards that make more cards add a specific card to your hand instead.
+* Both of those were rules when these cards were designed. They were lifted on 2026-11-11 (see DESIGN.md), so new
+  Factory cards may draw, and Headquarters may get an effect.
 
 ## Resources
 
