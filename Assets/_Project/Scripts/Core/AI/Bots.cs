@@ -81,7 +81,10 @@ namespace FarmVsForest.Core
             Worst = worst;
         }
 
-        public string Name => Worst ? "worst" : "greedy";
+        /// <summary>Name shown in reports. Defaults to "greedy" or "worst".</summary>
+        public string Label;
+
+        public string Name => Label ?? (Worst ? "worst" : "greedy");
 
         /// <summary>Plays the best card, then keeps going while extra plays are possible (Forest's Acorn trees).</summary>
         public void PlayTurn(Match match)
@@ -277,6 +280,9 @@ namespace FarmVsForest.Core
 
     public static class Bots
     {
+        /// <summary>Noise of the "sloppy" bot (greedy uses 1). At 6 it often picks the second or third best play.</summary>
+        public static double SloppyNoise = 6;
+
         /// <summary>Every (card, square) the player could play right now.</summary>
         public static IEnumerable<(CardInstance card, Coord square)> Options(Match match, PlayerState p) =>
             Playable(match, p)
@@ -297,6 +303,8 @@ namespace FarmVsForest.Core
                 case "random": return new RandomBot(seed);
                 case "pass": return new PassBot();
                 case "worst": return new GreedyBot(seed, settings, worst: true);
+                // A careless player: same judgement as greedy, but noise swamps the smaller differences between options.
+                case "sloppy": return new GreedyBot(seed, settings) { Noise = SloppyNoise, Label = "sloppy" };
                 default: return new GreedyBot(seed, settings);
             }
         }

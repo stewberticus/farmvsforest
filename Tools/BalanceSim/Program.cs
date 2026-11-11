@@ -25,8 +25,13 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
                      (repeatable)
   --sweep key=a,b,c  Goldfish each team once per value of a MatchConfig number and print a table, e.g.
                      --teams Forest --sweep forestGoalTrees=12,14,16,18
-  --skill            Does skill matter? Each team alone with the good, random and worst bot, and mirror
-                     matches (same team both sides) good vs random and good vs worst.
+  --skill            Does skill matter? Each team alone with the good, random and worst bot, mirror
+                     matches (same team both sides) good vs random, good vs sloppy and good vs worst, and
+                     the shuffle-luck number (same deck orders replayed with different bot choices).
+  --compare-board A,B
+                     Does the opponent matter? Plays every matchup at board size A and at size B and
+                     prints the win rate and length differences. Same numbers on both means the teams
+                     never get in each other's way.
   --seed N           First seed (default 1)
   --out FILE         Also write the report to FILE
 ";
@@ -38,6 +43,7 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
             bool mirrors = false;
             string sweep = null;
             bool skill = false;
+            string compareBoard = null;
             var teams = BalanceReport.AllTeams.ToList();
             var overrides = new List<(string key, string value)>();
 
@@ -54,6 +60,7 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
                     case "--target": target = int.Parse(Next()); break;
                     case "--sweep": sweep = Next(); break;
                     case "--skill": skill = true; break;
+                    case "--compare-board": compareBoard = Next(); break;
                     case "--seed": seed = int.Parse(Next()); break;
                     case "--out": outFile = Next(); break;
                     case "--set":
@@ -83,10 +90,14 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
                 var table = new StringBuilder();
                 table.AppendLine("## Skill: how much do decisions matter?");
                 table.AppendLine();
-                table.AppendLine("Solo finish round (median, with the middle 80% of games) and how often the goal is reached by round " + sim.RoundLimit + ".");
+                table.AppendLine("Solo finish round (median, with the middle 80% of games) and how often the goal is reached by round " + sim.RoundLimit + ". " +
+                                 "Mirror columns: how often the good bot beats the other bot with the same team on both sides. " +
+                                 "Sloppy is the good bot with noise " + Bots.SloppyNoise + " instead of 1. " +
+                                 "Shuffle luck: correlation of the solo finish round when the same deck orders are replayed with different bot choices " +
+                                 "(1 = the shuffle decides everything).");
                 table.AppendLine();
-                table.AppendLine("| Team | Good bot | Random bot | Worst bot | Good beats random (mirror) | Good beats worst (mirror) |");
-                table.AppendLine("| --- | --- | --- | --- | --- | --- |");
+                table.AppendLine("| Team | Good bot | Random bot | Worst bot | Good beats random | Good beats sloppy | Good beats worst | Shuffle luck |");
+                table.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- |");
                 string Solo(Team t, string b)
                 {
                     var runs = sim.Goldfish(t, games, b, seed);
@@ -103,7 +114,58 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
                 }
                 foreach (var t in teams)
                     table.AppendLine("| " + t + " | " + Solo(t, bot) + " | " + Solo(t, "random") + " | " + Solo(t, "worst") + " | " +
-                                     Beats(t, bot, "random") + " | " + Beats(t, bot, "worst") + " |");
+                                     Beats(t, bot, "random") + " | " + Beats(t, bot, "sloppy") + " | " + Beats(t, bot, "worst") + " | " +
+                                     sim.ShuffleCorrelation(t, games, bot, seed).ToString("0.00") + " |");
+                Console.WriteLine(table);
+                if (outFile != null) File.WriteAllText(outFile, table.ToString());
+                return 0;
+            }
+
+            if (compareBoard != null)
+            {
+                var sizes = compareBoard.Split(',').Select(v => int.Parse(v.Trim())).ToArray();
+                if (sizes.Length != 2) throw new ArgumentException("--compare-board needs two sizes, e.g. 8,16");
+                var results = new Dictionary<(Team, Team), List<MatchRecord>>[2];
+                for (int k = 0; k < 2; k++)
+                {
+                    int size = sizes[k];
+                    sim.Configure = config =>
+                    {
+                        foreach (var (key, value) in overrides) Apply(config, key, value);
+                        config.boardSize = size;
+                    };
+                    results[k] = new Dictionary<(Team, Team), List<MatchRecord>>();
+                    for (int a = 0; a < teams.Count; a++)
+                    for (int b = a + 1; b < teams.Count; b++)
+                        results[k][(teams[a], teams[b])] = sim.Series(teams[a], teams[b], games, bot, seed);
+                }
+                var table = new StringBuilder();
+                table.AppendLine("## Does the opponent matter? Board " + sizes[0] + "x" + sizes[0] + " vs " + sizes[1] + "x" + sizes[1]);
+                table.AppendLine();
+                table.AppendLine("Win rate is the first team's. If nothing changes between the two sizes, the teams never get in each other's way.");
+                table.AppendLine();
+                table.AppendLine("| Matchup | Win " + sizes[0] + " | Win " + sizes[1] + " | Change | Mean rounds " + sizes[0] + " | Mean rounds " + sizes[1] +
+                                 " | Change | Contact by round 13 (" + sizes[0] + ") | Contact by round 13 (" + sizes[1] + ") | Goal endings " + sizes[0] + " |");
+                table.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+                double totalWinShift = 0, totalLenShift = 0;
+                foreach (var key in results[0].Keys)
+                {
+                    var (a, b) = key;
+                    var g0 = results[0][key];
+                    var g1 = results[1][key];
+                    double w0 = BalanceReport.WinRate(g0, a, b), w1 = BalanceReport.WinRate(g1, a, b);
+                    double l0 = g0.Average(r => r.Rounds), l1 = g1.Average(r => r.Rounds);
+                    totalWinShift += Math.Abs(w0 - w1);
+                    totalLenShift += Math.Abs(l0 - l1);
+                    table.AppendLine("| " + a + " vs " + b + " | " + (w0 * 100).ToString("0") + "% | " + (w1 * 100).ToString("0") + "% | " +
+                                     ((w0 - w1) * 100).ToString("+0;-0;0") + " pts | " + l0.ToString("0.0") + " | " + l1.ToString("0.0") + " | " +
+                                     (l0 - l1).ToString("+0.0;-0.0;0.0") + " | " + Contact13(g0) + " | " + Contact13(g1) + " | " +
+                                     (g0.Count(r => r.End == EndKind.Goal) * 100 / g0.Count) + "% |");
+                }
+                int n = Math.Max(1, results[0].Count);
+                table.AppendLine();
+                table.AppendLine("Average change: " + (totalWinShift / n * 100).ToString("0.0") + " win-rate points, " +
+                                 (totalLenShift / n).ToString("0.0") + " rounds.");
                 Console.WriteLine(table);
                 if (outFile != null) File.WriteAllText(outFile, table.ToString());
                 return 0;
@@ -189,6 +251,9 @@ Usage: dotnet run -c Release --project Tools/BalanceSim -- [options]
             if (outFile != null) File.WriteAllText(outFile, report);
             return 0;
         }
+
+        private static string Contact13(List<MatchRecord> games) =>
+            (games.Count(r => r.FirstContactRound > 0 && r.FirstContactRound <= 13) * 100 / games.Count) + "%";
 
         private static void Apply(MatchConfig config, string key, string value)
         {

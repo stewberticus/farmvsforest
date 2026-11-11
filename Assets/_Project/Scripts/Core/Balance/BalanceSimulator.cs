@@ -78,7 +78,12 @@ namespace FarmVsForest.Core
         /// <summary>Safety net so a stalled match still ends.</summary>
         public int RoundLimit = 60;
 
-        public MatchRecord Play(Team first, Team second, string firstBot, string secondBot, int seed)
+        /// <param name="seed">Match seed: sets the deck shuffles.</param>
+        /// <param name="botSeedOffset">
+        /// Shifts the bots' own random seeds without changing the shuffle. Replaying a seed with a different offset
+        /// gives the same deck order with different (noisy) choices, which is how the shuffle-luck number is measured.
+        /// </param>
+        public MatchRecord Play(Team first, Team second, string firstBot, string secondBot, int seed, int botSeedOffset = 0)
         {
             var config = new MatchConfig
             {
@@ -111,7 +116,8 @@ namespace FarmVsForest.Core
 
             match.Start();
             Settings.cardLookup = match.FindCard;
-            var bots = new[] { Bots.Create(firstBot, seed * 7 + 1, Settings), Bots.Create(secondBot, seed * 7 + 2, Settings) };
+            var bots = new[] { Bots.Create(firstBot, seed * 7 + 1 + botSeedOffset, Settings),
+                Bots.Create(secondBot, seed * 7 + 2 + botSeedOffset, Settings) };
 
             int safety = 0;
             while (!match.IsOver && safety++ < 10000)
@@ -165,14 +171,28 @@ namespace FarmVsForest.Core
         }
 
         /// <summary>Plays a team against an opponent that never plays, to see how fast it reaches its goal on its own.</summary>
-        public List<MatchRecord> Goldfish(Team team, int games, string bot = "greedy", int seed = 1)
+        public List<MatchRecord> Goldfish(Team team, int games, string bot = "greedy", int seed = 1, int botSeedOffset = 0)
         {
             // The opponent sits second and passes; pick a different team so seat colours/corners still differ.
             var dummy = team == Team.Farm ? Team.Forest : Team.Farm;
             var list = new List<MatchRecord>();
-            for (int i = 0; i < games; i++) list.Add(Play(team, dummy, bot, "pass", seed + i));
+            for (int i = 0; i < games; i++) list.Add(Play(team, dummy, bot, "pass", seed + i, botSeedOffset));
             return list;
         }
+
+        /// <summary>
+        /// Shuffle luck: plays <paramref name="games"/> solo games twice with the same deck orders but different bot
+        /// seeds, and returns the correlation of the two finish rounds. Near 1 means the shuffle decides when you finish;
+        /// near 0 means the choices made along the way do. Games that don't reach the goal count as the round limit.
+        /// </summary>
+        public double ShuffleCorrelation(Team team, int games, string bot = "greedy", int seed = 1)
+        {
+            var a = Goldfish(team, games, bot, seed).Select(FinishRound).ToList();
+            var b = Goldfish(team, games, bot, seed, botSeedOffset: 1000003).Select(FinishRound).ToList();
+            return BalanceReport.Correlation(a, b);
+        }
+
+        private int FinishRound(MatchRecord r) => r.WinnerSeat == 0 && r.End == EndKind.Goal ? r.Rounds : RoundLimit;
 
         public static double GoalProgress(Match match, PlayerState p)
         {
@@ -196,6 +216,23 @@ namespace FarmVsForest.Core
         public static readonly Team[] AllTeams = { Team.Farm, Team.Forest, Team.Factory, Team.DarkForest };
 
         public static double Median(IEnumerable<int> values) => Percentile(values, 0.5);
+
+        /// <summary>Pearson correlation of two equal-length lists. NaN if either list doesn't vary.</summary>
+        public static double Correlation(IReadOnlyList<int> a, IReadOnlyList<int> b)
+        {
+            int n = Math.Min(a.Count, b.Count);
+            if (n < 2) return double.NaN;
+            double ma = a.Take(n).Average(), mb = b.Take(n).Average();
+            double cov = 0, va = 0, vb = 0;
+            for (int i = 0; i < n; i++)
+            {
+                double da = a[i] - ma, db = b[i] - mb;
+                cov += da * db;
+                va += da * da;
+                vb += db * db;
+            }
+            return va == 0 || vb == 0 ? double.NaN : cov / Math.Sqrt(va * vb);
+        }
 
         public static double Percentile(IEnumerable<int> values, double p)
         {
