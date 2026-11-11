@@ -175,17 +175,17 @@ namespace FarmVsForest.Tests
         }
 
         [Test]
-        public void DefaultRecipe_Is6And6_PlusOneOfEachPerGhoulYouHave()
+        public void DefaultRecipe_Is8And8_PlusOneOfEachPerGhoulYouHave()
         {
             var m = Started(SimpleConfig(Card("x"), teams: new[] { Team.DarkForest, Team.Farm }, boardSize: 8));
             var dark = m.Players[0];
-            Assert.AreEqual(6, Cost(m, dark, ResourceType.Bats));
+            Assert.AreEqual(8, Cost(m, dark, ResourceType.Bats));
             dark.Resources.Add(ResourceType.Ghouls, 4);
-            Assert.AreEqual(10, Cost(m, dark, ResourceType.Bats));
-            Assert.AreEqual(10, Cost(m, dark, ResourceType.Spiders));
+            Assert.AreEqual(12, Cost(m, dark, ResourceType.Bats));
+            Assert.AreEqual(12, Cost(m, dark, ResourceType.Spiders));
             Put(m, 0, DarkForestCards.GigglingGraveyard, 3, 3);
             Put(m, 0, DarkForestCards.GigglingGraveyard, 3, 4);
-            Assert.AreEqual(8, Cost(m, dark, ResourceType.Bats), "two switched-on Graveyards take 2 of each off");
+            Assert.AreEqual(10, Cost(m, dark, ResourceType.Bats), "two switched-on Graveyards take 2 of each off");
         }
 
         [Test]
