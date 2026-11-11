@@ -27,6 +27,9 @@ namespace FarmVsForest.Core
         /// <summary>0..1 progress towards the team goal when the match ended.</summary>
         public double GoalProgress;
         public List<string> CardsPlayed = new List<string>();
+        /// <summary>Dark Forest: Ghouls summoned from Bats and Spiders, and Ghouls that went home hungry.</summary>
+        public int GhoulsSummoned;
+        public int GhoulsLostToHunger;
     }
 
     /// <summary>One simulated match.</summary>
@@ -107,6 +110,8 @@ namespace FarmVsForest.Core
 
             match.EventRaised += e =>
             {
+                if (e.Type == GameEventType.GhoulSummoned) record.Seats[e.Player.Id].GhoulsSummoned++;
+                if (e.Type == GameEventType.GhoulsWentHome) record.Seats[e.Player.Id].GhoulsLostToHunger += e.Amount;
                 if (e.Type != GameEventType.CardPlayed || e.Card == null) return;
                 record.Seats[e.Player.Id].CardsPlayed.Add(e.Card.Definition.id);
                 if (record.FirstContactRound == 0 && match.Board.Neighbours(e.Card.Position)
@@ -137,7 +142,7 @@ namespace FarmVsForest.Core
                 : (match.EndReason ?? "").Contains("goal") ? EndKind.Goal
                 : (match.EndReason ?? "").Contains("full") ? EndKind.BoardFull
                 : EndKind.RoundLimit;
-            record.BoardFill = match.Board.OccupiedCount / (double)match.Board.SquareCount;
+            record.BoardFill = match.Board.OccupiedCount / (double)match.Board.BuildableCount;
             foreach (var p in match.Players)
             {
                 var seat = record.Seats[p.Id];
@@ -270,8 +275,8 @@ namespace FarmVsForest.Core
             sb.AppendLine();
             sb.AppendLine("### Matchups");
             sb.AppendLine();
-            sb.AppendLine("| Matchup | Games | Win A | Win B | Draw | Seat 1 wins | Mean rounds | Median rounds | p10-p90 | Goal / full / limit | First contact | Board fill |");
-            sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+            sb.AppendLine("| Matchup | Games | Win A | Win B | Draw | Seat 1 wins | Mean rounds | Median rounds | p10-p90 | Goal / full / limit | First contact | Contact by round 13 | Board fill |");
+            sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
             foreach (var kv in series)
             {
                 var (a, b) = kv.Key;
@@ -288,6 +293,7 @@ namespace FarmVsForest.Core
                 sb.AppendLine("| " + a + " vs " + b + " | " + n + " | " + Pct(winA) + " | " + Pct(winB) + " | " + Pct(draws) +
                               " | " + Pct(seat1) + " | " + Num(rounds.Average()) + " | " + Num(Median(rounds)) + " | " + Range(rounds) + " | " + Pct(goal) + " / " + Pct(full) + " / " + Pct(limit) +
                               " | " + (contact.Count == 0 ? "never" : "round " + Num(Median(contact)) + " (" + Pct(contact.Count / (double)n) + ")") +
+                              " | " + Pct(g.Count(r => r.FirstContactRound > 0 && r.FirstContactRound <= 13) / (double)n) +
                               " | " + Pct(g.Average(r => r.BoardFill)) + " |");
 
                 if (a != b && Math.Abs(winA - 0.5) > t.matchupWinRateSpread)

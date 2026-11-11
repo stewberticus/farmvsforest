@@ -5,7 +5,8 @@ namespace FarmVsForest.Core
 {
     /// <summary>
     /// The Forest team's designed cards. See docs/teams/FOREST.md for the why behind each one.
-    /// Forest grows: trees grow Sapling, Young Tree, Old Tree on sunny mornings (touching an empty square), and the goal
+    /// Forest grows: trees grow Sapling, Young Tree, Old Tree on sunny mornings (touching an empty square or a Sunny
+    /// Glade), and the goal
     /// is Old Trees in one forest. Generator cards add Saplings to your hand, and the Forest rule lets you spend Acorns
     /// to play extra trees each turn (<see cref="MatchConfig.forestExtraTreeAcorns"/>). Numbers are tuned by sim.
     /// </summary>
@@ -115,7 +116,8 @@ namespace FarmVsForest.Core
             {
                 var card = ctx.Source;
                 var board = ctx.Match.Board;
-                if (!board.Neighbours(card.Position).Any(board.IsEmpty)) return;
+                // Sunlight: an empty square or a Sunny Glade next to the tree.
+                if (!board.Neighbours(card.Position).Any(board.IsOpen)) return;
                 GrowOneStep(ctx.Match, card);
             }
         }

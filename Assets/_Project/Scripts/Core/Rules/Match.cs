@@ -79,6 +79,7 @@ namespace FarmVsForest.Core
 
             int size = Config.BoardSizeFor(expected);
             Board = new Board(size, size, Config.adjacency);
+            foreach (var glade in Config.GladesFor(expected, size)) Board.AddGlade(glade);
             var seats = GameModes.Seats(Config.mode);
 
             for (int i = 0; i < expected; i++)
@@ -214,6 +215,7 @@ namespace FarmVsForest.Core
             TurnNumber++;
             player.CardsPlayedThisTurn = 0;
             player.CompostedThisTurn = false;
+            player.GhoulsSummonedThisTurn = 0;
             Raise(new GameEvent
             {
                 Type = GameEventType.TurnStarted, Player = player,
@@ -357,6 +359,55 @@ namespace FarmVsForest.Core
             return true;
         }
 
+        /// <summary>
+        /// What the next Ghoul costs the player now (Dark Forest's Summon rule), or null if their team can't summon.
+        /// The base recipe, plus <see cref="MatchConfig.darkForestGhoulStep"/> per Ghoul already summoned this turn,
+        /// minus 1 Bat and 1 Spider for each of their Haunts that is switched on (see <see cref="DarkForestCards.GhoulDiscount"/>).
+        /// </summary>
+        public List<ResourceAmount> GhoulCost(PlayerState player)
+        {
+            if (player == null || player.Team != Team.DarkForest) return null;
+            int bats = Config.darkForestGhoulBats, spiders = Config.darkForestGhoulSpiders;
+            if (bats <= 0 && spiders <= 0) return null;
+            int step = Config.darkForestGhoulStep * player.GhoulsSummonedThisTurn;
+            if (Config.darkForestGhoulsPerPriceStep > 0)
+                step += player.Resources.Get(ResourceType.Ghouls) / Config.darkForestGhoulsPerPriceStep;
+            bats += step;
+            spiders += step;
+            // Each switched-on Haunt takes 1 Bat and 1 Spider off the price, down to the minimum.
+            int min = Math.Max(0, Config.darkForestGhoulMinEach);
+            int off = DarkForestCards.GhoulDiscount(this, player);
+            bats = Math.Max(Math.Min(bats, min), bats - off);
+            spiders = Math.Max(Math.Min(spiders, min), spiders - off);
+            return new List<ResourceAmount> { new ResourceAmount(ResourceType.Bats, bats), new ResourceAmount(ResourceType.Spiders, spiders) };
+        }
+
+        /// <summary>Whether the current player can summon a Ghoul now (Dark Forest, on their turn, if they can pay).</summary>
+        public bool CanSummonGhoul(int playerId)
+        {
+            if (!IsStarted || IsOver || CurrentPlayer == null || CurrentPlayer.Id != playerId) return false;
+            if (Config.darkForestGhoulsPerTurn > 0 && CurrentPlayer.GhoulsSummonedThisTurn >= Config.darkForestGhoulsPerTurn) return false;
+            var cost = GhoulCost(CurrentPlayer);
+            return cost != null && CurrentPlayer.Resources.CanAfford(cost);
+        }
+
+        /// <summary>
+        /// Dark Forest's Summon: combine Bats and Spiders into 1 Ghoul. Doesn't use up a play. Returns false if not allowed.
+        /// </summary>
+        public bool SummonGhoul(int playerId)
+        {
+            if (!CanSummonGhoul(playerId)) return false;
+            var player = CurrentPlayer;
+            var cost = GhoulCost(player);
+            foreach (var c in cost) SpendResource(player, c.type, c.amount);
+            player.GhoulsSummonedThisTurn++;
+            Raise(new GameEvent { Type = GameEventType.GhoulSummoned, Player = player, Resource = ResourceType.Ghouls, Amount = 1,
+                Message = player + " combined " + string.Join(" and ", cost) + " into a Ghoul" });
+            GainResource(player, ResourceType.Ghouls, 1);
+            CheckGoals();
+            return true;
+        }
+
         /// <summary>Whether the current player can compost a card now (Forest: once a turn, any card in hand).</summary>
         public bool CanCompost(int playerId, CardInstance card)
         {
@@ -463,6 +514,24 @@ namespace FarmVsForest.Core
             Raise(new GameEvent { Type = GameEventType.ResourcesGained, Player = player, Source = source,
                 Resource = type, Amount = amount,
                 Message = player + " gained " + amount + " " + type + (source != null ? " from " + source.Definition : "") });
+            GladeBonus(player, type, source);
+        }
+
+        /// <summary>
+        /// Sunny Glades: the first time each round that a card touching a glade makes something for its owner, it makes
+        /// <see cref="MatchConfig.sunnyGladeBonus"/> more of it.
+        /// </summary>
+        private void GladeBonus(PlayerState player, ResourceType type, CardInstance source)
+        {
+            int bonus = Config.sunnyGladeBonus;
+            if (bonus <= 0 || source == null || !source.IsOnBoard || source.Owner != player) return;
+            if (source.GladeBonusRound == Round || !Board.TouchesGlade(source.Position)) return;
+            source.GladeBonusRound = Round;
+            player.Resources.Add(type, bonus);
+            player.GainedThisRound.Add(type, bonus);
+            Raise(new GameEvent { Type = GameEventType.ResourcesGained, Player = player, Source = source,
+                Resource = type, Amount = bonus,
+                Message = player + " gained " + bonus + " more " + type + " from the Sunny Glade by " + source.Definition });
         }
 
         public void SpendResource(PlayerState player, ResourceType type, int amount, CardInstance source = null)
@@ -571,6 +640,9 @@ namespace FarmVsForest.Core
                 : "nobody (draw)";
             Raise(new GameEvent { Type = GameEventType.MatchEnded, Message = reason + ". Winner: " + who });
         }
+
+        /// <summary>For team rules outside this class (Ghoul feeding) to report what happened.</summary>
+        internal void RaiseEvent(GameEvent e) => Raise(e);
 
         private void Raise(GameEvent e)
         {

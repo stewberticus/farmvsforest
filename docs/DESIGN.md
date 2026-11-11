@@ -9,7 +9,8 @@ competing for space and resources. Inspired by Carcassonne: there is **no damage
 | --- | --- |
 | Tone | Cozy, cute, child/family friendly. Dark Forest is cute-spooky, never scary. |
 | Combat | None. Teams mostly ignore each other; the main interaction is competing for space. |
-| Board | 10x10 for 1v1 (decided 2026-11-09: teams still meet). 16x16 for 4 players, to tune. |
+| Board | 9x9 for 1v1 (decided by Alexander 2026-11-11; was 10x10, where teams hardly met, and 8x8 let Forest win by filling the board). 16x16 for 4 players, to tune. |
+| Sunny Glades | 4 shared squares near the middle of the 1v1 board (decided 2026-11-11). Nobody can build on them. A card touching one makes 1 extra of what it makes, once a round, and they count as sunlight for Forest trees. |
 | Start | Each player begins with one starting card in their corner. It makes 1 basic resource every day (Evil Tree: every night), decided 2026-11-11. |
 | Movement | Cards never move once played. |
 | Placement | A new card must touch one of your own cards, edge to edge (no diagonals). |
@@ -29,7 +30,8 @@ Alexander removed four earlier card rules as too strict. New cards may now do an
 
 No damage, no destroying and no moving cards still stand. The lifted rules are being put to use in the phases of the
 [implementation plan](https://claude.ai/artifact/HiebN1HdedieXB72aDCvpq) (see [BALANCE.md](BALANCE.md#12-implementation-plan-2026-11-11)).
-So far: starting cards make a resource (phase 1).
+So far: starting cards make a resource (phase 1), a smaller board with Sunny Glades (phase 2), and Dark Forest
+combines Bats and Spiders into Ghouls (phase 3).
 
 ## Day and night
 
@@ -57,9 +59,9 @@ Each round is one **day** followed by one **night**.
 
 | Team | Goal |
 | --- | --- |
-| Farm | Have 64 Wheat, 64 Milk and 64 Eggs. |
-| Forest | **Grow 24 Old Trees in one connected forest.** Trees grow Sapling > Young Tree > Old Tree on sunny mornings (when they touch an empty square). |
-| Factory | Make 15 Toys in a single round (a day and its night). |
+| Farm | Have 62 Wheat, 62 Milk and 62 Eggs. |
+| Forest | **Grow 23 Old Trees in one connected forest.** Trees grow Sapling > Young Tree > Old Tree on sunny mornings (when they touch an empty square or a Sunny Glade). |
+| Factory | Make 16 Toys in a single round (a day and its night). |
 | Dark Forest | **Ghoul Party**: have 13 Ghouls at once (decided; Dark Forest is paced by its cards). |
 
 Goal numbers come from the cross-team balance pass (2026-11-09). Alexander's targets: games last 20+ rounds on
@@ -74,8 +76,9 @@ are tuned, not designed, so change them freely as cards change. See
 * **Forest**: [teams/FOREST.md](teams/FOREST.md). Growth: trees grow from Sapling to Old Tree on sunny mornings (touching an
   empty square), so spreading competes with leaving light. Forest can pay Acorns to play extra trees, compost cards
   for Acorns, and spend Honey to pollinate (a tree grows a step).
-* **Dark Forest**: [teams/DARK_FOREST.md](teams/DARK_FOREST.md). Haunts invite Ghouls; every morning each Ghoul eats a
-  Bat or Spider, and a morning you can't feed them all, one Ghoul goes home.
+* **Dark Forest**: [teams/DARK_FOREST.md](teams/DARK_FOREST.md). On your turn, combine Bats and Spiders into Ghouls (the
+  price rises as the party grows; switched-on Haunts make it cheaper). Every morning each Ghoul eats a Bat or Spider,
+  and a morning you can't feed them all, one Ghoul goes home.
 
 ## Open questions
 

@@ -82,6 +82,8 @@ namespace FarmVsForest.Core
             { DarkForestCards.FreeMealsEffect, 1.2 },
             // Forest growth: a step towards an Old Tree on each sunny morning.
             { ForestCards.GrowEffect, 0.6 },
+            // Dark Forest Haunts: Ghouls cost 1 less, about one Ghoul summoned a round once it's switched on.
+            { DarkForestCards.CheaperGhoulsEffect, 1.2 },
         };
 
         public double ValueOf(ResourceType type) => resourceValue.TryGetValue(type, out var v) ? v : 1;
@@ -193,6 +195,7 @@ namespace FarmVsForest.Core
                     break;
                 case EffectKind.GainPerTouching:
                     double touching = string.IsNullOrEmpty(e.tag) ? s.expectedTouchingAny : s.expectedTouchingTagged;
+                    if (e.maxCount > 0) touching = Math.Min(touching, e.maxCount * 0.75);
                     each = e.amount * s.ValueOf(e.resource) * touching;
                     why = when + ": " + e.amount + " " + e.resource + " per touching " + (string.IsNullOrEmpty(e.tag) ? "card" : e.tag) +
                           " (x" + touching.ToString("0.#") + ")";
@@ -217,6 +220,7 @@ namespace FarmVsForest.Core
         private static string When(EffectDefinition e)
         {
             if (e.trigger == EffectTrigger.OnPlay) return "on play";
+            if (e.trigger == EffectTrigger.Passive) return "while on the board";
             string unit = e.trigger == EffectTrigger.Day ? "day" : "night";
             int n = Math.Max(1, e.interval);
             if (!e.repeat) return "once after " + n + " " + unit + (n == 1 ? "" : "s");

@@ -35,12 +35,16 @@ namespace FarmVsForest.Core
             {
                 var p = match.CurrentPlayer;
                 var options = Bots.Options(match, p).ToList();
-                if (options.Count == 0) return;
+                if (options.Count == 0) break;
                 var (card, square) = options[_rng.Range(0, options.Count)];
-                if (match.PlayCard(p.Id, card, square) != PlayResult.Ok) return;
+                if (match.PlayCard(p.Id, card, square) != PlayResult.Ok) break;
             }
+            // Summon Ghouls whenever it can, fed or not (Dark Forest only).
+            if (match.IsOver) return;
+            Bots.SummonGhouls(match, careful: false);
             // Compost a random card now and then (Forest only; does nothing for other teams).
             var me = match.CurrentPlayer;
+            if (me == null) return;
             if (!match.IsOver && me.Hand.Count > 0 && _rng.Range(0, 3) == 0)
                 match.Compost(me.Id, me.Hand[_rng.Range(0, me.Hand.Count)]);
             // Pollinate random growing trees with some of its Honey.
@@ -73,6 +77,11 @@ namespace FarmVsForest.Core
         /// Stands in for the weakest sensible player, to measure how much decisions matter.
         /// </summary>
         public bool Worst;
+        /// <summary>
+        /// Plays as if Sunny Glades weren't there (it still gets their bonus by luck). Mirror it against the normal bot to
+        /// measure whether going for the glades matters.
+        /// </summary>
+        public bool IgnoreGlades;
 
         public GreedyBot(int seed, BalanceSettings settings = null, bool worst = false)
         {
@@ -93,6 +102,8 @@ namespace FarmVsForest.Core
                 if (!PlayBest(match)) break;
             if (!match.IsOver) MaybeCompost(match);
             if (!match.IsOver) Pollinate(match);
+            // Dark Forest: summon only Ghouls it can still feed tomorrow. The worst bot summons whatever it can.
+            if (!match.IsOver) Bots.SummonGhouls(match, careful: !Worst);
         }
 
         /// <summary>
@@ -200,10 +211,29 @@ namespace FarmVsForest.Core
             return value - spend;
         }
 
-        private static double ScoreSquare(Match match, PlayerState p, CardDefinition def, Coord square)
+        /// <summary>
+        /// What touching a Sunny Glade is worth to this card: its bonus every round for the rest of the game, valued at
+        /// the card's main resource. Trees make nothing, but a glade keeps them in the sun for good.
+        /// </summary>
+        private double GladeValue(Match match, PlayerState p, CardDefinition def, Coord square)
+        {
+            if (IgnoreGlades || match.Config.sunnyGladeBonus <= 0 || !match.Board.TouchesGlade(square)) return 0;
+            if (ForestCards.Grows(def)) return 2;
+            var makes = (def.effects ?? new List<EffectDefinition>()).Where(e => e.trigger != EffectTrigger.OnPlay &&
+                (e.kind == EffectKind.GainResource || e.kind == EffectKind.GainPerTouching ||
+                 e.kind == EffectKind.ConvertResource || e.kind == EffectKind.GainPerEmptyTouching ||
+                 e.customEffectId == StartingIncomeEffect.Id)).ToList();
+            if (makes.Count == 0) return 0;
+            double perRound = makes.Max(e => _settings.ValueOf(e.resource)) * match.Config.sunnyGladeBonus;
+            double roundsLeft = Math.Max(2, _settings.targetRounds - match.Round);
+            // Discounted like any future income: worth about half its face value over the rest of the game.
+            return 0.5 * perRound * roundsLeft;
+        }
+
+        private double ScoreSquare(Match match, PlayerState p, CardDefinition def, Coord square)
         {
             var board = match.Board;
-            double score = 0;
+            double score = GladeValue(match, p, def, square);
             foreach (var n in board.Neighbours(square))
             {
                 var other = board.Get(n);
@@ -214,12 +244,12 @@ namespace FarmVsForest.Core
             // Forest growth: trees grow only while they touch an empty square (sunlight). Give growing cards room,
             // and don't take the last open square from one of our growing trees.
             if (ForestCards.Grows(def))
-                score += 1.0 * Math.Min(2, board.Neighbours(square).Count(board.IsEmpty));
+                score += 1.0 * Math.Min(2, board.Neighbours(square).Count(board.IsOpen));
             foreach (var n in board.Neighbours(square))
             {
                 var other = board.Get(n);
                 if (other == null || other.Owner != p || !ForestCards.Grows(other.Definition)) continue;
-                int open = board.Neighbours(n).Count(board.IsEmpty);
+                int open = board.Neighbours(n).Count(board.IsOpen);
                 score -= open <= 1 ? 6 : 0.5;
             }
 
@@ -250,6 +280,11 @@ namespace FarmVsForest.Core
                 if (e.kind != EffectKind.GainPerTouching) continue;
                 double expected = string.IsNullOrEmpty(e.tag) ? _settings.expectedTouchingAny : _settings.expectedTouchingTagged;
                 int actual = mine.Count(c => string.IsNullOrEmpty(e.tag) || c.Definition.HasTag(e.tag));
+                if (e.maxCount > 0)
+                {
+                    actual = Math.Min(actual, e.maxCount);
+                    expected = Math.Min(expected, e.maxCount * 0.75);
+                }
                 v += (actual - expected) * e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
             }
             foreach (var e in def.effects ?? new List<EffectDefinition>())
@@ -258,9 +293,20 @@ namespace FarmVsForest.Core
                 int empty = board.Neighbours(square).Count(board.IsEmpty);
                 v += (empty - _settings.expectedTouchingEmpty) * e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
             }
+            // Haunts: the discount only works while touching the right card.
+            foreach (var e in def.effects ?? new List<EffectDefinition>())
+            {
+                if (e.trigger != EffectTrigger.Passive || e.customEffectId != DarkForestCards.CheaperGhoulsEffect) continue;
+                v += mine.Any(c => string.IsNullOrEmpty(e.tag) || c.Definition.HasTag(e.tag)) ? 2 : -6;
+            }
             foreach (var n in mine)
             foreach (var e in n.Definition.effects ?? new List<EffectDefinition>())
             {
+                if (e.trigger == EffectTrigger.Passive && e.customEffectId == DarkForestCards.CheaperGhoulsEffect)
+                {
+                    if ((string.IsNullOrEmpty(e.tag) || def.HasTag(e.tag)) && !DarkForestCards.IsSwitchedOn(match, n, e)) v += 6;
+                    continue;
+                }
                 double each = e.amount * _settings.ValueOf(e.resource) * CardValuation.Fires(e, _settings);
                 if (e.kind == EffectKind.GainPerTouching && (string.IsNullOrEmpty(e.tag) || def.HasTag(e.tag))) v += each;
                 // Filling a square next to a card that wants empty space costs it that square.
@@ -296,6 +342,55 @@ namespace FarmVsForest.Core
                 return cost != null && p.Resources.CanAfford(cost);
             }).ToList();
 
+        /// <summary>
+        /// Dark Forest's Summon: combine Bats and Spiders into Ghouls. Careful: only while every Ghoul can still be fed
+        /// tomorrow morning (or the summon wins the game). Not careful: as many as it can pay for.
+        /// </summary>
+        public static void SummonGhouls(Match match, bool careful)
+        {
+            var p = match.CurrentPlayer;
+            if (p == null || p.Team != Team.DarkForest) return;
+            for (int i = 0; i < 20 && !match.IsOver && match.CanSummonGhoul(p.Id); i++)
+            {
+                if (careful && !CanFeedAfterSummon(match, p)) return;
+                if (!match.SummonGhoul(p.Id)) return;
+            }
+        }
+
+        private static bool CanFeedAfterSummon(Match match, PlayerState p)
+        {
+            var cost = match.GhoulCost(p);
+            int ghoulsAfter = p.Resources.Get(ResourceType.Ghouls) + 1;
+            if (match.GoalOf(p) is HaveResourcesGoal goal && goal.Types.Contains(ResourceType.Ghouls) && ghoulsAfter >= goal.Amount)
+                return true;
+            int food = p.Resources.Get(ResourceType.Bats) + p.Resources.Get(ResourceType.Spiders) - cost.Sum(c => c.amount);
+            var (morningFood, freeMeals) = MorningFood(match, p);
+            int need = Math.Max(0, ghoulsAfter - freeMeals) * match.Config.ghoulFoodEach;
+            return food + morningFood >= need;
+        }
+
+        /// <summary>Bats and Spiders the player's cards will make next morning before the Ghouls eat, and free meals.</summary>
+        public static (int food, int freeMeals) MorningFood(Match match, PlayerState p)
+        {
+            int food = 0, free = 0;
+            var board = match.Board;
+            foreach (var card in board.AllCards())
+            {
+                if (card.Owner != p || card.Definition.effects == null) continue;
+                foreach (var e in card.Definition.effects)
+                {
+                    if (e.trigger != EffectTrigger.Day || !e.FiresOn(card.DaysSeen + 1)) continue;
+                    if (e.customEffectId == DarkForestCards.FreeMealsEffect) free += e.amount;
+                    if (e.resource != ResourceType.Bats && e.resource != ResourceType.Spiders) continue;
+                    if (e.kind == EffectKind.GainResource) food += e.amount;
+                    else if (e.kind == EffectKind.GainPerTouching)
+                        food += e.amount * board.Neighbours(card.Position).Select(board.Get)
+                            .Count(c => c != null && c.Owner == p && (string.IsNullOrEmpty(e.tag) || c.Definition.HasTag(e.tag)));
+                }
+            }
+            return (food, free);
+        }
+
         public static IBot Create(string name, int seed, BalanceSettings settings = null)
         {
             switch ((name ?? "greedy").ToLowerInvariant())
@@ -305,6 +400,7 @@ namespace FarmVsForest.Core
                 case "worst": return new GreedyBot(seed, settings, worst: true);
                 // A careless player: same judgement as greedy, but noise swamps the smaller differences between options.
                 case "sloppy": return new GreedyBot(seed, settings) { Noise = SloppyNoise, Label = "sloppy" };
+                case "noglades": return new GreedyBot(seed, settings) { IgnoreGlades = true, Label = "noglades" };
                 default: return new GreedyBot(seed, settings);
             }
         }

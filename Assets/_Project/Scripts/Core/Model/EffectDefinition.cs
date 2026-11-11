@@ -18,6 +18,8 @@ namespace FarmVsForest.Core
         Day = 1,
         /// <summary>When a night starts. Use <see cref="EffectDefinition.interval"/> for "every X nights".</summary>
         Night = 2,
+        /// <summary>Never fires. A rule reads it while the card is on the board (e.g. "Ghouls cost 1 less").</summary>
+        Passive = 3,
     }
 
     /// <summary>What the effect does. Add new built-ins here, or use Custom with a registered id.</summary>
@@ -84,6 +86,8 @@ namespace FarmVsForest.Core
 
         /// <summary>Used by GainPerTouching: only touching cards with this tag count. Empty counts any of your cards.</summary>
         public string tag;
+        /// <summary>Used by GainPerTouching: count at most this many touching cards. 0 means no limit.</summary>
+        public int maxCount;
 
         /// <summary>Used by AddCardToHand: the id of the card to create, e.g. "farm.cow".</summary>
         public string cardId;

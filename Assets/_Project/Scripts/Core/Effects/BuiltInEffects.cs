@@ -46,6 +46,7 @@ namespace FarmVsForest.Core
                 .Select(board.Get)
                 .Count(c => c != null && c.Owner == ctx.Source.Owner &&
                             (string.IsNullOrEmpty(e.tag) || c.Definition.HasTag(e.tag)));
+            if (e.maxCount > 0) count = System.Math.Min(count, e.maxCount);
             if (count == 0) return;
             foreach (var p in ctx.TargetPlayers)
                 ctx.Match.GainResource(p, e.resource, e.amount * count, ctx.Source);

@@ -28,6 +28,8 @@ namespace FarmVsForest.Core
         public CardInstance StartingCard { get; internal set; }
 
         public int CardsPlayedThisTurn { get; internal set; }
+        /// <summary>Dark Forest: Ghouls summoned this turn (each one after the first costs more).</summary>
+        public int GhoulsSummonedThisTurn { get; internal set; }
         /// <summary>Forest's Compost rule: used once a turn.</summary>
         public bool CompostedThisTurn { get; internal set; }
 
