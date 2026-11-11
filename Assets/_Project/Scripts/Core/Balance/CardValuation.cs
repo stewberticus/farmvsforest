@@ -30,6 +30,11 @@ namespace FarmVsForest.Core
         /// <summary>One extra random card in hand. Low, because you can only play one card a turn anyway.</summary>
         public double drawValue = 2;
         /// <summary>
+        /// V of "look at the top 3, keep 1". Much more than a plain draw: you get the card you need. Set by sim
+        /// (2026-11-11): lower values made the bot skip scout cards, and the shuffle kept deciding games.
+        /// </summary>
+        public double scoutValue = 14;
+        /// <summary>
         /// A specific card made straight into your hand ("every 2 days, add a Cow card") is worth this, plus however
         /// far that card is above its own par. More than a random draw because you know what you're getting.
         /// </summary>
@@ -175,6 +180,11 @@ namespace FarmVsForest.Core
                 case EffectKind.DrawCard:
                     each = e.amount * s.drawValue;
                     why = when + ": draw " + e.amount;
+                    break;
+                case EffectKind.Scout:
+                    // A draw you get to choose: a card in hand plus the pick of the best of several.
+                    each = s.scoutValue * (1 + 0.25 * Math.Max(0, e.amount - 3));
+                    why = when + ": look at " + e.amount + ", keep 1";
                     break;
                 case EffectKind.GainPerEmptyTouching:
                     each = e.amount * s.ValueOf(e.resource) * s.expectedTouchingEmpty;

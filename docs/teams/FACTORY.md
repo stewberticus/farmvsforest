@@ -91,3 +91,11 @@ on purpose:
 
 * Should the Factory be able to spend Toys on cards? The goal counts Toys made, not held, so spending wouldn't slow it.
 * Playtest whether "always leaves you 3 Parts" reads clearly on the Assembler cards.
+
+## Scout card (2026-11-11, plan phase 4)
+
+| Card | Copies | Cost | Text |
+| --- | --- | --- | --- |
+| Mail-Order Catalogue | 3 | free | When played: gain 1 Part, then look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. |
+
+It replaced the Spare Parts Bin in the deck (played 0.4 times a game). The Bin is still defined, with 0 copies.

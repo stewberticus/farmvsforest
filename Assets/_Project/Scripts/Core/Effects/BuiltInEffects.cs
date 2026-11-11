@@ -102,6 +102,12 @@ namespace FarmVsForest.Core
 
 namespace FarmVsForest.Core
 {
+    /// <summary>"Look at the top N cards of your deck, keep 1, put the rest on the bottom." The owner picks.</summary>
+    public class ScoutEffect : IEffect
+    {
+        public void Apply(EffectContext ctx) => ctx.Match.StartScout(ctx.Source.Owner, ctx.Effect.amount, ctx.Source);
+    }
+
     /// <summary>
     /// Custom effect "start_income": a starting card's daily income. Gains <c>amount</c> x
     /// <see cref="MatchConfig.startingCardIncome"/> of <c>resource</c>, so the sim can switch it off with

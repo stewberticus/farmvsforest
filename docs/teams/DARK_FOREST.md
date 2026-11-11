@@ -114,3 +114,11 @@ what brings it to round 21.
 
 * Should the feeding rule bite harder (more food per Ghoul, or Bats and Spiders that don't pile up)?
 * Goal number 13 is decided (Alexander); the pace is tuned with cards instead.
+
+## Scout card (2026-11-11, plan phase 4)
+
+| Card | Copies | Cost | Text |
+| --- | --- | --- | --- |
+| Fortune-Telling Toad | 2 | 1 Bat | When played: look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Every night: gain 1 Spider. |
+
+It replaced the Picnic Blanket (0 copies now; feeding rarely bites) and one Glow Mushrooms (5 to 4).

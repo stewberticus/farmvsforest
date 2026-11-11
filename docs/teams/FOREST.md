@@ -1,7 +1,7 @@
 # Forest
 
 The Forest is about **growth and life**. You plant Saplings, give them sunlight, and grow them into Old Trees.
-**Goal: 23 Old Trees in one connected forest** (2026-11-11, on the 9x9 board; was 20 on 10x10). A Sunny Glade counts as sunlight.
+**Goal: 22 Old Trees in one connected forest** (2026-11-11, on the 9x9 board; was 20 on 10x10). A Sunny Glade counts as sunlight.
 
 Status: second pass (2026-11-09). Alexander chose the growth goal so that good decisions matter more. The numbers come
 from the balance sim and still need playtesting.
@@ -103,3 +103,11 @@ matches. 1v1: Forest 49% overall, and every Forest matchup is 49 to 51%.
 * Playtest whether "sunny morning" is easy for kids to read on the board (maybe show a little sun icon on trees that
   will grow tonight).
 * Tune with people, not just bots.
+
+## Scout card (2026-11-11, plan phase 4)
+
+| Card | Copies | Cost | Text |
+| --- | --- | --- | --- |
+| Owl's Hollow | 2 | 1 Acorn | When played: look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Every 2 nights: gain 1 Honey. |
+
+It replaced Blue Jay's Nest in the deck (played 0.2 times a game).

@@ -591,6 +591,35 @@ namespace FarmVsForest.Runtime
                 return;
             }
 
+            // Scout: pick one of the cards shown; the rest go to the bottom of the deck.
+            var scout = m.PendingScout;
+            if (scout != null && scout.Player == p)
+            {
+                GUI.Label(new Rect(handArea.x, handArea.y - 2, handArea.width, 24),
+                    "Keep one of these. The others go to the bottom of your deck.", new GUIStyle(_label) { normal = { textColor = Paper } });
+                float w = Mathf.Min(200, (handArea.width - 10 * (scout.Cards.Count - 1)) / Mathf.Max(1, scout.Cards.Count));
+                for (int i = 0; i < scout.Cards.Count; i++)
+                {
+                    var r = new Rect(handArea.x + i * (w + 10), handArea.y + 24, w, handArea.height - 56);
+                    DrawHandCard(scout.Cards[i].Definition, scout.Cards[i].Definition.cost, r, true, false);
+                    if (r.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                    {
+                        var kept = scout.Cards[i].Definition.displayName;
+                        M.ChooseScouted(p.Id, i);
+                        _message = "Kept " + kept + ".";
+                        Event.current.Use();
+                    }
+                }
+                return;
+            }
+
+            if (M.CanMulligan(p.Id) && GUI.Button(new Rect(handArea.xMax - 230, handArea.yMax - 92, 230, 28), "Mulligan (new hand, once)", _button))
+            {
+                ClearSelection();
+                M.Mulligan(p.Id);
+                _message = "You drew a new hand.";
+            }
+
             if (p.Hand.Count == 0)
                 GUI.Label(handArea, "Your hand is empty. Press End Turn.", new GUIStyle(_labelCenter) { fontSize = 24, normal = { textColor = Paper } });
 

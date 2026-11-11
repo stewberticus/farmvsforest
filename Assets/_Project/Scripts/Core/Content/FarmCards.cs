@@ -23,6 +23,7 @@ namespace FarmVsForest.Core
         public const string BigRedBarnId = "farm.big_red_barn";
         public const string NestingBoxId = "farm.nesting_box";
         public const string FarmhandsCottageId = "farm.farmhands_cottage";
+        public const string WeathervaneId = "farm.weathervane";
 
         /// <summary>The corner card: where the farm grows from. Makes 1 Wheat a day so you can always get going.</summary>
         public static CardDefinition Starting() =>
@@ -59,6 +60,11 @@ namespace FarmVsForest.Core
                 Cost(ResourceType.Eggs, 3), new[] { Building },
                 AddToHand(EffectTrigger.Day, ChickenCoopId, 2)),
 
+            Card(WeathervaneId, "Weathervane", "When played: look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Every 2 days: gain 1 Wheat. The rooster on top always knows which way the wind blows.",
+                Cost(ResourceType.Wheat, 1), new string[0],
+                new EffectDefinition(EffectTrigger.OnPlay, EffectKind.Scout, 3),
+                new EffectDefinition(EffectTrigger.Day, EffectKind.GainResource, 1, ResourceType.Wheat, interval: 2)),
+
             Card(FarmhandsCottageId, "Farmhand's Cottage", "Every 2 days: add a Wheat Field to your hand. Feed a farmhand a good breakfast and they'll plant a new field.",
                 Cost(ResourceType.Milk, 1, ResourceType.Eggs, 1), new[] { Building },
                 AddToHand(EffectTrigger.Day, WheatFieldId, 2)),
@@ -74,7 +80,9 @@ namespace FarmVsForest.Core
             { BarnCatId, 3 },
             { BigRedBarnId, 2 },
             { NestingBoxId, 2 },
-            { FarmhandsCottageId, 2 },
+            { WeathervaneId, 2 },
+            // Farmhand's Cottage (0.3 plays a game) made room for the Weathervane on 2026-11-11.
+            { FarmhandsCottageId, 0 },
         };
 
         public static List<CardDefinition> StarterDeck()
