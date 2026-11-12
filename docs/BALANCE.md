@@ -126,8 +126,8 @@ build-around card), but the team's design notes must say why.
   touching flower", "at night, this counts as a tree". Price each half separately and add them.
 * Dark Forest plays at night, so for them a night effect comes just before their turn and a day effect half a round
   earlier. Same value.
-* Each team should have both day and night cards (DESIGN.md), and its deck should have a reason to care about at
-  least one of them.
+* For the day teams, day and night are **flavour** (decided 2026-11-11): price a day card and a night card the same,
+  and don't add rules that make a day team care which it is. Only Dark Forest's turn and Ghoul feeding depend on it.
 
 ### Early and late cards
 
@@ -375,3 +375,21 @@ choices; 1 means the shuffle decides everything), and `--compare-board A,B` (doe
 | 4 | One mulligan; 2 scout cards per team (look at the top 3, keep 1). Farm 66 each, Forest 22 Old Trees | `mulligans`, `EffectKind.Scout`, `BalanceSettings.scoutValue` |
 | 5 | Factory's Big Order (3-day countdown, every Assembler runs twice more) replaces Big Whistle; Toy forecast in the demo. Factory 17 Toys | `factoryGoalToys`, deck counts in `FactoryCards.DeckCounts` |
 | 6 | Upgrades: cards played onto your own cards. Big Red Barn and Nesting Box upgrade Cows and Coops; animals make Milk and Eggs every 2 days. Farm 27 each | `allowUpgrades`, `CardDefinition.upgradeFor`, `FarmCards.AnimalDays` |
+| 7 | Cross-team retune so games average 20+ rounds: Farm 30 each, Forest 24 Old Trees, Factory 18 Toys, Ghouls cost 8 Bats and 8 Spiders (plus 1 of each per Ghoul owned). Docs rewritten, [playtest sheet](PLAYTEST.md) | `farmGoalEach`, `forestGoalOldTrees`, `factoryGoalToys`, `darkForestGhoulBats`, `darkForestGhoulSpiders` |
+
+### Where the plan ended (phase 7, 1,000 games per matchup, seeds 3001 and 4001)
+
+| Target | Result |
+| --- | --- |
+| Games average 20+ rounds | Yes on average: 20.2 across all matchups (19.7 to 20.5 per matchup) |
+| No team above 55% in any 1v1 | 11 of 12 matchup results are 46 to 54%. Forest beats Factory 56% on seed 3001 (52% on seed 4001) |
+| Solo median round | 21 to 22 for every team |
+| Decisions matter: good beats random | 80 to 98% in a mirror |
+| Decisions matter: good beats sloppy | 54 to 56%. Short of the 60% the plan hoped for |
+| Shuffle luck | 0.56 to 0.71 for every team (was 0.77 to 0.93 before the plan) |
+| Teams meet | Forest meets everyone by round 12 to 13. Farm, Factory and Dark Forest meet each other by round 14 to 16 in 74 to 86% of games |
+| Goal 13 Ghouls for Dark Forest | Kept |
+
+Good beats sloppy stayed at 54 to 56% through every phase. A noisy greedy bot still plays a decent card most turns,
+so the bots can't show the gap that planning gives a person. Treat it as a question for playtests, not a sim target.
+Report: `balance-reports/2026-11-11-phase7-final-tuning.md`.

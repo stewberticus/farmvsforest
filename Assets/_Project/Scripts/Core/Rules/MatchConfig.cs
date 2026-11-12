@@ -109,7 +109,7 @@ namespace FarmVsForest.Core
         // ---- Team goals (starting numbers, to tune)
 
         /// <summary>Farm wins with this many Wheat, Milk and Eggs at once.</summary>
-        public int farmGoalEach = 27;
+        public int farmGoalEach = 30;
         /// <summary>Forest wins with this many Tree cards in one touching group.</summary>
         public int forestGoalTrees = 33;
         /// <summary>
@@ -121,7 +121,7 @@ namespace FarmVsForest.Core
         /// Forest's growth goal: this many Old Trees in one connected forest. 0 uses the older goal of
         /// <see cref="forestGoalTrees"/> trees instead.
         /// </summary>
-        public int forestGoalOldTrees = 22;
+        public int forestGoalOldTrees = 24;
         /// <summary>Each further extra tree in the same turn costs this many more Acorns (2, then 3, then 4...).</summary>
         public int forestExtraTreeStep = 1;
         /// <summary>
@@ -136,17 +136,17 @@ namespace FarmVsForest.Core
         public int forestPollinateHoney = 2;
 
         /// <summary>Factory wins by making this many Toys in one round (day + night).</summary>
-        public int factoryGoalToys = 17;
+        public int factoryGoalToys = 18;
         /// <summary>Dark Forest wins with this many Ghouls at once.</summary>
         public int darkForestGoalGhouls = 13;
         /// <summary>
         /// Dark Forest's Summon rule (decided 2026-11-11): on your turn, combine this many Bats and
         /// <see cref="darkForestGhoulSpiders"/> Spiders into 1 Ghoul, as often as you can pay. Haunts make it cheaper.
         /// Both 0 turns the rule off. The plan started at 3 and 3; the sim needed 6 and 6 plus
-        /// <see cref="darkForestGhoulsPerPriceStep"/> to keep games 20+ rounds (see balance-reports, phase 3).
+        /// <see cref="darkForestGhoulsPerPriceStep"/> to keep games 20+ rounds (see balance-reports, phase 3), and phase 7 raised it to 8 and 8.
         /// </summary>
-        public int darkForestGhoulBats = 6;
-        public int darkForestGhoulSpiders = 6;
+        public int darkForestGhoulBats = 8;
+        public int darkForestGhoulSpiders = 8;
         /// <summary>Each further Ghoul in the same turn costs this many more Bats and Spiders. Off: the party price below does the job.</summary>
         public int darkForestGhoulStep = 0;
         /// <summary>

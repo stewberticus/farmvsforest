@@ -1,9 +1,37 @@
 # Farm
 
-> **Upgrades (2026-11-11, plan phase 6):** the goal is now **27 of each**. Animals make Milk and Eggs every 2 days, and
-> Big Red Barn and Nesting Box are upgrades played onto your own Cows and Chicken Coops. See [Upgrades](#upgrades-2026-11-11-plan-phase-6).
+## Now (2026-11-11, after the implementation plan)
 
-The Farm is a tidy homestead. It wins by having **27 Wheat, 27 Milk and 27 Eggs** at the same time, and it gets
+**Goal:** Have **30 Wheat, 30 Milk and 30 Eggs** at once.
+
+Lay out Wheat Fields, then put Cows and Chicken Coops where they touch the most crops: each makes Milk or Eggs every 2
+days for every crop touching it. Big Red Barn and Nesting Box are upgrades that double an animal, so upgrade the
+best-placed one. Every Milk or Egg you spend on a Barn Cat or an upgrade also counts towards the goal, so each buy is a
+small "spend now or save" choice.
+
+| Card | Copies | Cost | Text |
+| --- | --- | --- | --- |
+| Farm (start) | - | - | Every day: gain 1 Wheat. Home sweet home, with a little vegetable patch out back. |
+| Wheat Field | 10 | free | Every day: gain 1 Wheat. |
+| Scarecrow | 3 | 1 Wheat | Every day: gain 1 Wheat for each touching crop. Shoos the crows away. |
+| Cow | 4 | 3 Wheat | Every 2 days: gain 1 Milk for each touching crop. She's happiest grazing by the fields. |
+| Chicken Coop | 4 | 3 Wheat | Every 2 nights: gain 1 Egg for each touching crop. The hens peck spilled grain and leave eggs by morning. |
+| Barn Cat | 3 | 1 Milk | Every night: gain 1 Wheat for each touching crop. A saucer of milk, and she keeps the mice out of the fields. |
+| Big Red Barn | 2 | 3 Milk | Upgrade: play onto one of your Cows. Every 2 days: gain 1 more Milk for each crop touching her. A warm barn and fresh straw make for happy cows. |
+| Nesting Box | 2 | 3 Eggs | Upgrade: play onto one of your Chicken Coops. Every 2 nights: gain 1 more Egg for each crop touching it. Soft hay in every box, and the hens lay twice as well. |
+| Weathervane | 2 | 1 Wheat | When played: look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Every 2 days: gain 1 Wheat. The rooster on top always knows which way the wind blows. |
+
+30 cards in the deck. Card data: `Assets/_Project/Scripts/Core/Content/FarmCards.cs`.
+
+**Sim (1,000 games, seeds 3001 and 4001):** Solo median round 21 to 22. Matchups 46 to 54%. Upgrades are played about once a game each, and with upgrades
+switched off Farm drops to 39% against Forest.
+
+Everything below this section is how the team got here. Numbers in it are from when each part was written; where they
+disagree with this section, this section is current.
+
+---
+
+The Farm is a tidy homestead. It wins by having **30 Wheat, 30 Milk and 30 Eggs** (27 in phase 6, 30 after the phase 7 retune) at the same time, and it gets
 there by laying out fields and animals well, then upgrading the best-placed animals.
 
 Status: the cards and direction are agreed with Alexander. The numbers come from the balance sim and still need

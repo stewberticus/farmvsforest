@@ -1,6 +1,37 @@
 # Factory: the Toy Workshop
 
-> **Cross-team pass (2026-11-09):** the goal is now **15 Toys in a round** so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup.
+## Now (2026-11-11, after the implementation plan)
+
+**Goal:** Make **18 Toys in a single round** (a day and its night).
+
+Gather Parts with Scrap Piles, Tinker Sheds and Moonlight Robots, then build Assemblers and tuck Wrapping Stations
+between them. When the Parts pile and the machines are ready, play a Big Order: three days later every Assembler runs
+three times, which is what tips the round past 18 Toys. The demo shows the countdown on the card and the forecast for
+that day next to the goal.
+
+| Card | Copies | Cost | Text |
+| --- | --- | --- | --- |
+| Headquarters (start) | - | - | Every day: gain 1 Part. Where the workshop begins, and the junk drawer is never empty. |
+| Scrap Pile | 9 | free | Every day: gain 1 Part. |
+| Tinker Shed | 3 | 2 Parts | Every day: gain 1 Part, plus 1 if it touches a Scrap Pile. |
+| Moonlight Robot | 2 | 2 Parts | Every night: gain 2 Parts. |
+| Toy Assembler | 3 | 3 Parts | Every day: turn 2 spare Parts into 1 Toy (always leaves you 3 Parts). |
+| Night Shift Assembler | 3 | 3 Parts | Every night: turn 2 spare Parts into 1 Toy (always leaves you 3 Parts). |
+| Wrapping Station | 3 | 3 Parts | Every night: gain 1 Toy for each Assembler it touches. |
+| Mail-Order Catalogue | 3 | free | When played: gain 1 Part, then look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Circle the good bits! |
+| Blueprint Desk | 1 | 2 Parts | Every 2 days: add a Toy Assembler to your hand. |
+| Robot Charging Dock | 1 | 3 Parts | Every 2 nights: add a Moonlight Robot to your hand. |
+| Big Order | 2 | 4 Parts | In 3 days: every Assembler you own runs twice that day. A whole town's worth of birthday presents, due Friday! |
+
+30 cards in the deck. Card data: `Assets/_Project/Scripts/Core/Content/FactoryCards.cs`.
+
+**Sim (1,000 games, seeds 3001 and 4001):** Solo median round 21. Matchups 44 to 53%. The good bot plays a Big Order in about two thirds of games, and most
+Factory wins land on an Order's payoff day.
+
+Everything below this section is how the team got here. Numbers in it are from when each part was written; where they
+disagree with this section, this section is current.
+
+---
 
 A cozy little toy workshop. Tinkerers gather Parts (mostly by day), Assemblers turn Parts into Toys, and the
 Factory wins with one big round of toymaking. Code: `Assets/_Project/Scripts/Core/Content/FactoryCards.cs`.
@@ -8,7 +39,7 @@ Factory wins with one big round of toymaking. Code: `Assets/_Project/Scripts/Cor
 Agreed with Alexander on 2026-11-09:
 
 * Theme: toy workshop. The goal resource is **Toys** (renamed from Goods); Parts stay.
-* Goal: make Toys in one round (a day and its night). Started at 10; 15 after the cross-team pass; 16 on the 9x9 board with Sunny Glades, and **17** with the Big Order (2026-11-11) (see [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09)). Toys from day cards, night cards and cards played that
+* Goal: make Toys in one round (a day and its night). Started at 10; 15 after the cross-team pass; 16 on the 9x9 board with Sunny Glades, 17 with the Big Order, and **18** after the phase 7 retune (2026-11-11) (see [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09)). Toys from day cards, night cards and cards played that
   round all count; Toys saved up from earlier rounds don't.
 * Headquarters, the starting corner card, makes 1 Part every day (2026-11-11, phase 1).
 * No "draw a card" cards. Cards that make more cards add a specific card to your hand instead.

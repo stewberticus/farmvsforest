@@ -1,6 +1,37 @@
 # Dark Forest
 
-> **Cross-team pass (2026-11-09):** the goal is now **13 Ghouls (kept; the cards set the pace)** so that games average 20+ rounds and no team wins more than 55% of any 1v1 matchup. See [BALANCE.md](../BALANCE.md#9-cross-team-pass-2026-11-09).
+## Now (2026-11-11, after the implementation plan)
+
+**Goal:** Throw a **Ghoul Party: 13 Ghouls** at once (decided; Dark Forest is paced by its cards).
+
+Bats and Spiders come out at night. On your turn, summon Ghouls by spending 8 Bats and 8 Spiders, plus 1 of each for
+every Ghoul already at the party. Each switched-on Haunt (a Graveyard touching another Haunt, a Lantern touching Glow
+Mushrooms) takes 1 of each off, never below 2. The Full Moon Shrine brings a free Ghoul every 3 nights. Every morning
+each Ghoul eats a Bat or a Spider, and on a morning you can't feed them all, one goes home, so don't summon more than
+you can feed.
+
+| Card | Copies | Cost | Text |
+| --- | --- | --- | --- |
+| Evil Tree (start) | - | - | Every night: gain 1 Bat. Your home in the dark woods. It looks spooky, but the bats think it's cosy. |
+| Bat Roost | 6 | free | Every night: gain 1 Bat. |
+| Cobweb Corner | 6 | free | Every night: gain 1 Spider. |
+| Glow Mushrooms | 4 | free | Every night: gain 1 Bat for each touching Glow Mushrooms. Bats love a night light. |
+| Sleepy Web | 3 | 3 Bats | Every day: gain 2 Spiders. They spin while you sleep, just in time for breakfast. |
+| Bat Belfry | 2 | 5 Spiders | Every night: gain 1 Bat for each of your cards touching it. |
+| Giggling Graveyard | 3 | 2 Bats + 2 Spiders | While this touches another Haunt: Ghouls cost 1 less to summon. Ghouls love a crowd. |
+| Haunted Lantern | 2 | 3 Bats + 2 Spiders | While this touches Glow Mushrooms: Ghouls cost 1 less to summon. Ghouls follow the glow. |
+| Full Moon Shrine | 2 | 4 Spiders | Every 3 nights: if this touches a Graveyard or Lantern, a Ghoul drops by for free. |
+| Fortune-Telling Toad | 2 | 1 Bat | When played: look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Every night: gain 1 Spider. It croaks your fortune for a fly. |
+
+30 cards in the deck. Card data: `Assets/_Project/Scripts/Core/Content/DarkForestCards.cs`.
+
+**Sim (1,000 games, seeds 3001 and 4001):** Solo median round 21. Matchups 49 to 54%. The careful bot never loses a Ghoul to hunger; a bot that summons
+whenever it can loses 0.4 a game, and the worst bot 5.
+
+Everything below this section is how the team got here. Numbers in it are from when each part was written; where they
+disagree with this section, this section is current.
+
+---
 
 Cute-spooky. Bats and Spiders come out at night, and you combine them into Ghouls for a party. Dark Forest plays at
 night and wins by throwing a **Ghoul Party: 13 Ghouls at once**.

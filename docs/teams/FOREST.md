@@ -1,7 +1,38 @@
 # Forest
 
+## Now (2026-11-11, after the implementation plan)
+
+**Goal:** Grow **24 Old Trees in one connected forest**.
+
+Plant Saplings, keep them touching an empty square or a Sunny Glade so they get sun, and grow them into Old Trees.
+Spreading out claims space but every tree you plant may shade another. Pay Acorns to play extra trees, compost a card
+at the Huge Tree for an Acorn, and spend Honey to pollinate a tree one step.
+
+| Card | Copies | Cost | Text |
+| --- | --- | --- | --- |
+| Huge Tree (start) | - | - | Every day: gain 1 Acorn. Once a turn: discard a card to gain 1 Acorn (Compost). Your forest's first Old Tree. |
+| Sapling | 10 | free | Grows into a Young Tree after 2 sunny mornings. |
+| Squirrel Drey | 4 | free | Every day: gain 1 Acorn, plus 1 for each Oak touching this. |
+| Wildflower Meadow | 3 | free | Every day: gain 1 Honey for each empty square touching this. |
+| Oak | 3 | 2 Acorns | Every day: gain 1 Acorn. Grows into a Great Oak after 4 sunny mornings. |
+| Blossom Hive | 2 | 3 Acorns | Every day: gain 1 Honey for each tree touching this. |
+| Dormouse Den | 2 | 3 Honey | Every night: gain 2 Acorns. |
+| Pine | 3 | 2 Acorns | Every 2 nights: add a Sapling to your hand. Grows into a Tall Pine after 4 sunny mornings. |
+| Owl's Hollow | 2 | 1 Acorn | When played: look at the top 3 cards of your deck, keep 1 and put the rest on the bottom. Every 2 nights: gain 1 Honey. The wise old owl sees what's coming. |
+| Weeping Willow | 1 | 4 Acorns + 2 Honey | Every day: add a Sapling to your hand. Grows into a Grand Willow after 4 sunny mornings. |
+
+30 cards in the deck. Card data: `Assets/_Project/Scripts/Core/Content/ForestCards.cs`.
+
+**Sim (1,000 games, seeds 3001 and 4001):** Solo median round 22. Matchups 46 to 56% (Forest beats Factory 52 to 56%). Forest meets every other team by round 12
+to 13, because it spreads fastest.
+
+Everything below this section is how the team got here. Numbers in it are from when each part was written; where they
+disagree with this section, this section is current.
+
+---
+
 The Forest is about **growth and life**. You plant Saplings, give them sunlight, and grow them into Old Trees.
-**Goal: 22 Old Trees in one connected forest** (2026-11-11, on the 9x9 board; was 20 on 10x10). A Sunny Glade counts as sunlight.
+**Goal: 24 Old Trees in one connected forest** (2026-11-11: 20 on 10x10, 22 on the 9x9 board, 24 after the phase 7 retune). A Sunny Glade counts as sunlight.
 
 Status: second pass (2026-11-09). Alexander chose the growth goal so that good decisions matter more. The numbers come
 from the balance sim and still need playtesting.
